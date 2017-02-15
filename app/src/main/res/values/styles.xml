@@ -1,0 +1,133 @@
+<resources>
+
+    <style name="AppTheme_Default" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+    <style name="AppTheme_Purple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Purple</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Purple</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_DeepPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_DeepPurple</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_DeepPurple</item>
+        <item name="colorAccent">@color/colorAccent_Pink</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Indigo" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Indigo</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Indigo</item>
+        <item name="colorAccent">@color/colorAccent_Pink</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Blue" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Blue</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Blue</item>
+        <item name="colorAccent">@color/colorAccent_Amber</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Teal" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Teal</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Teal</item>
+        <item name="colorAccent">@color/colorAccent_Red</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Green" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Green</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Green</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Amber" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Amber</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Amber</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_DeepOrange" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_DeepOrange</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_DeepOrange</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Pink" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Pink</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Pink</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Red" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Red</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Red</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Grey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_BlueGrey</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_BlueGrey</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="AppTheme_Brown" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary_Brown</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Brown</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+        <item name="android:colorControlHighlight">@color/highlightWhite</item>
+    </style>
+
+    <style name="MainLinearLayout">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="MainButtonTheme">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="colorPickerStyle">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:foreground">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:background">@drawable/yuan</item>
+        <item name="android:gravity">center_vertical|center</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+</resources>

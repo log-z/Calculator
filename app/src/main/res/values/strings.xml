@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">计算器</string>
+
+    <string name="_0">0</string>
+    <string name="_1">1</string>
+    <string name="_2">2</string>
+    <string name="_3">3</string>
+    <string name="_4">4</string>
+    <string name="_5">5</string>
+    <string name="_6">6</string>
+    <string name="_7">7</string>
+    <string name="_8">8</string>
+    <string name="_9">9</string>
+    <string name="jia">+</string>
+    <string name="jian">-</string>
+    <string name="cheng">×</string>
+    <string name="chu">÷</string>
+    <string name="dian">.</string>
+    <string name="dengYu">=</string>
+    <string name="kuoHaoTou">(</string>
+    <string name="kuoHaoWei">)</string>
+
+    <string name="errorText">算式错误!</string>
+    <string name="chuLingErrorText">除数为零!</string>
+
+    <string name="zhenDong">震动反馈</string>
+    <string name="yuYin">语音提示</string>
+    <string name="theme">主题</string>
+    <string name="about">关于计算器</string>
+    <string name="history">历史记录</string>
+
+    <string name="aboutTitle">关于</string>
+    <string name="aboutBody">计算器(v3.2)\t\t作者:log</string>
+    <string name="goToCoolapk">在酷安中打开</string>
+
+    <string name="recycler">撤销</string>
+    <string name="allDeleteHistory">清空历史记录</string>
+    <string name="sureDelete">确认清空历史记录？此操作不可逆！</string>
+    <string name="deleting">正在清空历史记录...</string>
+
+    <string name="close">取消</string>
+    <string name="ok">确定</string>
+
+</resources>

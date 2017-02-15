@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                              android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/itemPurple"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_Purple"
+                    android:text="紫" />
+
+                <TextView
+                    android:id="@+id/itemBlue"
+                    style="@style/colorPickerStyle"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary_Blue"
+                    android:text="蓝" />
+
+                <TextView
+                    android:id="@+id/itemGreen"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_Green"
+                    android:text="绿" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/itemOrange"
+                    style="@style/colorPickerStyle"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary_Amber"
+                    android:text="橙" />
+
+                <TextView
+                    android:id="@+id/itemPink"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_Pink"
+                    android:text="粉红" />
+
+                <TextView
+                    android:id="@+id/itemGrey"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_BlueGrey"
+                    android:text="灰" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/itemDeepPurple"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_DeepPurple"
+                    android:text="深紫" />
+
+                <TextView
+                    android:id="@+id/itemIndigo"
+                    style="@style/colorPickerStyle"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary_Indigo"
+                    android:text="靛蓝" />
+
+                <TextView
+                    android:id="@+id/itemTeal"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_Teal"
+                    android:text="鸭绿" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/itemDeepOrange"
+                    style="@style/colorPickerStyle"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary_DeepOrange"
+                    android:text="深橙" />
+
+                <TextView
+                    android:id="@+id/itemRed"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_Red"
+                    android:text="红" />
+
+                <TextView
+                    android:id="@+id/itemBrown"
+                    style="@style/colorPickerStyle"
+                    android:backgroundTint="@color/colorPrimary_Brown"
+                    android:text="棕" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

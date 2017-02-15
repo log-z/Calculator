@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary_Purple">#9C27B0</color>
+    <color name="colorPrimary_DeepPurple">#673AB7</color>
+    <color name="colorPrimary_Indigo">#3f51b5</color>
+    <color name="colorPrimary_Blue">#2196F3</color>
+    <color name="colorPrimary_Teal">#009688</color>
+    <color name="colorPrimary_Green">#4CAF50</color>
+    <color name="colorPrimary_Amber">#FF9800</color>
+    <color name="colorPrimary_DeepOrange">#FF5722</color>
+    <color name="colorPrimary_Pink">#E91E63</color>
+    <color name="colorPrimary_Red">#F44336</color>
+    <color name="colorPrimary_Brown">#795548</color>
+    <color name="colorPrimary_BlueGrey">#607D8B</color>
+
+    <color name="colorPrimaryDark_Purple">#7B1FA2</color>
+    <color name="colorPrimaryDark_DeepPurple">#512DA8</color>
+    <color name="colorPrimaryDark_Indigo">#303F9F</color>
+    <color name="colorPrimaryDark_Blue">#1976D2</color>
+    <color name="colorPrimaryDark_Teal">#00796B</color>
+    <color name="colorPrimaryDark_Green">#388E3C</color>
+    <color name="colorPrimaryDark_Amber">#F57C00</color>
+    <color name="colorPrimaryDark_DeepOrange">#E64A19</color>
+    <color name="colorPrimaryDark_Pink">#C2185B</color>
+    <color name="colorPrimaryDark_Red">#D32F2F</color>
+    <color name="colorPrimaryDark_Brown">#5D4037</color>
+    <color name="colorPrimaryDark_BlueGrey">#455A64</color>
+
+    <color name="colorAccent_Purple">#E040FB</color>
+    <color name="colorAccent_DeepPurple">#7C4DFF</color>
+    <color name="colorAccent_Indigo">#536DFE</color>
+    <color name="colorAccent_Blue">#448AFF</color>
+    <color name="colorAccent_Teal">#00897B</color>
+    <color name="colorAccent_Green">#43A047</color>
+    <color name="colorAccent_Amber">#FFAB40</color>
+    <color name="colorAccent_DeepOrange">#FF6E40</color>
+    <color name="colorAccent_Pink">#FF4081</color>
+    <color name="colorAccent_Red">#FF5252</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="whiteLow">#f0f0f0</color>
+    <color name="highlightWhite">#55FFFFFF</color>
+</resources>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/historyItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:foreground="@drawable/text_view_ripple_orange">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:clickable="false"
+        android:gravity="center">
+
+        <CheckBox
+            android:id="@+id/importance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:adjustViewBounds="false"
+            android:button="@drawable/importance_checkbox_selector"
+            android:clickable="true" />
+
+        <RelativeLayout
+            android:id="@+id/rl2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:clickable="false" >
+
+            <RelativeLayout
+                android:id="@+id/rl3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/itemTitleText"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/itemTitleText"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/itemTimeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:text="12月29日"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/itemTitleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="4dp"
+                android:layout_toLeftOf="@id/rl3"
+                android:clickable="false"
+                android:fontFamily="sans-serif"
+                android:singleLine="true"
+                android:text="=1234567890135851531351"
+                android:textColor="?attr/actionMenuTextColor"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/itemBodyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/itemTitleText"
+                android:clickable="false"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="13898464767/9796767+6167451+4861874/454+46464-486444.63484841+16645641545.138413841"
+                android:textSize="14sp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

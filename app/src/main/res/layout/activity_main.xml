@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.log.jsq.mainUI.MainActivity"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:id="@+id/sv1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="12"
+            android:fadingEdge="vertical"
+            android:fillViewport="true"
+            android:scrollbars="vertical">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/text_view_ripple_orange"
+                android:fontFamily="sans-serif"
+                android:gravity="bottom|right"
+                android:padding="10dp"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:textColor="?android:colorPrimary"
+                android:textSize="36sp" />
+        </ScrollView>
+
+        <LinearLayout
+            style="@style/MainLinearLayout"
+            android:layout_weight="1"
+            android:background="?android:colorPrimary">
+
+            <ImageButton
+                android:id="@+id/bGuiLing"
+                style="@style/MainButtonTheme"
+                android:src="@drawable/yuan" />
+
+            <ScrollView
+                android:id="@+id/sv2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/bGuiLing"
+                android:layout_weight="2"
+                android:fadingEdge="vertical"
+                android:fillViewport="true"
+                android:scrollbars="vertical">
+
+                <TextView
+                    android:id="@+id/textViewNum"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center|right"
+                    android:minLines="1"
+                    android:padding="10dp"
+                    android:scrollbars="vertical"
+                    android:singleLine="false"
+                    android:textColor="@color/white"
+                    android:textSize="30sp" />
+            </ScrollView>
+
+            <ImageButton
+                android:id="@+id/bShanChu"
+                style="@style/MainButtonTheme"
+                android:layout_below="@+id/textViewNum"
+                android:src="@drawable/sjx" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="?android:colorPrimary">
+
+        <LinearLayout
+            style="@style/MainLinearLayout"
+            android:id="@+id/linearLayout0">
+
+            <Button
+                android:id="@+id/b7"
+                style="@style/MainButtonTheme"
+                android:text="@string/_7" />
+
+            <Button
+                android:id="@+id/b8"
+                style="@style/MainButtonTheme"
+                android:text="@string/_8" />
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b9"
+                android:text="@string/_9"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bChu"
+                android:text="@string/chu"/>
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/MainLinearLayout"
+            android:layout_below="@+id/linearLayout0"
+            android:id="@+id/linearLayout1">
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b4"
+                android:text="@string/_4"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b5"
+                android:text="@string/_5"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b6"
+                android:text="@string/_6"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bCheng"
+                android:text="@string/cheng"/>
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/MainLinearLayout"
+            android:layout_below="@+id/linearLayout1"
+            android:id="@+id/linearLayout2">
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b1"
+                android:text="@string/_1"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b2"
+                android:text="@string/_2"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b3"
+                android:text="@string/_3"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bJian"
+                android:text="@string/jian"/>
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/MainLinearLayout"
+            android:layout_below="@+id/linearLayout2"
+            android:id="@+id/linearLayout3">
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/b0"
+                android:text="@string/_0"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bKuoHaoTou"
+                android:text="@string/kuoHaoTou"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bDian"
+                android:text="@string/dian"
+                android:visibility="gone"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bKuoHaoWei"
+                android:text="@string/kuoHaoWei"
+                android:visibility="gone"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bDengyu"
+                android:text="@string/dengYu"/>
+
+            <Button
+                style="@style/MainButtonTheme"
+                android:id="@+id/bJia"
+                android:text="@string/jia"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
