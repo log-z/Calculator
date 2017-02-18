@@ -26,12 +26,36 @@
     <string name="zhenDong">震动反馈</string>
     <string name="yuYin">语音提示</string>
     <string name="theme">主题</string>
-    <string name="about">关于计算器</string>
+    <string name="about">关于与帮助</string>
     <string name="history">历史记录</string>
+    <string name="updateLog">本次更新</string>
+    <string name="updateHistory">历史更新日志</string>
+    <string name="helpWord">帮助文档</string>
 
-    <string name="aboutTitle">关于</string>
-    <string name="aboutBody">计算器(v3.2)\t\t作者:log</string>
-    <string name="goToCoolapk">在酷安中打开</string>
+    <string name="aboutVersion">计算器 v3.3(11)</string>
+    <string name="aboutWords">简单，但却不一般</string>
+    <string name="aboutDeveloper">作者：酷安@log_Z</string>
+    <string name="aboutXBB_Title">
+        对于本应用：
+    </string>
+    <string name="aboutXBB_Help">
+        ▶ 如果您不太会用，可以查看详细的<a href="">帮助文档</a>。
+    </string>
+    <string name="aboutXBB_UpdateHistory">
+        ▶ 如果您想了解更多，可以浏览<a href="">历史更新日志</a>。
+    </string>
+    <string name="aboutXBB_OpenSource">
+        ▶ 如果您感觉有点意思，可以翻阅此<a href="">开源项目</a>。
+    </string>
+    <string name="aboutXBB_ScoreAndFeedback">
+        ▶ 如果您觉得还不错，可以来一发<a href="">评分或反馈</a>。
+    </string>
+    <string name="aboutXBB_Donate">
+        ▶ 如果您非常喜欢，也绝对可以<a href="">捐赠</a>一下作者。
+    </string>
+    <string name="openSourceLink">https://github.com/log-Z/Calculator</string>
+    <string name="alipayUrl">https://qr.alipay.com/FKX01909KFYASDIWFWA073</string>
+    <string name="donateToast">十分的感谢！\n捐赠链接已复制，如果不能正常跳转，请复制到其它浏览器打开...</string>
 
     <string name="recycler">撤销</string>
     <string name="allDeleteHistory">清空历史记录</string>
@@ -40,5 +64,6 @@
 
     <string name="close">取消</string>
     <string name="ok">确定</string>
+    <string name="exit">关闭</string>
 
 </resources>

@@ -103,7 +103,7 @@ public class HistoryListActivity
         final String allDeleteStr = getString(R.string.allDeleteHistory);
 
         MenuItem recyclerItem = menu.add(recyclerStr);
-        recyclerItem.setIcon(R.drawable.undo_iocn);
+        recyclerItem.setIcon(R.drawable.undo_icon);
         recyclerItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         recyclerItem.setVisible(recycler > 0);
         hashMap.put(recyclerStr, recyclerItem);
@@ -112,7 +112,7 @@ public class HistoryListActivity
         hashMap.put(allDeleteStr, allDeleteItem);
 
         MenuItem homeItem = menu.add("回到 " + homeItemStr);
-        homeItem.setIcon(R.drawable.home_iocn);
+        homeItem.setIcon(R.drawable.home_icon);
         homeItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         hashMap.put(homeItemStr, homeItem);
 

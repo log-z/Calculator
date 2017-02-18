@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="history"
+        android:enabled="true"
+        android:icon="@drawable/history_shortcut_icon"
+        android:shortcutShortLabel="@string/history"
+        android:shortcutLongLabel="@string/history"
+        android:shortcutDisabledMessage="@string/history">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.log.jsq"
+            android:targetClass="com.log.jsq.historyUI.HistoryListActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

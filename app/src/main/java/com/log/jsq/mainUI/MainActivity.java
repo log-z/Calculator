@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Vibrator;
 import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AlertDialog;
@@ -19,12 +21,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.log.jsq.aboutUI.AboutActivity;
 import com.log.jsq.tool.Audio;
 import com.log.jsq.library.FuHao;
 import com.log.jsq.library.Nums;
 import com.log.jsq.R;
 import com.log.jsq.historyUI.HistoryListActivity;
-import com.log.jsq.tool.GoToMarket;
+import com.log.jsq.tool.Open;
 
 import java.util.HashMap;
 
@@ -59,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
         mainUI = new MainUI(this);
         mainUI.run();
+
+        versionDetection();
     }
 
     @Override
@@ -120,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         MenuItem item3 = menu.add(str3);
 
         MenuItem history = menu.add(historyStr);
-        history.setIcon(R.drawable.history_iocn);
+        history.setIcon(R.drawable.history_icon);
         history.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         hashMap.put(str0, item0);
@@ -181,24 +186,8 @@ public class MainActivity extends AppCompatActivity {
                 dialog.setView(getColorPickerView(dialog));
                 dialog.show();
             } else if (item == hashMap.get(getString(R.string.about))) {
-                new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.aboutTitle))
-                        .setMessage(getString(R.string.aboutBody))
-                        .setNegativeButton(getString((R.string.close)), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        })
-                        .setPositiveButton(getString(R.string.goToCoolapk), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                GoToMarket.openApplicationMarket(getPackageName(), "com.coolapk.market", getApplicationContext());
-                                dialog.cancel();
-                            }
-                        })
-                        .create()
-                        .show();
+                Intent[] intent = { new Intent(getApplicationContext(), AboutActivity.class) };
+                startActivities(intent, new Bundle());
             }
         }
 
@@ -360,10 +349,42 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences preferences = context.getSharedPreferences("item", MODE_PRIVATE);
         int themeId = preferences.getInt("theme", 0);
 
-        if (themeId == 0) {
-            context.setTheme(R.style.AppTheme_Indigo);
-        } else {
-            context.setTheme(themeId);
+        switch (themeId) {
+            case R.style.AppTheme_Purple:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Green:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_DeepOrange:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Pink:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Grey:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_DeepPurple:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Blue:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Teal:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Amber:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Red:
+                context.setTheme(themeId);
+                break;
+            case R.style.AppTheme_Brown:
+                context.setTheme(themeId);
+                break;
+            default:
+                context.setTheme(R.style.AppTheme_Indigo);
         }
     }
 
@@ -486,6 +507,57 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return rootView;
+    }
+
+    private void versionDetection() {
+        new Thread() {
+            @Override
+            public void run() {
+                int versionCode;
+                SharedPreferences sp = getSharedPreferences("date", MODE_PRIVATE);
+
+                try {
+                    PackageManager manager = getPackageManager();
+                    PackageInfo info = manager.getPackageInfo(thisActivity.getPackageName(), 0);
+                    versionCode = info.versionCode;
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                    versionCode = Integer.MAX_VALUE;
+                }
+
+                if (versionCode > sp.getInt("versionCode", 0)) {
+                    final String updateLog = Open.openTxt(getApplicationContext(), R.raw.update_log);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            new AlertDialog.Builder(thisActivity)
+                                    .setTitle(getString(R.string.updateLog))
+                                    .setMessage(updateLog)
+                                    .setPositiveButton(getString(R.string.exit), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    })
+                                    .setNegativeButton(getString(R.string.helpWord), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                            AboutActivity.openHelp(thisActivity);
+                                        }
+                                    })
+                                    .create()
+                                    .show();
+                        }
+                    });
+                }
+
+                SharedPreferences.Editor spe = getSharedPreferences("date", MODE_PRIVATE).edit();
+                spe.putInt("versionCode", versionCode);
+                spe.apply();
+            }
+        }.start();
     }
 
 }
