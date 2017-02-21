@@ -32,7 +32,7 @@
     <string name="updateHistory">历史更新日志</string>
     <string name="helpWord">帮助文档</string>
 
-    <string name="aboutVersion">计算器 v3.3(11)</string>
+    <string name="aboutVersion">计算器 v3.4(12)</string>
     <string name="aboutWords">简单，但却不一般</string>
     <string name="aboutDeveloper">作者：酷安@log_Z</string>
     <string name="aboutXBB_Title">
@@ -65,5 +65,29 @@
     <string name="close">取消</string>
     <string name="ok">确定</string>
     <string name="exit">关闭</string>
+    
+    <string-array name="capsNum">
+        <item>零</item>
+        <item>壹</item>
+        <item>贰</item>
+        <item>叁</item>
+        <item>肆</item>
+        <item>伍</item>
+        <item>陆</item>
+        <item>柒</item>
+        <item>捌</item>
+        <item>玖</item>
+    </string-array>
+
+    <string name="capsFen">分</string>
+    <string name="capsJiao">角</string>
+    <string name="capsYuan">元</string>
+    <string name="capsShi">拾</string>
+    <string name="capsBai">佰</string>
+    <string name="capsQian">仟</string>
+    <string name="capsWan">万</string>
+    <string name="capsYi">亿</string>
+    <string name="capsZheng">整</string>
+    <string name="capsFu">负</string>
 
 </resources>

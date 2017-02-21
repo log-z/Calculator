@@ -216,6 +216,9 @@ public class Audio {
                 case R.id.bChu:
                     playID = new int[]{1, 4};
                     break;
+                case R.id.bDengyu:
+                    playID = new int[]{1, 5};
+                    break;
                 case R.id.bKuoHaoTou:
                     playID = new int[]{1, 6};
                     break;

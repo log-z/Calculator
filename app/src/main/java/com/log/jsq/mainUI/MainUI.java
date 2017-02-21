@@ -7,11 +7,11 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +32,7 @@ public class MainUI {
     private Activity activity = null;
     private TextView tv = null;
     private TextView tvNum = null;
+    private TextView tvNum2 = null;
     private ScrollView sv1 = null;
     private ScrollView sv2 = null;
     private Button jia = null;
@@ -42,6 +43,7 @@ public class MainUI {
     private Button dengYu = null;
     private Button kuoHaoTou = null;
     private Button kuoHaoWei = null;
+    private ImageButton huanSuan = null;
     private MainActivity ma = null;
     private boolean clickSure = true;
     private static final int NUM_MAX_LEN = 30;
@@ -62,6 +64,7 @@ public class MainUI {
 
         this.tv = (TextView)this.activity.findViewById(R.id.textView);
         this.tvNum = (TextView)this.activity.findViewById(R.id.textViewNum);
+        this.tvNum2 = (TextView)this.activity.findViewById(R.id.textViewNum2);
         this.sv1 = (ScrollView) this.activity.findViewById(R.id.sv1);
         this.sv2 = (ScrollView) this.activity.findViewById(R.id.sv2);
 
@@ -80,9 +83,10 @@ public class MainUI {
         dengYu = (Button)activity.findViewById(R.id.bDengyu);
         kuoHaoTou = (Button)activity.findViewById(R.id.bKuoHaoTou);
         kuoHaoWei = (Button)activity.findViewById(R.id.bKuoHaoWei);
+        huanSuan = (ImageButton) activity.findViewById(R.id.bZhuanHuan);
 
-        tv.setMovementMethod(ScrollingMovementMethod.getInstance());
-        tvNum.setMovementMethod(ScrollingMovementMethod.getInstance());
+//        tv.setMovementMethod(ScrollingMovementMethod.getInstance());
+//        tvNum.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         tv.setOnLongClickListener(tolcl);
         tv.setOnClickListener(tocl);
@@ -90,6 +94,7 @@ public class MainUI {
         tvNum.setOnLongClickListener(tolcl);
         tvNum.setOnClickListener(tocl);
         tvNum.addTextChangedListener(new TextWatcherListener(tvNum));
+        tvNum2.setOnLongClickListener(tolcl);
 
         activity.findViewById(R.id.b0).setOnClickListener(ncl);
         activity.findViewById(R.id.b1).setOnClickListener(ncl);
@@ -104,6 +109,7 @@ public class MainUI {
 
         activity.findViewById(R.id.bGuiLing).setOnClickListener(ccl);
         activity.findViewById(R.id.bShanChu).setOnClickListener(ccl);
+        huanSuan.setOnClickListener(ccl);
 
         jia.setOnClickListener(fhcl);
         jian.setOnClickListener(fhcl);
@@ -164,6 +170,12 @@ public class MainUI {
                 runZhenDong(ma.zhenDtongTime);
                 runYuYin(view);
 
+                if (tvNum2.getVisibility() == View.VISIBLE) {
+                    tvNum2.setVisibility(View.GONE);
+                    tvNum.setVisibility(View.VISIBLE);
+                    tvNum2.setText(null);
+                }
+
                 if (jianCeDengHao()) {
                     tv.setText(FuHao.NULL);
                     tvNum.setText(FuHao.NULL);
@@ -188,8 +200,6 @@ public class MainUI {
     }
 
     private class FuHaoClickListener implements View.OnClickListener{
-        final String errorText = activity.getString(R.string.errorText);
-        final String chuLingErrorText = activity.getResources().getString(R.string.chuLingErrorText);
         private long time = 0;
         private final int TIME_CHA = 500;
         private int chiShu = 0;
@@ -198,12 +208,20 @@ public class MainUI {
         @Override
         public void onClick(View view) {
             if (clickSure) {
+                if (tvNum2.getVisibility() == View.VISIBLE) {
+                    tvNum2.setVisibility(View.GONE);
+                    tvNum.setVisibility(View.VISIBLE);
+                    tvNum2.setText(null);
+                }
+
                 String tt = tv.getText().toString();
                 String ttN = tvNum.getText().toString();
                 String bt = ((Button) view).getText().toString();
 
                 runZhenDong(ma.zhenDtongTime);
-                runYuYin(view);
+                if (view.getId() != R.id.bDengyu) {
+                    runYuYin(view);
+                }
 
                 if (jianCeDengHao() && view.getId() != dengYu.getId()) {
                     if (view.getId() == jia.getId() || view.getId() == jian.getId() || view.getId() == cheng.getId() || view.getId() == chu.getId()) {
@@ -271,6 +289,7 @@ public class MainUI {
 
                         //彩蛋
                         if (tt.length() == 0 && ttN.length() == 0) {
+                            ma.au.play(view);
                             long mNowTime = System.currentTimeMillis();//获取按键时间
 
                             //比较两次按键时间差
@@ -305,14 +324,13 @@ public class MainUI {
                             new Thread() {
                                 @Override
                                 public void run() {
+                                    final String errorText = activity.getString(R.string.errorText);
+                                    final String chuLingErrorText = activity.getString(R.string.chuLingErrorText);
+
                                     try {
                                         final String equation = tv.getText().toString();
-                                        String jieGuoStr = new JiSuan(30).dengYu(equation);
-
-                                        if (jieGuoStr.endsWith(FuHao.dian + Nums.nums[0])) {
-                                            jieGuoStr = jieGuoStr.substring(0, jieGuoStr.length() - FuHao.dian.length() - Nums.nums[0].length());
-                                        }
-
+                                        String jieGuoStr = new JiSuan(NUM_MAX_LEN).dengYu(equation);
+                                        jieGuoStr = Nums.Ling(jieGuoStr);
                                         final String finalJieGuoStr = jieGuoStr;
 
                                         activity.runOnUiThread(new Runnable() {
@@ -360,6 +378,8 @@ public class MainUI {
                                     }
                                 }
                             }.start();
+                        } else {
+                            ma.au.play(view);
                         }
                     }
                 }
@@ -372,6 +392,12 @@ public class MainUI {
     private class FuHaoLongClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View v) {
+            if (tvNum2.getVisibility() == View.VISIBLE) {
+                tvNum2.setVisibility(View.GONE);
+                tvNum.setVisibility(View.VISIBLE);
+                tvNum2.setText(null);
+            }
+
             String ttN = tvNum.getText().toString();
 
             if (ttN.contains(FuHao.dengYu)) {
@@ -403,17 +429,40 @@ public class MainUI {
         @Override
         public void onClick(View view) {
             if (clickSure) {
-                String tvText;
+                if (tvNum2.getVisibility() == View.VISIBLE && view.getId() != huanSuan.getId()) {
+                    tvNum2.setVisibility(View.GONE);
+                    tvNum.setVisibility(View.VISIBLE);
+                    tvNum2.setText(null);
+                }
 
                 runZhenDong(ma.zhenDtongTime);
                 runYuYin(view);
 
                 if (jianCeDengHao()) {
-                    if (view.getId() == R.id.bGuiLing) {
-                        tv.setText(FuHao.NULL);
-                        tvNum.setText(FuHao.NULL);
-                    } else if (view.getId() == R.id.bShanChu) {
-                        tvNum.setText(FuHao.NULL);
+                    switch (view.getId()) {
+                        case R.id.bGuiLing:
+                            tv.setText(FuHao.NULL);
+                            tvNum.setText(FuHao.NULL);
+                            break;
+                        case R.id.bShanChu:
+                            tvNum.setText(FuHao.NULL);
+                            break;
+                        case R.id.bZhuanHuan:
+                            if (tvNum2.getVisibility() == View.GONE) {
+                                String numStr = tvNum.getText().toString().substring(FuHao.dengYu.length());
+                                String capsStr = Nums.CapsZH.toCapsZH(numStr, activity);
+
+                                if (capsStr != null && capsStr.length() > 0) {
+                                    tvNum2.setText(FuHao.dengYu + capsStr);
+                                    tvNum.setVisibility(View.GONE);
+                                    tvNum2.setVisibility(View.VISIBLE);
+                                }
+                            } else {
+                                tvNum2.setVisibility(View.GONE);
+                                tvNum.setVisibility(View.VISIBLE);
+                                tvNum2.setText(FuHao.NULL);
+                            }
+                            break;
                     }
                 } else {
                     if (tvNum.getText().toString().length() > 0) {
@@ -423,7 +472,7 @@ public class MainUI {
                     }
                 }
 
-                tvText = tv.getText().toString();
+                String tvText = tv.getText().toString();
 
                 if (tvNum.getText().length() == 0) {
                     int index = jjcckLastEndIndex(tvText);
@@ -442,30 +491,32 @@ public class MainUI {
         }
 
         private void run(View view, TextView t) {
-            if (view.getId() == R.id.bGuiLing) {
-                runZhenDong(ma.zhenDtongTimeLong);
+            switch (view.getId()) {
+                case R.id.bGuiLing:
+                    runZhenDong(ma.zhenDtongTimeLong);
 
-                if(t.getId() == tv.getId()){
-                    toTop(sv1);
-                }
-                else if(t.getId() == tvNum.getId()){
-                    toBottom(sv1);
-                }
+                    if(t.getId() == tv.getId()){
+                        toTop(sv1);
+                    } else if (t.getId() == tvNum.getId()) {
+                        toBottom(sv1);
+                    }
 
-                toTop(sv2);
-                t.setText(FuHao.NULL);
-            } else if (view.getId() == R.id.bShanChu) {
-                String tt = t.getText().toString();
+                    toTop(sv2);
+                    t.setText(FuHao.NULL);
+                    break;
+                case R.id.bShanChu:
+                    String tt = t.getText().toString();
 
-                if (tt.length() > 0) {
-                    toBottom(sv1);
-                    toBottom(sv2);
-                    t.setText(tt.substring(0, tt.length() - 1));
-                }
+                    if (tt.length() > 0) {
+                        toBottom(sv1);
+                        toBottom(sv2);
+                        t.setText(tt.substring(0, tt.length() - 1));
+                    }
+                    break;
             }
         }
 
-        int jjcckLastEndIndex(String str) {
+        private int jjcckLastEndIndex(String str) {
             int tempIndex;
             int maxIndex = -1;
             String fuHao = FuHao.NULL;
@@ -507,6 +558,12 @@ public class MainUI {
         @Override
         public void onClick(View view) {
             if(clickSure && view.getId() == tvNum.getId()) {
+                if (tvNum2.getVisibility() == View.VISIBLE) {
+                    tvNum2.setVisibility(View.GONE);
+                    tvNum.setVisibility(View.VISIBLE);
+                    tvNum2.setText(null);
+                }
+
                 String ttN = tvNum.getText().toString();
                 runZhenDong(ma.zhenDtongTime);
 
@@ -549,13 +606,11 @@ public class MainUI {
                     myClipboard.setPrimaryClip(myClip);
                     Toast.makeText(activity, "算式已复制", Toast.LENGTH_SHORT).show();
                 }
-            }
-            else if (view.getId() == tvNum.getId()) {
-                String tvNumText = tvNum.getText().toString();
-                int dengYuIndex = tvNumText.indexOf(FuHao.dengYu);
+            } else if (view.getId() == tvNum.getId() || view.getId() == tvNum2.getId()) {
+                String tvNumText = ((TextView) view).getText().toString();
 
-                if(dengYuIndex >= 0) {
-                    myClip = ClipData.newPlainText("复制的结果", new StringBuffer(tvNumText).delete(dengYuIndex, FuHao.dengYu.length()));
+                if(tvNumText.contains(FuHao.dengYu)) {
+                    myClip = ClipData.newPlainText("复制的结果", tvNumText.substring(FuHao.dengYu.length()));
                     myClipboard.setPrimaryClip(myClip);
                     Toast.makeText(activity, "结果已复制", Toast.LENGTH_SHORT).show();
                 }
@@ -583,19 +638,8 @@ public class MainUI {
 
         @Override
         public void afterTextChanged(final Editable editable) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    xianShiChuLi(editable);
-                }
-            });
-
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    save(editable);
-                }
-            });
+            xianShiChuLi(editable);
+            save(editable);
         }
 
         private void save(CharSequence cs) {
@@ -616,10 +660,18 @@ public class MainUI {
 
             if (view.getId() == tvNum.getId()) {      //处理：括号头 与 小数点
                 if (tvText.length() > 0) {
-                    dian.setVisibility(View.VISIBLE);
-                    kuoHaoTou.setVisibility(View.GONE);
+                    if (tvText.contains(FuHao.dengYu)) {
+                        huanSuan.setVisibility(View.VISIBLE);
+                        dian.setVisibility(View.GONE);
+                        kuoHaoTou.setVisibility(View.GONE);
+                    } else {
+                        dian.setVisibility(View.VISIBLE);
+                        huanSuan.setVisibility(View.GONE);
+                        kuoHaoTou.setVisibility(View.GONE);
+                    }
                 } else {
                     kuoHaoTou.setVisibility(View.VISIBLE);
+                    huanSuan.setVisibility(View.GONE);
                     dian.setVisibility(View.GONE);
                 }
             } else if (view.getId() == tv.getId()) {  //处理：括号尾 与 等号
@@ -712,7 +764,7 @@ public class MainUI {
 
     private void runYuYin(final String numStr) {
         try {
-            int[] numArray = Nums.toIntArray(numStr);
+            int[] numArray = Nums.toIntArray(numStr, false);
             ma.au.play(numArray);
         } catch (Exception e) {
             e.printStackTrace();
