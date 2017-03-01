@@ -16,14 +16,14 @@ import android.widget.TextView;
 
 import com.log.jsq.library.FuHao;
 import com.log.jsq.R;
+import com.log.jsq.tool.HistoryListData;
 import com.log.jsq.tool.TextColorStyles;
-import com.log.jsq.library.RowData;
 import com.log.jsq.tool.Time;
 
 import java.util.ArrayList;
 
 public class HistoryListAdapter extends Adapter<HistoryListAdapter.ViewHolder> {
-    private ArrayList<RowData> mDataset;
+    private ArrayList<HistoryListData.RowData> mDataset;
     private Activity activity;
     private MyItemClickListener mItemClickListener;
     private MyCheckBoxClickListener mCheckBoxClickListener;
@@ -102,7 +102,7 @@ public class HistoryListAdapter extends Adapter<HistoryListAdapter.ViewHolder> {
         new Thread() {
             @Override
             public void run() {
-                final RowData rowData = mDataset.get(position);
+                final HistoryListData.RowData rowData = mDataset.get(position);
 
                 final String itemTitleStr = rowData.getResult();
                 final String itemBodyStr = rowData.getEquation();
@@ -161,6 +161,11 @@ public class HistoryListAdapter extends Adapter<HistoryListAdapter.ViewHolder> {
     public void updateItem(int newPosition, int oldPosition) {
         notifyItemRangeChanged(0, mDataset.size());
         notifyItemMoved(oldPosition, newPosition);
+    }
+
+    public void setmDataset(ArrayList<HistoryListData.RowData> arrayList) {
+        mDataset.clear();
+        mDataset = arrayList;
     }
 
     public void release() {

@@ -32,7 +32,7 @@
     <string name="updateHistory">历史更新日志</string>
     <string name="helpWord">帮助文档</string>
 
-    <string name="aboutVersion">计算器 v3.4(12)</string>
+    <string name="aboutVersion">计算器 v3.5(13)</string>
     <string name="aboutWords">简单，但却不一般</string>
     <string name="aboutDeveloper">作者：酷安@log_Z</string>
     <string name="aboutXBB_Title">
@@ -58,10 +58,21 @@
     <string name="donateToast">十分的感谢！\n捐赠链接已复制，如果不能正常跳转，请复制到其它浏览器打开...</string>
 
     <string name="recycler">撤销</string>
-    <string name="allDeleteHistory">清空历史记录</string>
-    <string name="sureDelete">确认清空历史记录？此操作不可逆！</string>
+    <string name="comeBreak">返回计算器</string>
+    <string name="deleteHistory">批量删除</string>
+    <string name="deleteHistoryOf_aYearAgo">一年之前</string>
+    <string name="deleteHistoryOf_halfAYearAgo">半年之前</string>
+    <string name="deleteHistoryOf_aMonthAgo">一个月之前</string>
+    <string name="deleteHistoryOf_halfAMonthAgo">半个月之前</string>
+    <string name="deleteHistoryOf_aWeekAgo">一个星期之前</string>
+    <string name="deleteHistoryOf_all">所有</string>
+    <string name="deleteImportance">同时删除“重要”记录</string>
     <string name="deleting">正在清空历史记录...</string>
+    <string name="deleteSure">批量删除成功</string>
+    <string name="deleteError">批量删除失败，稍后请重试...</string>
 
+    <string name="delete">删除</string>
+    <string name="sure">确认</string>
     <string name="close">取消</string>
     <string name="ok">确定</string>
     <string name="exit">关闭</string>

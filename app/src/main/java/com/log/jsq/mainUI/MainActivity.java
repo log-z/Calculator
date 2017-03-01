@@ -171,8 +171,10 @@ public class MainActivity extends AppCompatActivity {
             }.start();
         } else {
             if (item == hashMap.get(getString(R.string.history))) {
-                Intent[] intent = { new Intent(getApplicationContext(), HistoryListActivity.class) };
-                startActivities(intent, new Bundle());
+                Intent intent = new Intent(getApplicationContext(), HistoryListActivity.class)
+                        .putExtra("startFrom", getClass().toString())
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent, new Bundle());
             } else if (item == hashMap.get(getString(R.string.theme))) {
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.theme))
@@ -186,8 +188,9 @@ public class MainActivity extends AppCompatActivity {
                 dialog.setView(getColorPickerView(dialog));
                 dialog.show();
             } else if (item == hashMap.get(getString(R.string.about))) {
-                Intent[] intent = { new Intent(getApplicationContext(), AboutActivity.class) };
-                startActivities(intent, new Bundle());
+                Intent intent = new Intent(getApplicationContext(), AboutActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent, new Bundle());
             }
         }
 
@@ -300,34 +303,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadingString() {
-        new Thread() {
-            @Override
-            public void run() {
-                FuHao.luRu(
-                        getString(R.string.jia),
-                        getString(R.string.jian),
-                        getString(R.string.cheng),
-                        getString(R.string.chu),
-                        getString(R.string.dian),
-                        getString(R.string.dengYu),
-                        getString(R.string.kuoHaoTou),
-                        getString(R.string.kuoHaoWei)
-                );
-
-                Nums.luRu(
-                        getString(R.string._0),
-                        getString(R.string._1),
-                        getString(R.string._2),
-                        getString(R.string._3),
-                        getString(R.string._4),
-                        getString(R.string._5),
-                        getString(R.string._6),
-                        getString(R.string._7),
-                        getString(R.string._8),
-                        getString(R.string._9)
-                );
-            }
-        }.start();
+        FuHao.luRu(getApplicationContext());
+        Nums.luRu(getApplicationContext());
     }
 
     public boolean isOnZhenDong() {

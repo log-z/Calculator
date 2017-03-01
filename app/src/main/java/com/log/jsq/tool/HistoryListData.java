@@ -5,8 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
-
-import com.log.jsq.library.RowData;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 
@@ -19,7 +18,70 @@ public class HistoryListData {
         ROW_ID_OLDEST_TIME;
     }
 
-    public static ArrayList<RowData> exportAllFromSQLite(Context context) {
+    public static class RowData implements Comparable {
+        private final String equation;
+        private final String result;
+        private final long time;
+        private boolean importance;
+        private int position = -1;
+
+        public RowData(String equation, String result, long time, boolean importance) {
+            this.equation = equation;
+            this.result = result;
+            this.time = time;
+            this.importance = importance;
+        }
+
+        @Override
+        public int compareTo(@NonNull Object o) {
+            if (this.importance) {
+                if (((RowData) o).importance) {
+                    return (int) (((RowData) o).time - this.time);
+                } else {
+                    return -1;
+                }
+            } else {
+                if (((RowData) o).importance) {
+                    return 1;
+                } else {
+                    return (int) (((RowData) o).time - this.time);
+                }
+            }
+        }
+
+        public String getEquation() {
+            return equation;
+        }
+
+        public String getResult() {
+            return result;
+        }
+
+        public long getTime() {
+            return time;
+        }
+
+        public boolean getImportance() {
+            return importance;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public RowData setPosition(int position) {
+            this.position = position;
+            return this;
+        }
+
+        public RowData setImportance(boolean importance) {
+            this.importance = importance;
+
+            return this;
+        }
+    }
+
+    public static ArrayList<RowData> exportAllFromSQLite(@NonNull Context context) {
         ArrayList<RowData> arrayList = new ArrayList<RowData>();
         HistoryListSqlite sqliet = new HistoryListSqlite(context);
         SQLiteDatabase db = sqliet.getReadableDatabase();
@@ -53,7 +115,7 @@ public class HistoryListData {
                     importance = true;
                 }
 
-                arrayList.add(new RowData(equation, result, time, importance));
+                arrayList.add(new HistoryListData.RowData(equation, result, time, importance));
                 cursor.moveToNext();
             } catch (IllegalArgumentException e) {
                 break;
@@ -114,11 +176,12 @@ public class HistoryListData {
         return rowData;
     }
 
-    public static void deleteRow(final String tableName, final long[] time, Context context) {
-        if (time != null && time.length > 0) {
+    public static void deleteRow(final String tableName,@NonNull final long[] time, @NonNull Context context) {
+        if (time.length > 0) {
 
             HistoryListSqlite sqliet = new HistoryListSqlite(context);
             SQLiteDatabase db = sqliet.getReadableDatabase();
+
             if (time[0] == ALL_TIME) {
                 db.delete(tableName, null, null);
             } else {
@@ -132,6 +195,19 @@ public class HistoryListData {
             db.close();
             sqliet.close();
         }
+    }
+
+    public static void deleteRow(final String tableName, final long minTime, final boolean delImportance, @NonNull Context context) {
+        HistoryListSqlite sqlite = new HistoryListSqlite(context);
+        SQLiteDatabase db = sqlite.getReadableDatabase();
+
+        String whereClause = HistoryListSqlite.COLUMN_NAME_DATE_TIME + " < " + minTime;
+
+        if (!delImportance) {
+            whereClause += " AND " + HistoryListSqlite.COLUMN_NAME_IMPORTANCE + " == " + HistoryListSqlite.IMPORTANCE_FALSE;
+        }
+
+        db.delete(tableName, whereClause, null);
     }
 
     public static void insertToSQLite(RowData rowData, Context context) {

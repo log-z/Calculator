@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -26,31 +28,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.log.jsq.library.FuHao;
-import com.log.jsq.library.RowData;
+import com.log.jsq.library.Nums;
 import com.log.jsq.mainUI.MainActivity;
 import com.log.jsq.tool.HistoryListData;
 
 import com.log.jsq.R;
 import com.log.jsq.tool.HistoryListSqlite;
 import com.log.jsq.tool.TextColorStyles;
+import com.log.jsq.tool.Time;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 public class HistoryListActivity
         extends AppCompatActivity
         implements HistoryListAdapter.MyItemClickListener,
         HistoryCallback.ItemTouchHelperAdapter,
         HistoryListAdapter.MyCheckBoxClickListener {
-    private HashMap<String, MenuItem> hashMap = new HashMap<String, MenuItem>();
-    private ArrayList<RowData> arrayList;
-    private ArrayList<RowData> arrayRecycler;
-    private ArrayList<RowData> arrayUpdate;
+    private Menu menu;
+    private ArrayList<HistoryListData.RowData> arrayList;
+    private ArrayList<HistoryListData.RowData> arrayRecycler;
+    private ArrayList<HistoryListData.RowData> arrayUpdate;
     private HistoryListAdapter adapter;
     private HistoryCallback callback;
     private Activity thisActivity = this;
     private int recycler = 0;
+    private boolean startFromMainActivity = true;
 
     @Override
     protected void finalize() throws Throwable {
@@ -61,6 +64,17 @@ public class HistoryListActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String startFrom = getIntent().getStringExtra("startFrom");
+        if (startFrom == null || !startFrom.equals(MainActivity.class.toString())) {
+            Log.w(getClass().toString(), "不是通过主页面启动!");
+            startFromMainActivity = false;
+
+            if (Nums.nums == null || FuHao.jjccd == null || FuHao.dengYu == null || FuHao.kuoHaoTou == null ||FuHao.kuoHaoWei == null) {
+                Nums.luRu(getApplicationContext());
+                FuHao.luRu(getApplicationContext());
+            }
+        }
+
         super.onCreate(savedInstanceState);
         MainActivity.setTheme(this);
         setContentView(R.layout.activity_history_list);
@@ -69,17 +83,17 @@ public class HistoryListActivity
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(thisActivity));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        arrayList = HistoryListData.exportAllFromSQLite(thisActivity);
+        arrayList = HistoryListData.exportAllFromSQLite(getApplicationContext());
         Collections.sort(arrayList);
-        adapter = new HistoryListAdapter(arrayList, thisActivity);
-        adapter.setOnItemClickListener((HistoryListAdapter.MyItemClickListener) thisActivity);
-        adapter.setOnCheckBoxClickListener((HistoryListAdapter.MyCheckBoxClickListener) thisActivity);
+        adapter = new HistoryListAdapter(arrayList, this);
+        adapter.setOnItemClickListener(this);
+        adapter.setOnCheckBoxClickListener(this);
 
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(thisActivity, DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
         callback = new HistoryCallback(this);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
@@ -98,104 +112,46 @@ public class HistoryListActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        final String recyclerStr = getString(R.string.recycler);
-        final String homeItemStr = getString(R.string.app_name);
-        final String allDeleteStr = getString(R.string.allDeleteHistory);
-
-        MenuItem recyclerItem = menu.add(recyclerStr);
-        recyclerItem.setIcon(R.drawable.undo_icon);
-        recyclerItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        recyclerItem.setVisible(recycler > 0);
-        hashMap.put(recyclerStr, recyclerItem);
-
-        MenuItem allDeleteItem = menu.add(allDeleteStr);
-        hashMap.put(allDeleteStr, allDeleteItem);
-
-        MenuItem homeItem = menu.add("回到 " + homeItemStr);
-        homeItem.setIcon(R.drawable.home_icon);
-        homeItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        hashMap.put(homeItemStr, homeItem);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.history_menu, menu);
+        this.menu = menu;
 
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finishAfterTransition();
-            return true;
-        } else if (item == hashMap.get(getString(R.string.recycler))) {
-            dataRecycler();
-        } else if (item == hashMap.get(getResources().getString(R.string.app_name))) {
-            finishAfterTransition();
-            return true;
-        } else if (item == hashMap.get(getString(R.string.allDeleteHistory))) {
-            new AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.allDeleteHistory))
-                    .setMessage(getString(R.string.sureDelete))
-                    .setNegativeButton(getString((R.string.close)), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                    .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = inflater.inflate(R.layout.waiting_view, null);
-                            TextView waitingText = (TextView) view.findViewById(R.id.waitingTitle);
-                            waitingText.setText(thisActivity.getString(R.string.deleting));
-
-                            AlertDialog waitingDialog = new AlertDialog.Builder(thisActivity)
-                                    .setView(view)
-                                    .setCancelable(false)
-                                    .create();
-                            waitingDialog.show();
-
-                            Thread thread = new Thread(){
-                                @Override
-                                public void run() {
-                                    HistoryListData.deleteRow(HistoryListSqlite.TABLE_NAME,
-                                            new long[] {HistoryListData.ALL_TIME},
-                                            thisActivity
-                                    );
-
-                                    arrayList.clear();
-                                    if (arrayRecycler != null) {
-                                        arrayRecycler.clear();
-                                    }
-                                    if (arrayUpdate != null) {
-                                        arrayUpdate.clear();
-                                    }
-
-                                    thisActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            hashMap.get(getString(R.string.recycler)).setVisible(false);
-                                        }
-                                    });
-                                }
-                            };
-                            thread.start();
-
-                            try {
-                                thread.join();
-                                Toast.makeText(thisActivity, "历史记录已清空", Toast.LENGTH_SHORT).show();
-                            } catch (InterruptedException e) {
-                                Toast.makeText(thisActivity, "删除失败，请重试...", Toast.LENGTH_SHORT).show();
-                                e.printStackTrace();
-                            } finally {
-                                waitingDialog.cancel();
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-                    })
-                    .create()
-                    .show();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finishAfterTransition();
+                return true;
+            case R.id.recycler:
+                dataRecycler();
+                return true;
+            case R.id.comeBreak:
+                breakToActivity(MainActivity.class);
+                return true;
+            case R.id.deleteHistoryOf_all:
+                batchDeletion(Time.time.ALL, item.getTitle());
+                return true;
+            case R.id.deleteHistoryOf_aWeekAgo:
+                batchDeletion(Time.time.A_WEEK, item.getTitle());
+                return true;
+            case R.id.deleteHistoryOf_halfAMonthAgo:
+                batchDeletion(Time.time.HALF_A_MONTH, item.getTitle());
+                return true;
+            case R.id.deleteHistoryOf_aMonthAgo:
+                batchDeletion(Time.time.A_MONTH, item.getTitle());
+                return true;
+            case R.id.deleteHistoryOf_halfAYearAgo:
+                batchDeletion(Time.time.HALF_A_YEAR, item.getTitle());
+                return true;
+            case R.id.deleteHistoryOf_aYearAgo:
+                batchDeletion(Time.time.A_YEAR, item.getTitle());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -214,7 +170,7 @@ public class HistoryListActivity
 
     @Override
     public void onItemClick(View view, int position) {
-        final RowData rowData = arrayList.get(position);
+        final HistoryListData.RowData rowData = arrayList.get(position);
         final String result = rowData.getResult();
         final String equation = rowData.getEquation();
 
@@ -237,7 +193,7 @@ public class HistoryListActivity
                         spe.putString("numTextView0", FuHao.dengYu + result);
                         spe.apply();
 
-                        finishAfterTransition();
+                        breakToActivity(MainActivity.class);
                     }
                 })
                 .setNegativeButton(getString(R.string.close), new DialogInterface.OnClickListener() {
@@ -252,7 +208,7 @@ public class HistoryListActivity
 
     @Override
     public boolean onItemLongClick(View view, int position) {
-        RowData rowData = arrayList.get(position);
+        HistoryListData.RowData rowData = arrayList.get(position);
         String clipStr = rowData.getEquation() + FuHao.dengYu + rowData.getResult();
         ClipboardManager myClipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);  //实例化剪切板服务
         ClipData myClip = ClipData.newPlainText("复制的算式", clipStr);
@@ -266,23 +222,23 @@ public class HistoryListActivity
     @Override
     public void onItemDismiss(final int position) {
         if (arrayRecycler == null) {
-            arrayRecycler = new ArrayList<RowData>();
+            arrayRecycler = new ArrayList<>();
         }
 
         arrayRecycler.add(arrayList.get(position).setPosition(position));
         arrayList.remove(position);
         adapter.deleteItem(position);
         recycler++;
-        hashMap.get(getString(R.string.recycler)).setVisible(recycler > 0);
+        menu.findItem(R.id.recycler).setVisible(recycler > 0);
     }
 
     @Override
     public void onCheckBoxClick(View view, int position) {
         CheckBox checkBox = (CheckBox) view;
-        RowData rowData = arrayList.get(position);
+        HistoryListData.RowData rowData = arrayList.get(position);
 
         if (arrayUpdate == null) {
-            arrayUpdate = new ArrayList<RowData>();
+            arrayUpdate = new ArrayList<HistoryListData.RowData>();
         }
 
         rowData.setImportance(checkBox.isChecked());
@@ -295,12 +251,12 @@ public class HistoryListActivity
     }
 
     private void dataRecycler() {
-        RowData rowData = arrayRecycler.get(arrayRecycler.size() - 1);
+        HistoryListData.RowData rowData = arrayRecycler.get(arrayRecycler.size() - 1);
         arrayList.add(rowData.getPosition(), rowData);
         arrayRecycler.remove(arrayRecycler.size() - 1);
         recycler--;
         adapter.recoverItem(rowData.getPosition());
-        hashMap.get(getString(R.string.recycler)).setVisible(recycler > 0);
+        menu.findItem(R.id.recycler).setVisible(recycler > 0);
     }
 
     @Override
@@ -308,6 +264,8 @@ public class HistoryListActivity
         new Thread() {
             @Override
             public void run() {
+                updateRowFromSql();
+
                 if (arrayRecycler != null) {
                     int len = arrayRecycler.size();
                     long[] times = new long[len];
@@ -320,20 +278,6 @@ public class HistoryListActivity
                     arrayRecycler.clear();
                     arrayRecycler = null;
                 }
-
-                if (arrayUpdate != null) {
-                    int len = arrayUpdate.size();
-                    RowData[] rowDates = new RowData[len];
-
-                    for (int i = 0; i < len; i++) {
-                        rowDates[i] = arrayUpdate.get(i);
-                    }
-
-                    HistoryListData.updateFromSQLite(HistoryListSqlite.TABLE_NAME, rowDates, getApplicationContext());
-                    arrayUpdate.clear();
-                    arrayUpdate = null;
-                }
-
             }
         }.start();
 
@@ -349,9 +293,116 @@ public class HistoryListActivity
 
         arrayList.clear();
         arrayList = null;
-        hashMap.clear();
+        menu = null;
         thisActivity = null;
 
         super.finish();
+    }
+
+    private void breakToActivity(Class mClass) {
+        if (!startFromMainActivity) {
+            Intent intent = new Intent(getApplicationContext(), mClass);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent, new Bundle());
+        }
+
+        finish();
+    }
+
+    private void updateRowFromSql() {
+        if (arrayUpdate != null) {
+            int len = arrayUpdate.size();
+
+            if (len > 0) {
+                HistoryListData.RowData[] rowDates = new HistoryListData.RowData[len];
+
+                for (int i = 0; i < len; i++) {
+                    rowDates[i] = arrayUpdate.get(i);
+                }
+
+                HistoryListData.updateFromSQLite(HistoryListSqlite.TABLE_NAME, rowDates, getApplicationContext());
+                arrayUpdate.clear();
+                arrayUpdate = null;
+            }
+        }
+    }
+
+    private void batchDeletion(final Time.time time, CharSequence title) {
+        final boolean[] deleteImportance = {false};
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.sure) + getString(R.string.delete) + title + "的记录?")
+                .setMultiChoiceItems(
+                        new String[]{getString(R.string.deleteImportance)},
+                        new boolean[]{false},
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                    deleteImportance[0] = isChecked;
+                            }
+                        })
+                .setNegativeButton(getString((R.string.close)), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View view = inflater.inflate(R.layout.waiting_view, null);
+                        TextView waitingText = (TextView) view.findViewById(R.id.waitingTitle);
+                        waitingText.setText(thisActivity.getString(R.string.deleting));
+
+                        AlertDialog waitingDialog = new AlertDialog.Builder(thisActivity)
+                                .setView(view)
+                                .setCancelable(false)
+                                .create();
+                        waitingDialog.show();
+
+                        Thread thread = new Thread(){
+                            @Override
+                            public void run() {
+                                long minTimeMillis = Time.getMinTime(time);
+                                updateRowFromSql();
+                                HistoryListData.deleteRow(HistoryListSqlite.TABLE_NAME, minTimeMillis, deleteImportance[0], getApplicationContext());
+
+                                arrayList.clear();
+                                if (arrayRecycler != null) {
+                                    arrayRecycler.clear();
+                                }
+                                if (arrayUpdate != null) {
+                                    arrayUpdate.clear();
+                                }
+
+                                arrayList = HistoryListData.exportAllFromSQLite(getApplicationContext());
+                                Collections.sort(arrayList);
+                                adapter.setmDataset(arrayList);
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        menu.findItem(R.id.recycler).setVisible(false);
+                                    }
+                                });
+                            }
+                        };
+                        thread.start();
+
+                        try {
+                            thread.join();
+                            Toast.makeText(thisActivity, getString(R.string.deleteSure), Toast.LENGTH_SHORT).show();
+                        } catch (InterruptedException e) {
+                            Toast.makeText(thisActivity, getString(R.string.deleteError), Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        } finally {
+                            waitingDialog.cancel();
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+                .create()
+                .show();
     }
 }

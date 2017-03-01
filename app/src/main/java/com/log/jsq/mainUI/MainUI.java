@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.log.jsq.library.FuHao;
 import com.log.jsq.library.GuiZe;
-import com.log.jsq.library.RowData;
 import com.log.jsq.tool.HistoryListData;
 import com.log.jsq.tool.JiSuan;
 import com.log.jsq.library.Nums;
@@ -84,9 +83,6 @@ public class MainUI {
         kuoHaoTou = (Button)activity.findViewById(R.id.bKuoHaoTou);
         kuoHaoWei = (Button)activity.findViewById(R.id.bKuoHaoWei);
         huanSuan = (ImageButton) activity.findViewById(R.id.bZhuanHuan);
-
-//        tv.setMovementMethod(ScrollingMovementMethod.getInstance());
-//        tvNum.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         tv.setOnLongClickListener(tolcl);
         tv.setOnClickListener(tocl);
@@ -348,7 +344,9 @@ public class MainUI {
                                             }
                                         }.start();
 
-                                        runYuYin(finalJieGuoStr);
+                                        if (ma.isOnYuYin()) {
+                                            runYuYin(finalJieGuoStr);
+                                        }
                                     } catch (ArithmeticException ae) {
                                         activity.runOnUiThread(new Runnable() {
                                             @Override
@@ -731,17 +729,17 @@ public class MainUI {
     }
 
     private void saveToSql(String equation, String result) {
-        RowData rowDataTemp = HistoryListData.exportFromSQLite(activity, HistoryListData.RowId.ROW_ID_NEWEST_TIME);
+        HistoryListData.RowData rowDataTemp = HistoryListData.exportFromSQLite(activity.getApplicationContext(), HistoryListData.RowId.ROW_ID_NEWEST_TIME);
 
         if (rowDataTemp == null || !rowDataTemp.getEquation().equals(equation) || !rowDataTemp.getResult().equals(result)) {
-            RowData rowData = new RowData(
+            HistoryListData.RowData rowData = new HistoryListData.RowData(
                     equation,
                     result,
                     System.currentTimeMillis(),
                     false
             );
 
-            HistoryListData.insertToSQLite(rowData, activity);
+            HistoryListData.insertToSQLite(rowData, activity.getApplicationContext());
         }
     }
 

@@ -25,6 +25,7 @@ public class Audio {
     private int[] ctrlSoundID = new int[CTRL_LEN];
     private int[] zhSoundID = new int[ZH_LEN];
     private SoundSequenceThread soundSequenceThread = null;
+    private int soundID;
 
     private class AudioIO {
         private int soundID;
@@ -67,7 +68,6 @@ public class Audio {
     private class SoundSequenceThread extends Thread {
         private boolean stop = false;
         private ArrayList<AudioIO> sequence;
-        private int soundID;
         public static final float V1 = (float) 0.6;
         public static final float V2 = (float) 0.7;
         public static final float V3 = (float) 0.8;
@@ -113,7 +113,9 @@ public class Audio {
     }
 
     public void loading(){
-        sp = new SoundPool.Builder().setMaxStreams(MAX_STREAMS).build();
+        sp = new SoundPool.Builder()
+                .setMaxStreams(MAX_STREAMS)
+                .build();
 
         for(int i=0;i<NUM_LEN;i++) {
             numAudioID[i] = activity.getResources().getIdentifier("r" + i, "raw", "com.log.jsq");
@@ -143,7 +145,8 @@ public class Audio {
 
     private void defaultPlay(int id){
         stopSoundThread();
-        sp.play(id, 1, 1, 0, 0, 1);
+        sp.stop(soundID);
+        soundID = sp.play(id, 1, 1, 0, 0, 1);
     }
 
     private void sequencePlay(ArrayList<AudioIO> sequence){

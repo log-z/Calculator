@@ -87,7 +87,7 @@ public class Nums {
                 return null;
             } else {
                 if (dianIndex > 0) {
-                    // TODO 识别“角”、“分”
+                    // 识别“角”、“分”
                     int[] appendIntArray = new int[3];
                     int appendLen = 0;
                     String appendStr = numStr.substring(dianIndex + FuHao.dian.length());
@@ -130,19 +130,19 @@ public class Nums {
         }
     }
 
-    public static void luRu(String n0, String n1, String n2, String n3, String n4, String n5, String n6, String n7, String n8, String n9){
-        nums = new String[10];
-
-        nums[0] = n0;
-        nums[1] = n1;
-        nums[2] = n2;
-        nums[3] = n3;
-        nums[4] = n4;
-        nums[5] = n5;
-        nums[6] = n6;
-        nums[7] = n7;
-        nums[8] = n8;
-        nums[9] = n9;
+    public static void luRu(Context context) {
+        nums = new String[] {
+                context.getString(R.string._0),
+                context.getString(R.string._1),
+                context.getString(R.string._2),
+                context.getString(R.string._3),
+                context.getString(R.string._4),
+                context.getString(R.string._5),
+                context.getString(R.string._6),
+                context.getString(R.string._7),
+                context.getString(R.string._8),
+                context.getString(R.string._9),
+        };
     }
 
     public static boolean isNum(String str) {
@@ -160,7 +160,6 @@ public class Nums {
     }
 
     public static int onStartNum(String str, int startIndex) {
-//        str.substring(startIndex, str.length());
         for (int i=0;i<nums.length;i++) {
             if (str.startsWith(nums[i], startIndex)) {
                 return i;

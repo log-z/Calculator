@@ -28,11 +28,12 @@
                 android:background="@drawable/text_view_ripple_orange"
                 android:fontFamily="sans-serif"
                 android:gravity="bottom|right"
+                android:minLines="1"
                 android:padding="10dp"
                 android:scrollbars="vertical"
                 android:singleLine="false"
                 android:textColor="?android:colorPrimary"
-                android:textSize="36sp"/>
+                android:textSize="36sp" />
         </ScrollView>
 
         <LinearLayout

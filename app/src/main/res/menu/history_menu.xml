@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/recycler"
+        android:title="@string/recycler"
+        android:icon="@drawable/undo_icon"
+        android:visible="false"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/comeBreak"
+        android:title="@string/comeBreak"
+        android:icon="@drawable/home_icon"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/delete"
+        android:title="@string/deleteHistory"
+        android:icon="@drawable/ic_delete"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/deleteHistoryOf_aYearAgo"
+                android:title="@string/deleteHistoryOf_aYearAgo" />
+            <item
+                android:id="@+id/deleteHistoryOf_halfAYearAgo"
+                android:title="@string/deleteHistoryOf_halfAYearAgo" />
+            <item
+                android:id="@+id/deleteHistoryOf_aMonthAgo"
+                android:title="@string/deleteHistoryOf_aMonthAgo" />
+            <item
+                android:id="@+id/deleteHistoryOf_halfAMonthAgo"
+                android:title="@string/deleteHistoryOf_halfAMonthAgo" />
+            <item
+                android:id="@+id/deleteHistoryOf_aWeekAgo"
+                android:title="@string/deleteHistoryOf_aWeekAgo" />
+            <item
+                android:id="@+id/deleteHistoryOf_all"
+                android:title="@string/deleteHistoryOf_all" />
+        </menu>
+    </item>
+</menu>
