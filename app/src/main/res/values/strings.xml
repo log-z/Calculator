@@ -28,11 +28,13 @@
     <string name="theme">主题</string>
     <string name="about">关于与帮助</string>
     <string name="history">历史记录</string>
+    <string name="setting">设置</string>
+
     <string name="updateLog">本次更新</string>
     <string name="updateHistory">历史更新日志</string>
     <string name="helpWord">帮助文档</string>
 
-    <string name="aboutVersion">计算器 v3.5(13)</string>
+    <string name="aboutVersion">计算器 v3.6(14)</string>
     <string name="aboutWords">简单，但却不一般</string>
     <string name="aboutDeveloper">作者：酷安@log_Z</string>
     <string name="aboutXBB_Title">
@@ -71,12 +73,16 @@
     <string name="deleteSure">批量删除成功</string>
     <string name="deleteError">批量删除失败，稍后请重试...</string>
 
+    <string name="_default">默认</string>
+    <string name="more">更多</string>
     <string name="delete">删除</string>
     <string name="sure">确认</string>
     <string name="close">取消</string>
     <string name="ok">确定</string>
     <string name="exit">关闭</string>
-    
+    <string name="on">打开</string>
+    <string name="off">关闭</string>
+
     <string-array name="capsNum">
         <item>零</item>
         <item>壹</item>
@@ -100,5 +106,13 @@
     <string name="capsYi">亿</string>
     <string name="capsZheng">整</string>
     <string name="capsFu">负</string>
+
+    <string name="fontSize">字体大小</string>
+    <string name="fontSizeForEquation">算式区</string>
+    <string name="fontSizeForNums">数值区</string>
+    <string name="fontSizeForButton">按键面板</string>
+    <string name="translucentStatusBar">半透明状态栏</string>
+    <string name="translucentNavigationBar">半透明导航栏</string>
+    <string name="other">其它</string>
 
 </resources>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingRight="16dp">
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/relativeLayout"
+        android:max="100"
+        android:progress="30" />
+
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:id="@+id/value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="4dp"
+            android:gravity="right"
+            android:maxLines="1"
+            android:minWidth="30dp"
+            android:text="100"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/up"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignTop="@id/value"
+            android:layout_toEndOf="@+id/value"
+            android:background="@drawable/text_view_ripple_orange"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_up" />
+
+        <ImageView
+            android:id="@+id/down"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignEnd="@+id/up"
+            android:layout_below="@+id/up"
+            android:background="@drawable/text_view_ripple_orange"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_down" />
+    </RelativeLayout>
+
+</RelativeLayout>

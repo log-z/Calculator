@@ -100,15 +100,16 @@
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/numsAndFuhaoLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="?android:colorPrimary">
+        android:background="?android:colorPrimary"
+        android:orientation="vertical">
 
         <LinearLayout
-            style="@style/MainLinearLayout"
-            android:id="@+id/linearLayout0">
+            android:id="@+id/linearLayout0"
+            style="@style/MainLinearLayout">
 
             <Button
                 android:id="@+id/b7"
@@ -121,107 +122,107 @@
                 android:text="@string/_8" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b9"
-                android:text="@string/_9"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_9" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bChu"
-                android:text="@string/chu"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/chu" />
         </LinearLayout>
 
         <LinearLayout
-            style="@style/MainLinearLayout"
-            android:id="@+id/linearLayout1">
+            android:id="@+id/linearLayout1"
+            style="@style/MainLinearLayout">
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b4"
-                android:text="@string/_4"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_4" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b5"
-                android:text="@string/_5"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_5" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b6"
-                android:text="@string/_6"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_6" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bCheng"
-                android:text="@string/cheng"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/cheng" />
         </LinearLayout>
 
         <LinearLayout
-            style="@style/MainLinearLayout"
-            android:id="@+id/linearLayout2">
+            android:id="@+id/linearLayout2"
+            style="@style/MainLinearLayout">
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b1"
-                android:text="@string/_1"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_1" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b2"
-                android:text="@string/_2"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_2" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b3"
-                android:text="@string/_3"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_3" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bJian"
-                android:text="@string/jian"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/jian" />
         </LinearLayout>
 
         <LinearLayout
-            style="@style/MainLinearLayout"
-            android:id="@+id/linearLayout3">
+            android:id="@+id/linearLayout3"
+            style="@style/MainLinearLayout">
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/b0"
-                android:text="@string/_0"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/_0" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bKuoHaoTou"
-                android:text="@string/kuoHaoTou"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/kuoHaoTou" />
 
             <ImageButton
-                style="@style/MainButtonTheme"
                 android:id="@+id/bZhuanHuan"
+                style="@style/MainButtonTheme"
                 android:src="@drawable/ic_swap_horiz"
                 android:visibility="gone" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bDian"
+                style="@style/MainButtonTheme"
                 android:text="@string/dian"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bKuoHaoWei"
+                style="@style/MainButtonTheme"
                 android:text="@string/kuoHaoWei"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bDengyu"
-                android:text="@string/dengYu"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/dengYu" />
 
             <Button
-                style="@style/MainButtonTheme"
                 android:id="@+id/bJia"
-                android:text="@string/jia"/>
+                style="@style/MainButtonTheme"
+                android:text="@string/jia" />
         </LinearLayout>
     </LinearLayout>
 

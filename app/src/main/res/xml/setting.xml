@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/fontSize">
+        <Preference
+            android:key="@string/fontSizeForEquation"
+            android:title="@string/fontSizeForEquation" />
+        <Preference
+            android:key="@string/fontSizeForNums"
+            android:title="@string/fontSizeForNums" />
+        <Preference
+            android:key="@string/fontSizeForButton"
+            android:title="@string/fontSizeForButton" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/theme">
+        <SwitchPreference
+            android:key="@string/translucentStatusBar"
+            android:title="@string/translucentStatusBar"
+            android:summaryOn="@string/on"
+            android:summaryOff="@string/off"
+            android:defaultValue="@bool/default_translucentStatusBar" />
+        <SwitchPreference
+            android:key="@string/translucentNavigationBar"
+            android:title="@string/translucentNavigationBar"
+            android:summaryOn="@string/on"
+            android:summaryOff="@string/off"
+            android:defaultValue="@bool/default_translucentNavigationBar" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/other">
+        <Preference
+            android:key="@string/about"
+            android:title="@string/about"
+            android:summary="@string/aboutVersion" />
+    </PreferenceCategory>
+</PreferenceScreen>

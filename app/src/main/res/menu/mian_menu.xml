@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/history"
+        android:title="@string/history"
+        android:icon="@drawable/history_icon"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/more"
+        android:title="@string/more"
+        android:icon="@drawable/ic_more_vert"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/zhenDong"
+                android:title="@string/zhenDong"
+                android:checkable="true"
+                android:checked="false" />
+            <item
+                android:id="@+id/yuYin"
+                android:title="@string/yuYin"
+                android:checkable="true"
+                android:checked="false" />
+            <item
+                android:id="@+id/theme"
+                android:title="@string/theme" />
+            <item
+                android:id="@+id/setting"
+                android:title="@string/setting" />
+        </menu>
+    </item>
+</menu>

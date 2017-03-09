@@ -28,6 +28,7 @@ import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
 public class MainUI {
+    private static MainUI INSTANCE = new MainUI();
     private Activity activity = null;
     private TextView tv = null;
     private TextView tvNum = null;
@@ -54,13 +55,16 @@ public class MainUI {
         super.finalize();
     }
 
-    public MainUI(Activity activity){
-        this.activity = activity;
-        ma = (MainActivity)activity;
+    private MainUI(){
     }
 
-    public void run() {
+    public static MainUI getInstance() {
+        return INSTANCE;
+    }
 
+    public void init(Activity activity) {
+        this.activity = activity;
+        ma = (MainActivity)activity;
         this.tv = (TextView)this.activity.findViewById(R.id.textView);
         this.tvNum = (TextView)this.activity.findViewById(R.id.textViewNum);
         this.tvNum2 = (TextView)this.activity.findViewById(R.id.textViewNum2);
@@ -285,7 +289,6 @@ public class MainUI {
 
                         //彩蛋
                         if (tt.length() == 0 && ttN.length() == 0) {
-                            ma.au.play(view);
                             long mNowTime = System.currentTimeMillis();//获取按键时间
 
                             //比较两次按键时间差
@@ -304,6 +307,10 @@ public class MainUI {
 
                             if (chiShu >= MAX_CHI_SHU) {
                                 Toast.makeText(activity, "_(:3」∠)_", Toast.LENGTH_SHORT).show();
+                            }
+
+                            if (ma.isOnYuYin()) {
+                                ma.au.play(view);
                             }
                         } else if (GuiZe.dengYu(tt, ttN)) {
                             toBottom(sv1);
@@ -376,7 +383,7 @@ public class MainUI {
                                     }
                                 }
                             }.start();
-                        } else {
+                        } else if (ma.isOnYuYin()) {
                             ma.au.play(view);
                         }
                     }
@@ -555,7 +562,7 @@ public class MainUI {
 
         @Override
         public void onClick(View view) {
-            if(clickSure && view.getId() == tvNum.getId()) {
+            if(ma.isMainMod() && clickSure && view.getId() == tvNum.getId()) {
                 if (tvNum2.getVisibility() == View.VISIBLE) {
                     tvNum2.setVisibility(View.GONE);
                     tvNum.setVisibility(View.VISIBLE);
@@ -767,5 +774,44 @@ public class MainUI {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void loadFontSet() {
+        SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+        int fontSizeForEquation = sp.getInt(
+                activity.getString(R.string.fontSizeForEquation),
+                activity.getResources().getInteger(R.integer.default_fontSizeForEquation)
+        );
+        int fontSizeForNums = sp.getInt(
+                activity.getString(R.string.fontSizeForNums),
+                activity.getResources().getInteger(R.integer.default_fontSizeForNums)
+        );
+        int fontSizeForButton = sp.getInt(
+                activity.getString(R.string.fontSizeForButton),
+                activity.getResources().getInteger(R.integer.default_fontSizeForButton)
+        );
+
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForEquation);
+        tvNum.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForNums);
+        tvNum2.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForNums);
+        jia.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        jian.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        cheng.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        chu.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        dengYu.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        dian.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        kuoHaoTou.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        kuoHaoWei.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        jia.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b0)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b1)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b2)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b3)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b4)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b5)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b6)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b7)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b8)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) activity.findViewById(R.id.b9)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
     }
 }
