@@ -130,4 +130,9 @@
         <item name="android:clickable">true</item>
     </style>
 
+    <style name="SwitchPreferenceStyle_Default">
+        <item name="android:summaryOn">@string/on</item>
+        <item name="android:summaryOff">@string/off</item>
+    </style>
+
 </resources>

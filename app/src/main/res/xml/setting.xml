@@ -3,34 +3,70 @@
     <PreferenceCategory
         android:title="@string/fontSize">
         <Preference
-            android:key="@string/fontSizeForEquation"
+            android:key="fontSizeForEquation"
             android:title="@string/fontSizeForEquation" />
         <Preference
-            android:key="@string/fontSizeForNums"
+            android:key="fontSizeForNums"
             android:title="@string/fontSizeForNums" />
         <Preference
-            android:key="@string/fontSizeForButton"
+            android:key="fontSizeForButton"
             android:title="@string/fontSizeForButton" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/theme">
         <SwitchPreference
-            android:key="@string/translucentStatusBar"
-            android:title="@string/translucentStatusBar"
-            android:summaryOn="@string/on"
-            android:summaryOff="@string/off"
-            android:defaultValue="@bool/default_translucentStatusBar" />
+            android:key="translucentStatusBar"
+            style="@style/SwitchPreferenceStyle_Default"
+            android:defaultValue="@bool/default_translucentStatusBar"
+            android:title="@string/translucentStatusBar" />
         <SwitchPreference
-            android:key="@string/translucentNavigationBar"
+            android:key="translucentNavigationBar"
             android:title="@string/translucentNavigationBar"
-            android:summaryOn="@string/on"
-            android:summaryOff="@string/off"
+            style="@style/SwitchPreferenceStyle_Default"
             android:defaultValue="@bool/default_translucentNavigationBar" />
     </PreferenceCategory>
     <PreferenceCategory
+        android:title="@string/yuYin">
+        <SwitchPreference
+            android:key="onTTS"
+            android:title="@string/onTTS"
+            style="@style/SwitchPreferenceStyle_Default"
+            android:defaultValue="@bool/default_onTTS" />
+        <ListPreference
+            android:key="setTTSProgram"
+            android:title="@string/setTTS_program"
+            android:defaultValue="@string/default_setTTS_program" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/history">
+        <SwitchPreference
+            style="@style/SwitchPreferenceStyle_Default"
+            android:key="mainActivityHistoryVisibility"
+            android:title="@string/mainActivityHistoryVisibility"
+            android:defaultValue="@bool/default_mainActivityVisibilityHistory"/>
+<!--
+        <ListPreference
+            android:key="historyDeleteAuto"
+            android:title="@string/historyDeleteAuto"
+            android:entries="@array/historyDeleteAuto"
+            android:entryValues="@array/historyDeleteAuto" />
+-->
+
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="@string/other">
+        <ListPreference
+            android:key="resultsAgainCalculation"
+            android:title="@string/resultsAgainCalculation"
+            android:entries="@array/resultsAgainCalculationItem"
+            android:entryValues="@array/resultsAgainCalculationKey"
+            android:defaultValue="@string/default_resultsAgainCalculation" />
         <Preference
-            android:key="@string/about"
+            android:key="restoreSettings"
+            android:title="@string/restoreSettings"
+            android:summary="@string/restoreSettingsSummary" />
+        <Preference
+            android:key="about"
             android:title="@string/about"
             android:summary="@string/aboutVersion" />
     </PreferenceCategory>

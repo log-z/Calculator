@@ -27,8 +27,7 @@ public class JsqApplication extends Application {
         private static CrashHandler INSTANCE = new CrashHandler();
         private UncaughtExceptionHandler defaultHandler;
 
-        private CrashHandler(){
-        }
+        private CrashHandler(){}
 
         public static CrashHandler getInstance() {
             return INSTANCE;

@@ -33,9 +33,11 @@ import com.log.jsq.library.FuHao;
 import com.log.jsq.library.Nums;
 import com.log.jsq.R;
 import com.log.jsq.historyUI.HistoryListActivity;
+import com.log.jsq.tool.AudioOnTTS;
 import com.log.jsq.tool.Open;
+import com.log.jsq.tool.TextColorStyles;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AudioOnTTS.Exceptional {
     private long mPressedTime = 0;
     public Audio au = null;
     private Vibrator mVibrator = null;
@@ -44,8 +46,10 @@ public class MainActivity extends AppCompatActivity {
     public final long[] zhenDtongTimeAdd = {0, 50, 120, 50};
     private boolean onYuYin = false;
     private boolean onZhenDong = false;
+    private boolean onTTS = false;
     private Activity thisActivity = this;
     private MainUI mainUI;
+    public AudioOnTTS tts;
 
     @Override
     protected void finalize() throws Throwable  {
@@ -78,8 +82,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        if (mVibrator != null) {
+            mVibrator.cancel();
+        }
         if (au != null) {
             au.stopSoundThread();
+        }
+        if (tts != null) {
+            tts.stop();
         }
 
         super.onPause();
@@ -92,6 +102,11 @@ public class MainActivity extends AppCompatActivity {
         if (mainUI != null) {
             mainUI.release();
             mainUI = null;
+        }
+
+        if (tts != null) {
+            tts.shutdown();
+            tts = null;
         }
 
         thisActivity = null;
@@ -115,34 +130,36 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         if( item.isCheckable() ){
             final SharedPreferences.Editor editor = getSharedPreferences("item", MODE_PRIVATE).edit();    //存储数据
-            boolean temp;
+            boolean temp = !item.isChecked();
+            boolean _onZhenDong = false;
+            boolean _onYuYin = false;
 
-            if( !item.isChecked() ){
-                item.setChecked(true);
-                temp = true;
-            } else {
-                item.setChecked(false);
-                temp = false;
-            }
+            item.setChecked(temp);
 
             switch (item.getItemId()) {
                 case R.id.zhenDong:
-                    onZhenDong = temp;
+                    _onZhenDong = temp;
+                    _onYuYin = this.onYuYin;
                     editor.putBoolean("zhenDong", temp);
                     break;
                 case R.id.yuYin:
-                    onYuYin = temp;
+                    _onYuYin = temp;
+                    _onZhenDong = this.onZhenDong;
                     editor.putBoolean("yuYin", temp);
                     break;
             }
-
             editor.apply();
+
+            final boolean onZhenDongFinal = _onZhenDong;
+            final boolean onYuYinFinal = _onYuYin;
 
             new Thread() {
                 @Override
                 public void run() {
-                    startSever(onZhenDong, onYuYin);
-                    releaseSever(onZhenDong, onYuYin);
+                    startSever(onZhenDongFinal, onYuYinFinal);
+                    releaseSever(onZhenDongFinal, onYuYinFinal);
+                    onZhenDong = onZhenDongFinal;
+                    onYuYin = onYuYinFinal;
                 }
             }.start();
         } else {
@@ -232,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
                 } else {
                     final TextView textView = (TextView) findViewById(R.id.textView);
+                    final TextView textView2 = (TextView) findViewById(R.id.textView2);
                     final TextView numTextView = (TextView) findViewById(R.id.textViewNum);
                     final String textViewStr = read.getString("textView0", FuHao.NULL);
                     final String numTextViewStr = read.getString("numTextView0", FuHao.NULL);
@@ -241,10 +259,25 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             textView.setText(textViewStr);
                             numTextView.setText(numTextViewStr);
-                            mainUI.flushTextColor();
-                        }
+
+                            if (textView.length() > 0) {
+                               TypedValue value = new TypedValue();
+                               thisActivity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
+                               textView.setText(TextColorStyles.run(textView.getText().toString(), value.data));   //文本变色
+                               textView2.setText(TextColorStyles.run(textView2.getText().toString(), value.data));   //文本变色
+                            }
+
+                           SharedPreferences sp = getSharedPreferences("setting", MODE_PRIVATE);
+                           if (!sp.getBoolean(
+                                   "mainActivityHistoryVisibility",
+                                   getResources().getBoolean(R.bool.default_mainActivityVisibilityHistory))) {
+                               mainUI.setTempHistory(false);
+                           }
+                       }
                     });
                 }
+
+                startTTS();
             }
         }.start();
     }
@@ -254,17 +287,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 SharedPreferences sp = getSharedPreferences("item", MODE_PRIVATE);
+                boolean _onZhenDong = sp.getBoolean("zhenDong", false);
+                boolean _onYuYin = sp.getBoolean("yuYin", false);
 
-                startSever(sp.getBoolean("zhenDong", false), sp.getBoolean("yuYin", false));
+                onZhenDong = _onZhenDong;
+                onYuYin = _onYuYin;
+                startSever(onZhenDong, onYuYin);
             }
         }.start();
     }
 
     private void startSever(final boolean zhenDong, final boolean yuYin) {
-        if (zhenDong) {
-            if (mVibrator == null) {
-                mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            }
+        if (zhenDong && mVibrator == null) {
+            mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         }
 
         if (yuYin) {
@@ -273,6 +308,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             au.loading();
+            startTTS();
         }
     }
 
@@ -286,6 +322,12 @@ public class MainActivity extends AppCompatActivity {
             au.stopSoundThread();
             au.release();
             au = null;
+
+            if (tts != null) {
+                onTTS = false;
+                tts.shutdown();
+                tts = null;
+            }
         }
     }
 
@@ -300,6 +342,10 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean isOnYuYin() {
         return onYuYin;
+    }
+
+    public boolean isOnTTS() {
+        return onTTS;
     }
 
     private void restart() {
@@ -356,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
         TypedValue typedValue = new TypedValue();
 
         if (sp.getBoolean(
-                context.getString(R.string.translucentStatusBar),
+                "translucentStatusBar",
                 context.getResources().getBoolean(R.bool.default_translucentStatusBar)
         )) {
             context.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
@@ -366,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
         window.setStatusBarColor(typedValue.data);
 
         if (sp.getBoolean(
-                context.getString(R.string.translucentNavigationBar),
+                "translucentNavigationBar",
                 context.getResources().getBoolean(R.bool.default_translucentNavigationBar)
         )) {
             context.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
@@ -595,4 +641,36 @@ public class MainActivity extends AppCompatActivity {
                 && findViewById(R.id.numsAndFuhaoLayout).getVisibility() == View.VISIBLE;
     }
 
+    @Override
+    public void TTSExceptionalHandle(View view) {
+        au.play(view);
+    }
+
+    private void startTTS() {
+        SharedPreferences sp = getSharedPreferences("setting", MODE_PRIVATE);
+        if (sp.getBoolean("onTTS", getResources().getBoolean(R.bool.default_onTTS))){
+            String ttsName = sp.getString("setTTSProgram", getString(R.string.default_setTTS_program));
+
+            if (tts != null) {
+                onTTS = false;
+                tts.shutdown();
+                tts = null;
+            }
+
+            if (!ttsName.equals(getString(R.string.wu))) {
+                tts = new AudioOnTTS(getApplicationContext(), ttsName, this);
+                onTTS = true;
+            } else{
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "请到设置选择可用的TTS程序", Toast.LENGTH_LONG).show();
+                    }
+                });
+                onTTS = false;
+            }
+        } else {
+            onTTS = false;
+        }
+    }
 }

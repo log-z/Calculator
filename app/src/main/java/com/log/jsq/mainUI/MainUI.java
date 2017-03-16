@@ -24,6 +24,8 @@ import com.log.jsq.library.Nums;
 import com.log.jsq.R;
 import com.log.jsq.tool.TextColorStyles;
 
+import java.util.Objects;
+
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
@@ -31,6 +33,7 @@ public class MainUI {
     private static MainUI INSTANCE = new MainUI();
     private Activity activity = null;
     private TextView tv = null;
+    private TextView tv2 = null;
     private TextView tvNum = null;
     private TextView tvNum2 = null;
     private ScrollView sv1 = null;
@@ -47,6 +50,8 @@ public class MainUI {
     private MainActivity ma = null;
     private boolean clickSure = true;
     private static final int NUM_MAX_LEN = 30;
+    private String lastFormula;
+    private String lastResult;
 
     @Override
     protected void finalize() throws Throwable {
@@ -55,8 +60,7 @@ public class MainUI {
         super.finalize();
     }
 
-    private MainUI(){
-    }
+    private MainUI(){}
 
     public static MainUI getInstance() {
         return INSTANCE;
@@ -66,6 +70,7 @@ public class MainUI {
         this.activity = activity;
         ma = (MainActivity)activity;
         this.tv = (TextView)this.activity.findViewById(R.id.textView);
+        this.tv2 = (TextView) this.activity.findViewById(R.id.textView2);
         this.tvNum = (TextView)this.activity.findViewById(R.id.textViewNum);
         this.tvNum2 = (TextView)this.activity.findViewById(R.id.textViewNum2);
         this.sv1 = (ScrollView) this.activity.findViewById(R.id.sv1);
@@ -91,6 +96,7 @@ public class MainUI {
         tv.setOnLongClickListener(tolcl);
         tv.setOnClickListener(tocl);
         tv.addTextChangedListener(new TextWatcherListener(tv));
+        tv2.addTextChangedListener(new TextWatcherListener(tv2));
         tvNum.setOnLongClickListener(tolcl);
         tvNum.setOnClickListener(tocl);
         tvNum.addTextChangedListener(new TextWatcherListener(tvNum));
@@ -177,6 +183,7 @@ public class MainUI {
                 }
 
                 if (jianCeDengHao()) {
+                    setTempHistory(true);
                     tv.setText(FuHao.NULL);
                     tvNum.setText(FuHao.NULL);
                 }
@@ -224,11 +231,15 @@ public class MainUI {
                 }
 
                 if (jianCeDengHao() && view.getId() != dengYu.getId()) {
-                    if (view.getId() == jia.getId() || view.getId() == jian.getId() || view.getId() == cheng.getId() || view.getId() == chu.getId()) {
-                        tvNum.setText(FuHao.NULL);
-                        tv.setText(tt + ((Button) view).getText());
-                        toBottom(sv1);
-                        toTop(sv2);
+                    // TODO: 连续运算与常规运算的切换
+                    SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+                    String mode = sp.getString("resultsAgainCalculation", activity.getString(R.string.default_resultsAgainCalculation));
+                    setTempHistory(true);
+
+                    if (mode.equals(activity.getString(R.string.resultsAgainCalculation_formulaPreferred_key))) {
+                        continueByEquation(view, tt);
+                    } else if (mode.equals(activity.getString(R.string.resultsAgainCalculation_resultPreferred_key))) {
+                        continueByResult(view, ttN);
                     }
                 } else {
                     if (view.getId() == jia.getId() || view.getId() == jian.getId() || view.getId() == cheng.getId() || view.getId() == chu.getId()) {  //判断 加减乘除
@@ -255,10 +266,10 @@ public class MainUI {
                             toBottom(sv1);
                             toTop(sv2);
                         } else if (GuiZe.jia_Jian_Cheng_Chu(tt, ttN)) {
-                            toBottom(sv1);
-                            toTop(sv2);
                             addTextView(tv, tvNum, bt);
                             tvNum.setText(FuHao.NULL);
+                            toBottom(sv1);
+                            toTop(sv2);
                         }
                     } else if (view.getId() == dian.getId()) {      //判断 小数点
                         if (ttN.endsWith(FuHao.dian)) {
@@ -267,22 +278,22 @@ public class MainUI {
                             toBottom(sv1);
                             toBottom(sv2);
                         } else if (GuiZe.dian(ttN, bt)) {
+                            addTextView(tvNum, bt);
                             toBottom(sv1);
                             toBottom(sv2);
-                            addTextView(tvNum, bt);
                         }
                     } else if (view.getId() == kuoHaoTou.getId()) {   //判断 括号头
                         if (GuiZe.kuoHaoTou(tt, ttN)) {
+                            addTextView(tv, FuHao.kuoHaoTou);
                             toBottom(sv1);
                             toTop(sv2);
-                            addTextView(tv, FuHao.kuoHaoTou);
                         }
                     } else if (view.getId() == kuoHaoWei.getId()) {   //判断 括号尾
                         if (GuiZe.kuoHaoWei(tt, ttN)) {
-                            toBottom(sv1);
-                            toTop(sv2);
                             addTextView(tv, tvNum, FuHao.kuoHaoWei);
                             tvNum.setText("");
+                            toBottom(sv1);
+                            toTop(sv2);
                         }
                     } else if (view.getId() == dengYu.getId()) {    //判断 等号
                         runZhenDong(ma.zhenDtongTimeAdd);
@@ -354,6 +365,9 @@ public class MainUI {
                                         if (ma.isOnYuYin()) {
                                             runYuYin(finalJieGuoStr);
                                         }
+
+                                        lastFormula = equation;
+                                        lastResult = jieGuoStr;
                                     } catch (ArithmeticException ae) {
                                         activity.runOnUiThread(new Runnable() {
                                             @Override
@@ -388,8 +402,6 @@ public class MainUI {
                         }
                     }
                 }
-
-                flushTextColor();
             }
         }
     }
@@ -405,25 +417,24 @@ public class MainUI {
 
             String ttN = tvNum.getText().toString();
 
-            if (ttN.contains(FuHao.dengYu)) {
-                toTop(sv2);
-                toBottom(sv1);
+            if (jianCeDengHao()) {
+                // 连续运算与常规运算的切换
+                SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+                String mode = sp.getString("resultsAgainCalculation", activity.getString(R.string.default_resultsAgainCalculation));
+                setTempHistory(true);
 
-                if (ttN.contains(FuHao.TEN_POWER)) {
-                    String tvStr = FuHao.kuoHaoTou + tv.getText().toString() + FuHao.kuoHaoWei;
-                    tv.setText(tvStr);
-                    tvNum.setText(FuHao.NULL);
-                } else if (Nums.isNum(ttN.substring(ttN.length() - 1, ttN.length()))) {
-                    String tvnStr = ttN.substring(FuHao.dengYu.length());
-                    tvNum.setText(tvnStr);
-                    tv.setText(FuHao.NULL);
+                // 长按时操作相反
+                if (mode.equals(activity.getString(R.string.resultsAgainCalculation_formulaPreferred_key))) {
+                    continueByResult(v, ttN);
+                } else if (mode.equals(activity.getString(R.string.resultsAgainCalculation_resultPreferred_key))) {
+                    if (v.getId() == dengYu.getId()) {
+                        continueByResult(v, ttN);
+                    } else {
+                        continueByEquation(v, tv.getText().toString());
+                    }
                 }
 
-                if (v.getId() == dengYu.getId()) {
-                    flushTextColor();
-                } else {
-                    v.performClick();
-                }
+                runYuYin(v);
             }
 
             return true;
@@ -443,13 +454,19 @@ public class MainUI {
                 runZhenDong(ma.zhenDtongTime);
                 runYuYin(view);
 
+                if (view.getId() == R.id.bGuiLing && tv.length() == 0 && tvNum.length() == 0) {
+                    setTempHistory(false);
+                    return;
+                }
                 if (jianCeDengHao()) {
                     switch (view.getId()) {
                         case R.id.bGuiLing:
+                            setTempHistory(true);
                             tv.setText(FuHao.NULL);
                             tvNum.setText(FuHao.NULL);
                             break;
                         case R.id.bShanChu:
+                            setTempHistory(true);
                             tvNum.setText(FuHao.NULL);
                             break;
                         case R.id.bZhuanHuan:
@@ -490,8 +507,6 @@ public class MainUI {
                         tv.setText(FuHao.NULL);
                     }
                 }
-
-                flushTextColor();
             }
         }
 
@@ -572,7 +587,7 @@ public class MainUI {
                 String ttN = tvNum.getText().toString();
                 runZhenDong(ma.zhenDtongTime);
 
-                if (!ttN.contains(FuHao.dengYu)) {
+                if (!jianCeDengHao()) {
                     runYuYin(view);
                     toTop(sv2);
 
@@ -612,9 +627,9 @@ public class MainUI {
                     Toast.makeText(activity, "算式已复制", Toast.LENGTH_SHORT).show();
                 }
             } else if (view.getId() == tvNum.getId() || view.getId() == tvNum2.getId()) {
-                String tvNumText = ((TextView) view).getText().toString();
 
-                if(tvNumText.contains(FuHao.dengYu)) {
+                if(jianCeDengHao()) {
+                    String tvNumText = ((TextView) view).getText().toString();
                     myClip = ClipData.newPlainText("复制的结果", tvNumText.substring(FuHao.dengYu.length()));
                     myClipboard.setPrimaryClip(myClip);
                     Toast.makeText(activity, "结果已复制", Toast.LENGTH_SHORT).show();
@@ -627,9 +642,11 @@ public class MainUI {
     }
 
     private class TextWatcherListener implements TextWatcher {
-        private View view;
+        private TextView view;
+        private String oldString;
+        private boolean again = false;
 
-        private TextWatcherListener(View view) {
+        private TextWatcherListener(TextView view) {
             this.view = view;
         }
 
@@ -645,6 +662,20 @@ public class MainUI {
         public void afterTextChanged(final Editable editable) {
             xianShiChuLi(editable);
             save(editable);
+
+            //文本变色
+            if (view.getId() == tv.getId() || view.getId() == tv2.getId() && view.length() > 0) {
+                if (oldString == null || !Objects.equals(editable.toString(), oldString) || again) {
+                    again = false;
+                    oldString = editable.toString();
+                    TypedValue value = new TypedValue();
+                    activity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
+                    CharSequence cs = TextColorStyles.run(editable.toString(), value.data);
+                    editable.replace(0, cs.length(), cs);
+                } else {
+                    again = true;
+                }
+            }
         }
 
         private void save(CharSequence cs) {
@@ -727,14 +758,6 @@ public class MainUI {
         });
     }
 
-    public void flushTextColor(){
-        if (tv.length() > 0) {
-            TypedValue value = new TypedValue();
-            activity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-            tv.setText(TextColorStyles.run(tv.getText().toString(), value.data));   //文本变色
-        }
-    }
-
     private void saveToSql(String equation, String result) {
         HistoryListData.RowData rowDataTemp = HistoryListData.exportFromSQLite(activity.getApplicationContext(), HistoryListData.RowId.ROW_ID_NEWEST_TIME);
 
@@ -763,35 +786,44 @@ public class MainUI {
 
     private void runYuYin(final View view) {
         if (ma.isOnYuYin()) {
-            ma.au.play(view);
+            if (ma.isOnTTS()) {
+                ma.tts.speak(view);
+            } else {
+                ma.au.play(view);
+            }
         }
     }
 
     private void runYuYin(final String numStr) {
-        try {
-            int[] numArray = Nums.toIntArray(numStr, false);
-            ma.au.play(numArray);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (ma.isOnTTS()) {
+            ma.tts.speak(FuHao.dengYu + numStr);
+        } else {
+            try {
+                int[] numArray = Nums.toIntArray(numStr, false);
+                ma.au.play(numArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void loadFontSet() {
         SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
         int fontSizeForEquation = sp.getInt(
-                activity.getString(R.string.fontSizeForEquation),
+                "fontSizeForEquation",
                 activity.getResources().getInteger(R.integer.default_fontSizeForEquation)
         );
         int fontSizeForNums = sp.getInt(
-                activity.getString(R.string.fontSizeForNums),
+                "fontSizeForNums",
                 activity.getResources().getInteger(R.integer.default_fontSizeForNums)
         );
         int fontSizeForButton = sp.getInt(
-                activity.getString(R.string.fontSizeForButton),
+                "fontSizeForButton",
                 activity.getResources().getInteger(R.integer.default_fontSizeForButton)
         );
 
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForEquation);
+        tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForEquation);
         tvNum.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForNums);
         tvNum2.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForNums);
         jia.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
@@ -813,5 +845,63 @@ public class MainUI {
         ((Button) activity.findViewById(R.id.b7)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
         ((Button) activity.findViewById(R.id.b8)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
         ((Button) activity.findViewById(R.id.b9)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+    }
+
+    private void continueByEquation(View view, String tt) {
+        if (view.getId() == jia.getId()
+                || view.getId() == jian.getId()
+                || view.getId() == cheng.getId()
+                || view.getId() == chu.getId()) {
+            tvNum.setText(FuHao.NULL);
+            tv.setText(tt + ((Button) view).getText());
+            toBottom(sv1);
+            toTop(sv2);
+        }
+    }
+
+    private void continueByResult(View v, String ttN) {
+        if (v.getId() == jia.getId()
+                || v.getId() == jian.getId()
+                || v.getId() == cheng.getId()
+                || v.getId() == chu.getId()
+                || v.getId() == dengYu.getId()) {
+            if (ttN.contains(FuHao.TEN_POWER)) {
+                String tvStr = FuHao.kuoHaoTou + tv.getText().toString() + FuHao.kuoHaoWei;
+                tv.setText(tvStr);
+                tvNum.setText(FuHao.NULL);
+            } else if (Nums.isNum(ttN.substring(ttN.length() - 1, ttN.length()))) {
+                String tvnStr = ttN.substring(FuHao.dengYu.length());
+                tvNum.setText(tvnStr);
+                tv.setText(FuHao.NULL);
+            }
+
+            if (!(v.getId() == dengYu.getId())) {
+                v.performClick();
+            }
+
+            toTop(sv2);
+            toBottom(sv1);
+        }
+    }
+
+    public void setTempHistory(boolean visibility) {
+        if (visibility) {
+            SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+
+            if (sp.getBoolean(
+                    "mainActivityHistoryVisibility",
+                    activity.getResources().getBoolean(R.bool.default_mainActivityVisibilityHistory))) {
+                if (lastFormula != null && lastResult != null) {
+                    tv2.setText(lastFormula + "\n" + FuHao.dengYu + lastResult);
+                    tv2.setVisibility(View.VISIBLE);
+                } else if (jianCeDengHao()) {
+                    tv2.setText(tv.getText() + "\n" + tvNum.getText());
+                    tv2.setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            tv2.setText(FuHao.NULL);
+            tv2.setVisibility(View.GONE);
+        }
     }
 }
