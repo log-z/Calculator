@@ -25,7 +25,7 @@ public class JsqApplication extends Application {
     private static class CrashHandler implements UncaughtExceptionHandler {
         private Context context;
         private static CrashHandler INSTANCE = new CrashHandler();
-        private UncaughtExceptionHandler defaultHandler;
+//        private UncaughtExceptionHandler defaultHandler;
 
         private CrashHandler(){}
 
@@ -35,7 +35,7 @@ public class JsqApplication extends Application {
 
         public void init(Context context) {
             this.context = context;
-            defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+//            defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
             Thread.setDefaultUncaughtExceptionHandler(this);
         }
 

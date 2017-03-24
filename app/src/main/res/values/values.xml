@@ -10,4 +10,5 @@
     <string name="default_resultsAgainCalculation">@string/resultsAgainCalculation_formulaPreferred_key</string>
     <string name="default_historyDeleteAuto">@string/off</string>
     <bool name="default_mainActivityVisibilityHistory">true</bool>
+    <string name="default_autoLineFeed">0</string>
 </resources>

@@ -26,6 +26,21 @@
             android:defaultValue="@bool/default_translucentNavigationBar" />
     </PreferenceCategory>
     <PreferenceCategory
+        android:title="@string/calculate">
+        <ListPreference
+            android:key="autoLineFeed"
+            android:title="@string/autoLineFeed"
+            android:entries="@array/autoLineFeed_item"
+            android:entryValues="@array/autoLineFeed_key"
+            android:defaultValue="@string/default_autoLineFeed" />
+        <ListPreference
+            android:key="resultsAgainCalculation"
+            android:title="@string/resultsAgainCalculation"
+            android:entries="@array/resultsAgainCalculationItem"
+            android:entryValues="@array/resultsAgainCalculationKey"
+            android:defaultValue="@string/default_resultsAgainCalculation" />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="@string/yuYin">
         <SwitchPreference
             android:key="onTTS"
@@ -55,12 +70,6 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/other">
-        <ListPreference
-            android:key="resultsAgainCalculation"
-            android:title="@string/resultsAgainCalculation"
-            android:entries="@array/resultsAgainCalculationItem"
-            android:entryValues="@array/resultsAgainCalculationKey"
-            android:defaultValue="@string/default_resultsAgainCalculation" />
         <Preference
             android:key="restoreSettings"
             android:title="@string/restoreSettings"

@@ -73,7 +73,7 @@ public class JiSuan {
 
     //预处理_mian
     private void yuChuLi(){
-        strBuf = new StringBuffer(t);
+        strBuf = new StringBuffer(t.replaceAll("\\s+", FuHao.NULL));
 
         if (strBuf.indexOf(FuHao.jian) == 0) {
             strBuf.insert(0, Nums.nums[0]);

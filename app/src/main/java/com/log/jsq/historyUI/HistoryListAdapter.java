@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.log.jsq.library.FuHao;
 import com.log.jsq.R;
 import com.log.jsq.tool.HistoryListData;
-import com.log.jsq.tool.TextColorStyles;
+import com.log.jsq.tool.TextHandler;
 import com.log.jsq.tool.Time;
 
 import java.util.ArrayList;
@@ -71,19 +71,16 @@ public class HistoryListAdapter extends Adapter<HistoryListAdapter.ViewHolder> {
         this.activity = activity;
     }
 
-    // 创建新的视图（通过调用布局管理器）
+    // 创建新的视图
     @Override
     public HistoryListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // 创建一个新视图
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_card, parent, false);
 
-        // 接下来可以设置视图的大小等布局参数
-        // 设置Ripple效果（无效）
-
         return new ViewHolder(view, mItemClickListener);
     }
 
-    // 设置视图的内容(通过调用布局管理器)
+    // 设置视图的内容
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         // - 从数据集得到元素所在位置
@@ -108,7 +105,7 @@ public class HistoryListAdapter extends Adapter<HistoryListAdapter.ViewHolder> {
                 final String itemBodyStr = rowData.getEquation();
                 TypedValue value = new TypedValue();
                 activity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-                final Spanned itemBodySpa = TextColorStyles.run(itemBodyStr, value.data);
+                final Spanned itemBodySpa = TextHandler.run(itemBodyStr, value.data);
 
                 importance.setOnClickListener(new View.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -131,7 +128,7 @@ public class HistoryListAdapter extends Adapter<HistoryListAdapter.ViewHolder> {
         }.start();
     }
 
-    // 返回数据集的大小(调用的布局管理器)
+    // 返回数据集的大小
     @Override
     public int getItemCount() {
         return mDataset.size();

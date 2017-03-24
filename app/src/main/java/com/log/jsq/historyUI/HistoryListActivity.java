@@ -34,7 +34,7 @@ import com.log.jsq.tool.HistoryListData;
 
 import com.log.jsq.R;
 import com.log.jsq.tool.HistoryListSqlite;
-import com.log.jsq.tool.TextColorStyles;
+import com.log.jsq.tool.TextHandler;
 import com.log.jsq.tool.Time;
 
 import java.util.ArrayList;
@@ -176,7 +176,7 @@ public class HistoryListActivity
 
         TypedValue value = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-        final CharSequence equationHtml = TextColorStyles.run(equation, value.data);
+        final CharSequence equationHtml = TextHandler.run(equation, value.data);
 
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View particularView = inflater.inflate(R.layout.history_particular, null);
@@ -191,6 +191,7 @@ public class HistoryListActivity
                         SharedPreferences.Editor spe = getSharedPreferences("list", MODE_PRIVATE).edit();
                         spe.putString("textView0", equation);
                         spe.putString("numTextView0", FuHao.dengYu + result);
+                        spe.putBoolean("normal", false);
                         spe.apply();
 
                         breakToActivity(MainActivity.class);

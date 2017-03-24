@@ -28,7 +28,6 @@ public class AudioOnTTS implements TextToSpeech.OnInitListener {
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
-            tts.setSpeechRate(0.8f);
             int result = tts.setLanguage(Locale.CHINA);
 
             if (result != TextToSpeech.LANG_COUNTRY_AVAILABLE && result != TextToSpeech.LANG_AVAILABLE) {

@@ -24,34 +24,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/whiteLow"
-                android:fontFamily="sans-serif"
-                android:gravity="bottom|right"
-                android:minLines="1"
-                android:padding="10dp"
-                android:scrollbars="vertical"
-                android:singleLine="false"
-                android:textColor="?android:colorPrimary"
-                android:textSize="36sp"
-                android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/text_view_ripple_orange"
-                android:fontFamily="sans-serif"
-                android:gravity="bottom|right"
-                android:minLines="1"
-                android:padding="10dp"
-                android:scrollbars="vertical"
-                android:singleLine="false"
-                android:textColor="?android:colorPrimary"
-                android:textSize="36sp" />
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:background="@color/whiteLow"
+                    android:fontFamily="sans-serif"
+                    android:gravity="bottom|right"
+                    android:minLines="1"
+                    android:padding="10dp"
+                    android:scrollbars="vertical"
+                    android:textColor="?android:colorPrimary"
+                    android:textSize="36sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/text_view_ripple_orange"
+                    android:fontFamily="sans-serif"
+                    android:gravity="bottom|right"
+                    android:minLines="1"
+                    android:padding="10dp"
+                    android:scrollbars="none"
+                    android:textColor="?android:colorPrimary"
+                    android:textSize="36sp" />
             </LinearLayout>
         </ScrollView>
 

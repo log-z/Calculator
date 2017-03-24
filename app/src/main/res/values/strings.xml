@@ -34,7 +34,7 @@
     <string name="updateHistory">历史更新日志</string>
     <string name="helpWord">帮助文档</string>
 
-    <string name="aboutVersion">计算器 v3.7(16)</string>
+    <string name="aboutVersion">计算器 v4.0(17)</string>
     <string name="aboutWords">简单，但却不一般</string>
     <string name="aboutDeveloper">作者：酷安@log_Z</string>
     <string name="aboutXBB_Title">
@@ -119,17 +119,35 @@
     <string name="other">其它</string>
 
     <string name="mainActivityHistoryVisibility">主页显示</string>
-    <string name="resultsAgainCalculation">对结果计算时</string>
 
-    <!-- 请勿修改键值 -->
+    <string name="calculate">计算</string>
+    <string name="autoLineFeed">自动换行</string>
+    <!-- 请勿修改键值 Start -->
+    <string-array name="autoLineFeed_key">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    <!-- 请勿修改键值 End -->
+    <string-array name="autoLineFeed_item">
+        <item>关闭</item>
+        <item>加减(不在括号中的)</item>
+        <item>加减</item>
+        <item>加减乘除(不在括号中的)</item>
+        <item>加减乘除</item>
+    </string-array>
+
+    <string name="resultsAgainCalculation">对结果计算时</string>
+    <!-- 请勿修改键值 Start -->
     <string name="resultsAgainCalculation_resultPreferred_key">resultsAgainCalculation_resultPreferred</string>
     <string name="resultsAgainCalculation_formulaPreferred_key">resultsAgainCalculation_formulaPreferred</string>
     <string-array name="resultsAgainCalculationKey">
         <item>@string/resultsAgainCalculation_resultPreferred_key</item>
         <item>@string/resultsAgainCalculation_formulaPreferred_key</item>
     </string-array>
-    <!-- 请勿修改键值 -->
-
+    <!-- 请勿修改键值 End -->
     <string name="resultsAgainCalculation_resultPreferred_item">结果优先</string>
     <string name="resultsAgainCalculation_formulaPreferred_item">算式优先</string>
     <string-array name="resultsAgainCalculationItem">

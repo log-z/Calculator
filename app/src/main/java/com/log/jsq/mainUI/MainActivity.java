@@ -35,7 +35,6 @@ import com.log.jsq.R;
 import com.log.jsq.historyUI.HistoryListActivity;
 import com.log.jsq.tool.AudioOnTTS;
 import com.log.jsq.tool.Open;
-import com.log.jsq.tool.TextColorStyles;
 
 public class MainActivity extends AppCompatActivity implements AudioOnTTS.Exceptional {
     private long mPressedTime = 0;
@@ -208,6 +207,9 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
             findViewById(R.id.bGuiLing).setVisibility(View.VISIBLE);
             findViewById(R.id.bShanChu).setVisibility(View.VISIBLE);
             findViewById(R.id.numsAndFuhaoLayout).setVisibility(View.VISIBLE);
+
+            TextView textView = (TextView) findViewById(R.id.textView);
+            textView.setText(textView.getText().toString().replaceAll("\\s", FuHao.NULL));
         } else if((mNowTime - mPressedTime) > 1000) {
             Toast.makeText(this, "再按一次退出计算器", Toast.LENGTH_SHORT).show();
             mPressedTime = mNowTime;
@@ -258,14 +260,8 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                        @Override
                         public void run() {
                             textView.setText(textViewStr);
+                            textView2.setText(textView2.getText().toString().replaceAll("\\s", FuHao.NULL));
                             numTextView.setText(numTextViewStr);
-
-                            if (textView.length() > 0) {
-                               TypedValue value = new TypedValue();
-                               thisActivity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-                               textView.setText(TextColorStyles.run(textView.getText().toString(), value.data));   //文本变色
-                               textView2.setText(TextColorStyles.run(textView2.getText().toString(), value.data));   //文本变色
-                            }
 
                            SharedPreferences sp = getSharedPreferences("setting", MODE_PRIVATE);
                            if (!sp.getBoolean(
@@ -628,11 +624,13 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                             shanChu.setVisibility(View.VISIBLE);
                             linearLayout.setVisibility(View.VISIBLE);
                         }
+
+                        TextView textView = (TextView) findViewById(R.id.textView);
+                        textView.setText(textView.getText().toString().replaceAll("\\s", FuHao.NULL));
                     }
                 }
             });
         }
-
     }
 
     public boolean isMainMod() {

@@ -12,6 +12,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +23,7 @@ import com.log.jsq.tool.HistoryListData;
 import com.log.jsq.tool.JiSuan;
 import com.log.jsq.library.Nums;
 import com.log.jsq.R;
-import com.log.jsq.tool.TextColorStyles;
+import com.log.jsq.tool.TextHandler;
 
 import java.util.Objects;
 
@@ -320,9 +321,7 @@ public class MainUI {
                                 Toast.makeText(activity, "_(:3」∠)_", Toast.LENGTH_SHORT).show();
                             }
 
-                            if (ma.isOnYuYin()) {
-                                ma.au.play(view);
-                            }
+                            runYuYin(view);
                         } else if (GuiZe.dengYu(tt, ttN)) {
                             toBottom(sv1);
                             toTop(sv2);
@@ -397,8 +396,8 @@ public class MainUI {
                                     }
                                 }
                             }.start();
-                        } else if (ma.isOnYuYin()) {
-                            ma.au.play(view);
+                        } else {
+                            runYuYin(view);
                         }
                     }
                 }
@@ -645,36 +644,77 @@ public class MainUI {
         private TextView view;
         private String oldString;
         private boolean again = false;
+        private int tvLineCountLast = 0;
 
         private TextWatcherListener(TextView view) {
             this.view = view;
         }
 
         @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
         @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
         @Override
         public void afterTextChanged(final Editable editable) {
             xianShiChuLi(editable);
             save(editable);
 
-            //文本变色
+            //文本处理（换行、变色等）
             if (view.getId() == tv.getId() || view.getId() == tv2.getId() && view.length() > 0) {
                 if (oldString == null || !Objects.equals(editable.toString(), oldString) || again) {
                     again = false;
                     oldString = editable.toString();
+
+                    String addLineFeedStr;
+                    SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+                    String autoLineFeed = sp.getString(
+                            "autoLineFeed",
+                            activity.getString(R.string.default_autoLineFeed)
+                    );
+                    switch (Integer.valueOf(autoLineFeed)) {
+                        case 0:
+                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), false, false, false);
+                            break;
+                        case 1:
+                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, false, false);
+                            break;
+                        case 2:
+                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, false, true);
+                            break;
+                        case 3:
+                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, true, false);
+                            break;
+                        case 4:
+                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, true, true);
+                            break;
+                        default:
+                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), false, false, false);
+                    }
+
                     TypedValue value = new TypedValue();
                     activity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-                    CharSequence cs = TextColorStyles.run(editable.toString(), value.data);
-                    editable.replace(0, cs.length(), cs);
+                    CharSequence cs = TextHandler.run(addLineFeedStr, value.data);
+                    editable.replace(0, editable.length(), cs);
                 } else {
                     again = true;
                 }
+            }
+
+            // 算式区自适应高度
+            if (tv.getLineCount() != tvLineCountLast) {
+                LinearLayout.LayoutParams lp;
+                tvLineCountLast = tv.getLineCount();
+
+                if (tv2.getVisibility() == View.GONE
+                        || tv.getPaddingBottom() + tv.getPaddingTop() + tvLineCountLast * tv.getLineHeight() + tv2.getHeight() <= sv1.getHeight()) {
+                    lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                } else {
+                    lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                }
+
+                tv.setLayoutParams(lp);
             }
         }
 
@@ -683,9 +723,9 @@ public class MainUI {
             final SharedPreferences.Editor editor = activity.getSharedPreferences("list", MODE_PRIVATE).edit();
 
             if (view.getId() == tv.getId()) {
-                editor.putString("textView0", string);
+                editor.putString("textView0", string.replaceAll("\\s", FuHao.NULL));
             } else if (view.getId() == tvNum.getId()) {
-                editor.putString("numTextView0", string);
+                editor.putString("numTextView0", string.replaceAll("\\s", FuHao.NULL));
             }
 
             editor.apply();
@@ -711,23 +751,7 @@ public class MainUI {
                     dian.setVisibility(View.GONE);
                 }
             } else if (view.getId() == tv.getId()) {  //处理：括号尾 与 等号
-                int touNun = 0;
-                int weiNun = 0;
-                int i;
-
-                i = tvText.indexOf(FuHao.kuoHaoTou);
-                while (i >= 0) {
-                    touNun++;
-                    i = tvText.indexOf(FuHao.kuoHaoTou, i + 1);
-                }
-
-                i = tvText.indexOf(FuHao.kuoHaoWei);
-                while (i >= 0) {
-                    weiNun++;
-                    i = tvText.indexOf(FuHao.kuoHaoWei, i + 1);
-                }
-
-                if (touNun == weiNun) {
+                if (TextHandler.isParenthesesClosed(tvText, tvText.length())) {
                     kuoHaoWei.setVisibility(View.GONE);
                     dengYu.setVisibility(View.VISIBLE);
                 } else {
@@ -736,7 +760,6 @@ public class MainUI {
                 }
             }
         }
-
     }
 
     private void toTop(final ScrollView sv) {
@@ -763,8 +786,8 @@ public class MainUI {
 
         if (rowDataTemp == null || !rowDataTemp.getEquation().equals(equation) || !rowDataTemp.getResult().equals(result)) {
             HistoryListData.RowData rowData = new HistoryListData.RowData(
-                    equation,
-                    result,
+                    equation.replaceAll("\\s", FuHao.NULL),
+                    result.replaceAll("\\s", FuHao.NULL),
                     System.currentTimeMillis(),
                     false
             );
@@ -892,10 +915,10 @@ public class MainUI {
                     "mainActivityHistoryVisibility",
                     activity.getResources().getBoolean(R.bool.default_mainActivityVisibilityHistory))) {
                 if (lastFormula != null && lastResult != null) {
-                    tv2.setText(lastFormula + "\n" + FuHao.dengYu + lastResult);
+                    tv2.setText(lastFormula  + FuHao.dengYu + lastResult);
                     tv2.setVisibility(View.VISIBLE);
                 } else if (jianCeDengHao()) {
-                    tv2.setText(tv.getText() + "\n" + tvNum.getText());
+                    tv2.setText(tv.getText().toString() + tvNum.getText().toString());
                     tv2.setVisibility(View.VISIBLE);
                 }
             }

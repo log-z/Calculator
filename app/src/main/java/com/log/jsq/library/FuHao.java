@@ -16,7 +16,7 @@ public class FuHao {
     public static String[] jjccd = null;
     public static final String NULL = "";
     public static final String TEN_POWER = "E";
-    public static int JJCC_LEN = 4;         //在 jjccd[] 中加减乘除的长度
+    public static final int JJCC_LEN = 4;         //在 jjccd[] 中加减乘除的长度
 
     public static void luRu(Context context){
         jia = context.getString(R.string.jia);

@@ -5,15 +5,17 @@ import android.text.Spanned;
 
 import com.log.jsq.library.FuHao;
 
-/**
- * 【colorArray的存储方式】
- * r0:符号是否变色的标记（如果有则为开始位置）
- * r1:变色符号在strs的位置（获得变色符号长度）
- */
-public class TextColorStyles {
+public class TextHandler {
+
+    private static final String lineFeed = "\n";
 
     //文本变色（主）
     public static Spanned run(String text, int color) {
+        /**
+         * 【colorArray的存储方式】
+         * r0:符号是否变色的标记（如果有则为开始位置）
+         * r1:变色符号在strs的位置（获得变色符号长度）
+         */
         int COLOR_ARRAY_TEXT_START_HANG = 0; //文本变色开始的位置的行数（适用于colorArray）
         int COLOR_ARRAY_STRS_INDEX_HANG = 1; //变色符号对应的位置的行数（适用于colorArray）
         int NOT_CHANGE_COLOR = -1;           //不变色的标记（适用于colorArray）
@@ -89,6 +91,27 @@ public class TextColorStyles {
         return Html.fromHtml(textBuf.toString().replaceAll("(\r\n|\r|\n|\n\r)", "<br/>"));
     }
 
+    public static String addLineFeed(String str, boolean addOn_jiaJian, boolean addOn_chengChu, boolean addOn_kuoHaoNei) {
+        StringBuffer strBuf = new StringBuffer(str.replaceAll("\\s", FuHao.NULL));
+
+        if (addOn_jiaJian) {
+            addLineFeed(strBuf, FuHao.jia, addOn_kuoHaoNei);
+            addLineFeed(strBuf, FuHao.jian, addOn_kuoHaoNei);
+        }
+        if (addOn_chengChu) {
+            addLineFeed(strBuf, FuHao.cheng, addOn_kuoHaoNei);
+            addLineFeed(strBuf, FuHao.chu, addOn_kuoHaoNei);
+        }
+
+        int dengYuIndex = strBuf.lastIndexOf(FuHao.dengYu);
+        if (dengYuIndex >= 0) {
+            strBuf.insert(dengYuIndex+FuHao.dengYu.length(), " ");
+            strBuf.insert(dengYuIndex, lineFeed);
+        }
+
+        return strBuf.toString();
+    }
+
     //检测减号是否为负号
     private static boolean jianCeFu(String text, int index) {
         final int indexUp1 = index - FuHao.kuoHaoTou.length();                       //假设负号存在时，用“负号”的位置推出“括号头+负号”的位置。
@@ -99,4 +122,56 @@ public class TextColorStyles {
                 || index == 0
         );
     }
+
+    public static boolean isParenthesesClosed(String str, int endIndex) {
+        return isParenthesesClosed(new StringBuffer(str), endIndex);
+    }
+
+    public static boolean isParenthesesClosed(StringBuffer strBuf, int endIndex) {
+        if (endIndex > strBuf.length()) {
+            throw new IndexOutOfBoundsException("strBuf.length = " + strBuf.length() + ", endIndex = " + endIndex);
+        }
+
+        int touLen = 0;
+        int weiLen = 0;
+        int i;
+
+        i = strBuf.indexOf(FuHao.kuoHaoTou);
+        while (i >= 0) {
+            if (i > endIndex) {
+                break;
+            } else {
+                touLen++;
+                i = strBuf.indexOf(FuHao.kuoHaoTou, i + 1);
+            }
+        }
+
+        i = strBuf.indexOf(FuHao.kuoHaoWei);
+        while (i >= 0) {
+            if (i > endIndex) {
+                break;
+            } else {
+                weiLen++;
+                i = strBuf.indexOf(FuHao.kuoHaoWei, i + 1);
+            }
+        }
+
+        return touLen == weiLen;
+    }
+
+    private static void addLineFeed(StringBuffer strBuf, String targetStr, boolean addOn_kuoHaoNei) {
+        for (int i = strBuf.lastIndexOf(targetStr);
+             i >= 0 && i < strBuf.length();
+             i = strBuf.lastIndexOf(targetStr, i)) {
+
+            if (addOn_kuoHaoNei) {
+                strBuf.insert(i, lineFeed);
+            } else if (isParenthesesClosed(strBuf, i)) {
+                strBuf.insert(i, lineFeed);
+            } else {
+                i--;
+            }
+        }
+    }
+
 }
