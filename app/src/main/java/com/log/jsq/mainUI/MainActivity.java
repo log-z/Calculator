@@ -30,7 +30,6 @@ import com.log.jsq.aboutUI.AboutActivity;
 import com.log.jsq.settingUI.SettingActivity;
 import com.log.jsq.tool.Audio;
 import com.log.jsq.library.FuHao;
-import com.log.jsq.library.Nums;
 import com.log.jsq.R;
 import com.log.jsq.historyUI.HistoryListActivity;
 import com.log.jsq.tool.AudioOnTTS;
@@ -49,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     private Activity thisActivity = this;
     private MainUI mainUI;
     public AudioOnTTS tts;
+    private static boolean isOnCreated = false;
 
     @Override
     protected void finalize() throws Throwable  {
@@ -63,19 +63,18 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
         setTheme(this);
         setContentView(R.layout.activity_main);
 
-        loadingSever();
-        loadingString();
-
         mainUI = MainUI.getInstance();
         mainUI.init(this);
 
         setActionBar();
+        loadingSever();
         versionDetection();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        isOnCreated = true;
         recover();
     }
 
@@ -325,11 +324,6 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                 tts = null;
             }
         }
-    }
-
-    private void loadingString() {
-        FuHao.luRu(getApplicationContext());
-        Nums.luRu(getApplicationContext());
     }
 
     public boolean isOnZhenDong() {
@@ -670,5 +664,11 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
         } else {
             onTTS = false;
         }
+    }
+
+    public static boolean isOnCreated() {
+        boolean temp = isOnCreated;
+        isOnCreated = false;
+        return temp;
     }
 }

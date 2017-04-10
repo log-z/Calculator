@@ -1,5 +1,6 @@
 package com.log.jsq.tool;
 
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -54,8 +55,12 @@ public class TextHandler {
                     break;  //找不到则跳出循环，开始从下一个符号找
                 } else {
                     //检测负号
-                    if (strs[strsIndex].equals(FuHao.jian) && jianCeFu(textBuf.toString(),textIndex)) {
+                    if (strs[strsIndex].equals(FuHao.jian) && jianCeFu(textBuf,textIndex)) {
                         textIndex += FuHao.jian.length();
+                        continue;
+                    }
+                    if (strs[strsIndex].equals(FuHao.jia) && jianCeZheng(textBuf, textIndex)) {
+                        textIndex += FuHao.jia.length();
                         continue;
                     }
 
@@ -95,12 +100,12 @@ public class TextHandler {
         StringBuffer strBuf = new StringBuffer(str.replaceAll("\\s", FuHao.NULL));
 
         if (addOn_jiaJian) {
-            addLineFeed(strBuf, FuHao.jia, addOn_kuoHaoNei);
-            addLineFeed(strBuf, FuHao.jian, addOn_kuoHaoNei);
+            addLineFeedRun(strBuf, FuHao.jia, addOn_kuoHaoNei);
+            addLineFeedRun(strBuf, FuHao.jian, addOn_kuoHaoNei);
         }
         if (addOn_chengChu) {
-            addLineFeed(strBuf, FuHao.cheng, addOn_kuoHaoNei);
-            addLineFeed(strBuf, FuHao.chu, addOn_kuoHaoNei);
+            addLineFeedRun(strBuf, FuHao.cheng, addOn_kuoHaoNei);
+            addLineFeedRun(strBuf, FuHao.chu, addOn_kuoHaoNei);
         }
 
         int dengYuIndex = strBuf.lastIndexOf(FuHao.dengYu);
@@ -112,8 +117,15 @@ public class TextHandler {
         return strBuf.toString();
     }
 
+    //检测减号是否为正号
+    private static boolean jianCeZheng(StringBuffer text, int index) {
+        final int indexUp = index - FuHao.TEN_POWER.length();                       //假设正号存在时，用“正号”的位置推出“十次方+正号”的位置。
+
+        return (text.indexOf(FuHao.TEN_POWER + FuHao.jia, indexUp) == indexUp);    //判断“十次方+正号”的位置是否匹配
+    }
+
     //检测减号是否为负号
-    private static boolean jianCeFu(String text, int index) {
+    private static boolean jianCeFu(StringBuffer text, int index) {
         final int indexUp1 = index - FuHao.kuoHaoTou.length();                       //假设负号存在时，用“负号”的位置推出“括号头+负号”的位置。
         final int indexUp2 = index - FuHao.dengYu.length();                       //假设负号存在时，用“负号”的位置推出“等于+负号”的位置。
 
@@ -123,10 +135,9 @@ public class TextHandler {
         );
     }
 
-    public static boolean isParenthesesClosed(String str, int endIndex) {
-        return isParenthesesClosed(new StringBuffer(str), endIndex);
-    }
-
+    /*
+     * 判断算式指定位置的括号级别是否为0
+     */
     public static boolean isParenthesesClosed(StringBuffer strBuf, int endIndex) {
         if (endIndex > strBuf.length()) {
             throw new IndexOutOfBoundsException("strBuf.length = " + strBuf.length() + ", endIndex = " + endIndex);
@@ -159,10 +170,24 @@ public class TextHandler {
         return touLen == weiLen;
     }
 
-    private static void addLineFeed(StringBuffer strBuf, String targetStr, boolean addOn_kuoHaoNei) {
+    /*
+     * 判断算式指定位置的括号级别是否为0
+     * 参数为String类型的重载方法
+     */
+    public static boolean isParenthesesClosed(String str, int endIndex) {
+        return isParenthesesClosed(new StringBuffer(str), endIndex);
+    }
+
+    private static void addLineFeedRun(@NonNull StringBuffer strBuf, @NonNull String targetStr, boolean addOn_kuoHaoNei) {
         for (int i = strBuf.lastIndexOf(targetStr);
              i >= 0 && i < strBuf.length();
              i = strBuf.lastIndexOf(targetStr, i)) {
+
+            if (targetStr.equals(FuHao.jian) && jianCeFu(strBuf, i)
+                    || targetStr.equals(FuHao.jia) && jianCeZheng(strBuf, i)) {
+                i--;
+                continue;
+            }
 
             if (addOn_kuoHaoNei) {
                 strBuf.insert(i, lineFeed);

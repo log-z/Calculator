@@ -34,7 +34,7 @@
     <string name="updateHistory">历史更新日志</string>
     <string name="helpWord">帮助文档</string>
 
-    <string name="aboutVersion">计算器 v4.0(17)</string>
+    <string name="aboutVersion">计算器 v4.1(18)</string>
     <string name="aboutWords">简单，但却不一般</string>
     <string name="aboutDeveloper">作者：酷安@log_Z</string>
     <string name="aboutXBB_Title">
@@ -114,8 +114,8 @@
     <string name="fontSizeForButton">按键面板</string>
     <string name="translucentStatusBar">半透明状态栏</string>
     <string name="translucentNavigationBar">半透明导航栏</string>
-    <string name="onTTS">使用TTS代替自带语音(实验性)</string>
-    <string name="setTTS_program">选择TTS程序</string>
+    <string name="onTTS">使用TTS引擎代替自带语音</string>
+    <string name="setTTS_program">选择TTS引擎</string>
     <string name="other">其它</string>
 
     <string name="mainActivityHistoryVisibility">主页显示</string>
@@ -141,11 +141,9 @@
 
     <string name="resultsAgainCalculation">对结果计算时</string>
     <!-- 请勿修改键值 Start -->
-    <string name="resultsAgainCalculation_resultPreferred_key">resultsAgainCalculation_resultPreferred</string>
-    <string name="resultsAgainCalculation_formulaPreferred_key">resultsAgainCalculation_formulaPreferred</string>
     <string-array name="resultsAgainCalculationKey">
-        <item>@string/resultsAgainCalculation_resultPreferred_key</item>
-        <item>@string/resultsAgainCalculation_formulaPreferred_key</item>
+        <item>resultsAgainCalculation_resultPreferred</item>
+        <item>resultsAgainCalculation_formulaPreferred</item>
     </string-array>
     <!-- 请勿修改键值 End -->
     <string name="resultsAgainCalculation_resultPreferred_item">结果优先</string>
@@ -155,9 +153,8 @@
         <item>@string/resultsAgainCalculation_formulaPreferred_item</item>
     </string-array>
 
-<!--
     <string name="historyDeleteAuto">自动删除</string>
-    <string-array name="historyDeleteAuto">
+    <string-array name="historyDeleteAuto_item">
         <item>@string/off</item>
         <item>@string/deleteHistoryOf_aYearAgo</item>
         <item>@string/deleteHistoryOf_halfAYearAgo</item>
@@ -166,7 +163,17 @@
         <item>@string/deleteHistoryOf_aWeekAgo</item>
         <item>@string/deleteHistoryOf_all</item>
     </string-array>
--->
+    <!-- 请勿修改键值 Start -->
+    <string-array name="historyDeleteAuto_key">
+        <item>deleteHistoryAutoOf_off</item>
+        <item>deleteHistoryAutoOf_aYearAgo</item>
+        <item>deleteHistoryAutoOf_halfAYearAgo</item>
+        <item>deleteHistoryAutoOf_aMonthAgo</item>
+        <item>deleteHistoryAutoOf_halfAMonthAgo</item>
+        <item>deleteHistoryAutoOf_aWeekAgo</item>
+        <item>deleteHistoryAutoOf_all</item>
+    </string-array>
+    <!-- 请勿修改键值 End -->
 
     <string name="restoreSettings">重置设置</string>
     <string name="restoreSettingsSummary">将设置重置为默认设置</string>

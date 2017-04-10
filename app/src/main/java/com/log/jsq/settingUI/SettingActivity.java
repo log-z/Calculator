@@ -222,6 +222,7 @@ public class SettingActivity extends AppCompatActivity {
             String setTTSProgramKey = "setTTSProgram";
             String resultsAgainCalculationKey = "resultsAgainCalculation";
             String autoLineFeedKey = "autoLineFeed";
+            String historyDeleteAutoKey = "historyDeleteAuto";
 
             if (key == null || Objects.equals(key, fontSizeForEquationKey)) {
                 int fontSizeForEquationValue = sp.getInt(fontSizeForEquationKey, getResources().getInteger(R.integer.default_fontSizeForEquation));
@@ -277,6 +278,21 @@ public class SettingActivity extends AppCompatActivity {
                 for (int i = 0; i < keys.length; i++) {
                     if (keys[i].equals(keyKey)) {
                         findPreference(autoLineFeedKey).setSummary(item[i]);
+                        break;
+                    }
+                }
+            }
+            if (key == null || Objects.equals(key, historyDeleteAutoKey)) {
+                String keyKey = sp.getString(
+                        historyDeleteAutoKey,
+                        getString(R.string.default_historyDeleteAuto)
+                );
+                String[] keys = getResources().getStringArray(R.array.historyDeleteAuto_key);
+                String[] item = getResources().getStringArray(R.array.historyDeleteAuto_item);
+
+                for (int i = 0;i < keys.length; i++) {
+                    if (keys[i].equals(keyKey)) {
+                        findPreference(historyDeleteAutoKey).setSummary(item[i]);
                         break;
                     }
                 }

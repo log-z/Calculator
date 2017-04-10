@@ -59,13 +59,11 @@
             android:key="mainActivityHistoryVisibility"
             android:title="@string/mainActivityHistoryVisibility"
             android:defaultValue="@bool/default_mainActivityVisibilityHistory"/>
-<!--
         <ListPreference
             android:key="historyDeleteAuto"
             android:title="@string/historyDeleteAuto"
-            android:entries="@array/historyDeleteAuto"
-            android:entryValues="@array/historyDeleteAuto" />
--->
+            android:entries="@array/historyDeleteAuto_item"
+            android:entryValues="@array/historyDeleteAuto_key" />
 
     </PreferenceCategory>
     <PreferenceCategory

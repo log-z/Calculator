@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.log.jsq.library.FuHao;
-import com.log.jsq.library.Nums;
 import com.log.jsq.mainUI.MainActivity;
 import com.log.jsq.tool.HistoryListData;
 
@@ -68,11 +67,6 @@ public class HistoryListActivity
         if (startFrom == null || !startFrom.equals(MainActivity.class.toString())) {
             Log.w(getClass().toString(), "不是通过主页面启动!");
             startFromMainActivity = false;
-
-            if (Nums.nums == null || FuHao.jjccd == null || FuHao.dengYu == null || FuHao.kuoHaoTou == null ||FuHao.kuoHaoWei == null) {
-                Nums.luRu(getApplicationContext());
-                FuHao.luRu(getApplicationContext());
-            }
         }
 
         super.onCreate(savedInstanceState);
@@ -231,6 +225,7 @@ public class HistoryListActivity
         adapter.deleteItem(position);
         recycler++;
         menu.findItem(R.id.recycler).setVisible(recycler > 0);
+        menu.findItem(R.id.comeBreak).setVisible(recycler == 0);
     }
 
     @Override
@@ -258,11 +253,12 @@ public class HistoryListActivity
         recycler--;
         adapter.recoverItem(rowData.getPosition());
         menu.findItem(R.id.recycler).setVisible(recycler > 0);
+        menu.findItem(R.id.comeBreak).setVisible(recycler == 0);
     }
 
     @Override
     public void finish() {
-        new Thread() {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 updateRowFromSql();
@@ -280,7 +276,8 @@ public class HistoryListActivity
                     arrayRecycler = null;
                 }
             }
-        }.start();
+        };
+        thread.start();
 
         if (adapter != null) {
             adapter.release();
@@ -292,12 +289,30 @@ public class HistoryListActivity
             callback = null;
         }
 
-        arrayList.clear();
-        arrayList = null;
+        if (arrayList != null) {
+            arrayList.clear();
+            arrayList = null;
+        }
+
         menu = null;
         thisActivity = null;
 
         super.finish();
+
+        if (!startFromMainActivity) {
+            if (MainActivity.isOnCreated()) {
+                breakToActivity(MainActivity.class);
+                return;
+            }
+
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.exit(0);
+        }
     }
 
     private void breakToActivity(Class mClass) {
@@ -385,6 +400,7 @@ public class HistoryListActivity
                                     @Override
                                     public void run() {
                                         menu.findItem(R.id.recycler).setVisible(false);
+                                        menu.findItem(R.id.comeBreak).setVisible(true);
                                     }
                                 });
                             }

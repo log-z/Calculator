@@ -97,6 +97,7 @@ public class MainUI {
         tv.setOnLongClickListener(tolcl);
         tv.setOnClickListener(tocl);
         tv.addTextChangedListener(new TextWatcherListener(tv));
+        tv2.setOnClickListener(tocl);
         tv2.addTextChangedListener(new TextWatcherListener(tv2));
         tvNum.setOnLongClickListener(tolcl);
         tvNum.setOnClickListener(tocl);
@@ -237,10 +238,13 @@ public class MainUI {
                     String mode = sp.getString("resultsAgainCalculation", activity.getString(R.string.default_resultsAgainCalculation));
                     setTempHistory(true);
 
-                    if (mode.equals(activity.getString(R.string.resultsAgainCalculation_formulaPreferred_key))) {
-                        continueByEquation(view, tt);
-                    } else if (mode.equals(activity.getString(R.string.resultsAgainCalculation_resultPreferred_key))) {
-                        continueByResult(view, ttN);
+                    switch (mode) {
+                        case "resultsAgainCalculation_formulaPreferred":
+                            continueByEquation(view, tt);
+                            break;
+                        case "resultsAgainCalculation_resultPreferred":
+                            continueByResult(view, ttN);
+                            break;
                     }
                 } else {
                     if (view.getId() == jia.getId() || view.getId() == jian.getId() || view.getId() == cheng.getId() || view.getId() == chu.getId()) {  //判断 加减乘除
@@ -423,14 +427,17 @@ public class MainUI {
                 setTempHistory(true);
 
                 // 长按时操作相反
-                if (mode.equals(activity.getString(R.string.resultsAgainCalculation_formulaPreferred_key))) {
-                    continueByResult(v, ttN);
-                } else if (mode.equals(activity.getString(R.string.resultsAgainCalculation_resultPreferred_key))) {
-                    if (v.getId() == dengYu.getId()) {
+                switch (mode) {
+                    case "resultsAgainCalculation_formulaPreferred":
                         continueByResult(v, ttN);
-                    } else {
-                        continueByEquation(v, tv.getText().toString());
-                    }
+                        break;
+                    case "resultsAgainCalculation_resultPreferred":
+                        if (v.getId() == dengYu.getId()) {
+                            continueByResult(v, ttN);
+                        } else {
+                            continueByEquation(v, tv.getText().toString());
+                        }
+                        break;
                 }
 
                 runYuYin(v);
@@ -597,7 +604,7 @@ public class MainUI {
                         tvNum.setText(ttN);
                     }
                 }
-            } else if (view.getId() == tv.getId()) {
+            } else if (view.getId() == tv.getId() || view.getId() == tv2.getId()) {
                 nowTime = System.currentTimeMillis();
 
                 if (nowTime - lastTime < 500) {
@@ -767,7 +774,18 @@ public class MainUI {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                sv.fullScroll(ScrollView.FOCUS_UP);
+                switch (sv.getId()) {
+                    case R.id.sv1:
+                        if (tv2.getVisibility() == View.GONE) {
+                            sv.fullScroll(ScrollView.FOCUS_UP);
+                        } else {
+                            sv.smoothScrollTo(0, tv2.getHeight());
+                        }
+                        break;
+                    case R.id.sv2:
+                        sv.fullScroll(ScrollView.FOCUS_UP);
+                        break;
+                }
             }
         });
     }
