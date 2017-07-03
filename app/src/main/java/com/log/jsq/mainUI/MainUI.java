@@ -54,6 +54,9 @@ public class MainUI {
     private String lastFormula;
     private String lastResult;
 
+    /**
+     * 检测垃圾回收
+     */
     @Override
     protected void finalize() throws Throwable {
         Log.d("MainActivity", "////////////////////// " + this + "已可以回收 ////////////////////////");
@@ -63,10 +66,18 @@ public class MainUI {
 
     private MainUI(){}
 
+    /**
+     * 获取该类的单例
+     * @return  返回该类的单一实例
+     */
     public static MainUI getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * 构造和注册控件监听器
+     * @param  activity     控件所在的activity
+     */
     public void init(Activity activity) {
         this.activity = activity;
         ma = (MainActivity)activity;
@@ -136,46 +147,70 @@ public class MainUI {
         activity.findViewById(R.id.bKuoHaoWei) .setOnClickListener(fhcl);
     }
 
+    /**
+     * 解绑Activity资源
+     */
     public void release() {
         activity = null;
         ma = null;
     }
 
-    private void addTextView(TextView tv, String str){
+    /**
+     * 追加字符串
+     * @param  tv   指定的TextView
+     * @param  str  追加的字符串
+     */
+    private void addText(TextView tv, String str){
         str = tv.getText().toString() + str;
         tv.setText(str);
     }
 
-    private void addTextView(TextView tv, TextView tvNew, String str) {
+    /**
+     * 连接数值区的字符串到算式区
+     * 会添加必要的括号
+     * @param  isCut    是否剪切
+     * @param  addStr   再次追加的字符串，允许为空
+     */
+    private void connectionTextView(boolean isCut, String addStr) {
         String tvStr = tv.getText().toString();
-        String tvNStr = tvNew.getText().toString();
+        String tvNStr = tvNum.getText().toString();
+
+        if (addStr == null) {
+            addStr = FuHao.NULL;
+        }
 
         if(tvNStr.startsWith(FuHao.jian)) {
+            // 自动为负数头尾添加必要的括号
             if (tvStr.length() == 0 || tvStr.endsWith(FuHao.kuoHaoTou)) {
-                tv.setText(tvStr + tvNStr + str);
+                tv.setText(tvStr + tvNStr + addStr);
             } else {
-                tv.setText(tvStr + FuHao.kuoHaoTou + tvNStr + FuHao.kuoHaoWei + str);
+                tv.setText(tvStr + FuHao.kuoHaoTou + tvNStr + FuHao.kuoHaoWei + addStr);
             }
         } else {
-            tv.setText(tvStr + tvNStr + str);
+            tv.setText(tvStr + tvNStr + addStr);
+        }
+
+        if (isCut) {
+            tvNum.setText(null);
         }
     }
 
-    private String delTextView(int last) {
-        String str =  tv.getText().toString();
-
-        return str.substring(0, str.length() - last);
-    }
-
+    /**
+     * 检测数值区是否有等号
+     */
     private boolean jianCeDengHao(){
         return tvNum.getText().toString().contains(FuHao.dengYu);
     }
 
+    /**
+     * 数字按钮点击监听器
+     * 包括：0-9
+     */
     private class NumClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             if (clickSure) {
-                runZhenDong(ma.zhenDtongTime);
+                runZhenDong(ma.zhenDongTime);
                 runYuYin(view);
 
                 if (tvNum2.getVisibility() == View.VISIBLE) {
@@ -186,20 +221,20 @@ public class MainUI {
 
                 if (jianCeDengHao()) {
                     setTempHistory(true);
-                    tv.setText(FuHao.NULL);
-                    tvNum.setText(FuHao.NULL);
+                    tv.setText(null);
+                    tvNum.setText(null);
                 }
 
                 String tN = tvNum.getText().toString();
 
                 if (!tv.getText().toString().endsWith(FuHao.kuoHaoWei)) {
                     if (tN.equals(Nums.nums[0])) {
-                            tvNum.setText(FuHao.NULL);
+                            tvNum.setText(null);
                     }
                     if ((tN.startsWith(FuHao.jian) && tN.length() >= NUM_MAX_LEN+1) || tN.length() >= NUM_MAX_LEN) {
                         Log.d("MainUI$NumClickListener", "数字超长");
                     } else {
-                        addTextView(tvNum, ((Button) view).getText().toString());
+                        addText(tvNum, ((Button) view).getText().toString());
                         toBottom(sv1);
                         toBottom(sv2);
                     }
@@ -208,6 +243,10 @@ public class MainUI {
         }
     }
 
+    /**
+     * 运算符按钮点击监听器
+     * 包括：加减乘除、小数点、括号、等于
+     */
     private class FuHaoClickListener implements View.OnClickListener{
         private long time = 0;
         private final int TIME_CHA = 500;
@@ -227,7 +266,7 @@ public class MainUI {
                 String ttN = tvNum.getText().toString();
                 String bt = ((Button) view).getText().toString();
 
-                runZhenDong(ma.zhenDtongTime);
+                runZhenDong(ma.zhenDongTime);
                 if (view.getId() != R.id.bDengyu) {
                     runYuYin(view);
                 }
@@ -247,32 +286,20 @@ public class MainUI {
                             break;
                     }
                 } else {
-                    if (view.getId() == jia.getId() || view.getId() == jian.getId() || view.getId() == cheng.getId() || view.getId() == chu.getId()) {  //判断 加减乘除
-                        final int jjccEndNum = GuiZe.jjccdEnd(tt);
+                    if (view.getId() == jia.getId()
+                        || view.getId() == jian.getId()
+                        || view.getId() == cheng.getId()
+                        || view.getId() == chu.getId()) {  //判断 加减乘除
+                        final int jjccEndNum = GuiZe.jjccEnd(tt);
 
-                        if (jjccEndNum != GuiZe.NO_FUHAO && ttN.length() == 0) {
-                            switch (jjccEndNum) {
-                                case GuiZe.JIA_NUM:
-                                    tt = delTextView(FuHao.jia.length());
-                                    break;
-                                case GuiZe.JIAN_NUM:
-                                    tt = delTextView(FuHao.jian.length());
-                                    break;
-                                case GuiZe.CHENG_NUM:
-                                    tt = delTextView(FuHao.cheng.length());
-                                    break;
-                                case GuiZe.CHU_NUM:
-                                    tt = delTextView(FuHao.chu.length());
-                                    break;
-                            }
-
-                            tt += ((Button) view).getText();
+                        if (jjccEndNum != GuiZe.NO_FIND_FUHAO && ttN.length() == 0) {
+                            tt = tt.substring(0, tt.length() - FuHao.jjccd[jjccEndNum].length())
+                                + ((Button) view).getText();
                             tv.setText(tt);
                             toBottom(sv1);
                             toTop(sv2);
                         } else if (GuiZe.jia_Jian_Cheng_Chu(tt, ttN)) {
-                            addTextView(tv, tvNum, bt);
-                            tvNum.setText(FuHao.NULL);
+                            connectionTextView(true, bt);
                             toBottom(sv1);
                             toTop(sv2);
                         }
@@ -283,29 +310,31 @@ public class MainUI {
                             toBottom(sv1);
                             toBottom(sv2);
                         } else if (GuiZe.dian(ttN, bt)) {
-                            addTextView(tvNum, bt);
+                            addText(tvNum, bt);
                             toBottom(sv1);
                             toBottom(sv2);
                         }
                     } else if (view.getId() == kuoHaoTou.getId()) {   //判断 括号头
                         if (GuiZe.kuoHaoTou(tt, ttN)) {
-                            addTextView(tv, FuHao.kuoHaoTou);
+                            addText(tv, FuHao.kuoHaoTou);
                             toBottom(sv1);
                             toTop(sv2);
                         }
                     } else if (view.getId() == kuoHaoWei.getId()) {   //判断 括号尾
                         if (GuiZe.kuoHaoWei(tt, ttN)) {
-                            addTextView(tv, tvNum, FuHao.kuoHaoWei);
-                            tvNum.setText("");
+                            connectionTextView(true, FuHao.kuoHaoWei);
                             toBottom(sv1);
                             toTop(sv2);
+                        } else if (ttN.length() == 0 && tt.endsWith(FuHao.kuoHaoTou)) {
+                            tt = tt.substring(0, tt.length() - FuHao.kuoHaoTou.length());
+                            tv.setText(tt);
                         }
                     } else if (view.getId() == dengYu.getId()) {    //判断 等号
-                        runZhenDong(ma.zhenDtongTimeAdd);
+                        runZhenDong(ma.zhenDongTimeAdd);
 
                         //彩蛋
                         if (tt.length() == 0 && ttN.length() == 0) {
-                            long mNowTime = System.currentTimeMillis();//获取按键时间
+                            long mNowTime = System.currentTimeMillis();
 
                             //比较两次按键时间差
                             if (mNowTime - time > TIME_CHA) {
@@ -326,89 +355,133 @@ public class MainUI {
                             }
 
                             runYuYin(view);
-                        } else if (GuiZe.dengYu(tt, ttN)) {
-                            toBottom(sv1);
-                            toTop(sv2);
+                        } else {
+                            final int jjccEndNum = GuiZe.jjccEnd(tt);
+                            ttN = ignoreDian(ttN);
 
-                            if (!ttN.startsWith(FuHao.dengYu)) {
-                                addTextView(tv, tvNum, FuHao.NULL);
+                            if (jjccEndNum != GuiZe.NO_FIND_FUHAO && ttN.length() == 0) {
+                                tt = tt.substring(0, tt.length() - FuHao.jjccd[jjccEndNum].length());
                             }
 
-                            tvNum.setText(FuHao.NULL);
+                            if (GuiZe.dengYu(tt, ttN)) {
+                                toBottom(sv1);
+                                toTop(sv2);
 
-                            clickSure = false;
-
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    final String errorText = activity.getString(R.string.errorText);
-                                    final String chuLingErrorText = activity.getString(R.string.chuLingErrorText);
-
-                                    try {
-                                        final String equation = tv.getText().toString();
-                                        String jieGuoStr = new JiSuan(NUM_MAX_LEN).dengYu(equation);
-                                        jieGuoStr = Nums.Ling(jieGuoStr);
-                                        final String finalJieGuoStr = jieGuoStr;
-
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                tvNum.setText(FuHao.dengYu + finalJieGuoStr);
-                                                clickSure = true;
-                                            }
-                                        });
-
-                                        new Thread() {
-                                            @Override
-                                            public void run() {
-                                                saveToSql(equation, finalJieGuoStr);
-                                            }
-                                        }.start();
-
-                                        if (ma.isOnYuYin()) {
-                                            runYuYin(finalJieGuoStr);
-                                        }
-
-                                        lastFormula = equation;
-                                        lastResult = jieGuoStr;
-                                    } catch (ArithmeticException ae) {
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                tvNum.setText("=" + chuLingErrorText);
-                                                clickSure = true;
-                                            }
-                                        });
-                                    } catch (RuntimeException e) {
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                tvNum.setText("=" + errorText);
-                                                clickSure = true;
-                                            }
-                                        });
-                                        e.printStackTrace();
-                                    } finally {
-                                        //计算结束后，因文本变化要重新调整显示
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                toBottom(sv1);
-                                                toTop(sv2);
-                                            }
-                                        });
-                                    }
+                                // 如果没有结果则连接字符串
+                                if (!ttN.startsWith(FuHao.dengYu)) {
+                                    tt = equationConnection(tt, ttN);
                                 }
-                            }.start();
-                        } else {
-                            runYuYin(view);
+                                tv.setText(tt);
+                                tvNum.setText(null);
+                                clickSure = false;
+
+                                final String equation = tt;
+                                new Thread() {
+                                    @Override
+                                    public void run() {
+                                        final String errorText = activity.getString(R.string.errorText);
+                                        final String chuLingErrorText = activity.getString(R.string.chuLingErrorText);
+
+                                        try {
+                                            String jieGuoStr = new JiSuan(NUM_MAX_LEN).dengYu(equation);
+                                            jieGuoStr = Nums.Ling(jieGuoStr);
+                                            final String finalJieGuoStr = jieGuoStr;
+
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    tvNum.setText(FuHao.dengYu + finalJieGuoStr);
+                                                    clickSure = true;
+                                                }
+                                            });
+
+                                            new Thread() {
+                                                @Override
+                                                public void run() {
+                                                    saveToSql(equation, finalJieGuoStr);
+                                                }
+                                            }.start();
+
+                                            if (ma.isOnYuYin()) {
+                                                runYuYin(finalJieGuoStr);
+                                            }
+
+                                            lastFormula = equation;
+                                            lastResult = jieGuoStr;
+                                        } catch (ArithmeticException ae) {
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    tvNum.setText("=" + chuLingErrorText);
+                                                    clickSure = true;
+                                                }
+                                            });
+                                        } catch (RuntimeException e) {
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    tvNum.setText("=" + errorText);
+                                                    clickSure = true;
+                                                }
+                                            });
+                                            e.printStackTrace();
+                                        } finally {
+                                            //计算结束后，因文本变化要重新调整显示
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    toBottom(sv1);
+                                                    toTop(sv2);
+                                                }
+                                            });
+                                        }
+                                    }
+                                }.start();
+                            } else {
+                                runYuYin(view);
+                            }
                         }
                     }
                 }
             }
         }
+
+        /**
+         * 忽略末尾小数点
+         * @param ttN   数值字符串
+         * @return      处理后的数值字符串
+         */
+        private String ignoreDian(String ttN) {
+            if (ttN.endsWith(FuHao.dian)) {
+                ttN = ttN.substring(0, ttN.length() - FuHao.dian.length());
+            }
+            return ttN;
+        }
+
+        /**
+         * 连接数值到算式末尾
+         * 会添加必要的括号
+         * @param equation  算式
+         * @param newNum    数值
+         * @return          处理后的算式
+         */
+        private String equationConnection(String equation, String newNum) {
+            if (newNum.contains(FuHao.jian)) {
+                if (equation.length() == 0 || equation.endsWith(FuHao.kuoHaoTou)) {
+                    return equation + newNum;
+                } else {
+                    return equation + FuHao.kuoHaoTou + newNum + FuHao.kuoHaoWei;
+                }
+            } else {
+                return equation + newNum;
+            }
+        }
     }
 
+    /**
+     * 运算符按钮长按监听器
+     * 包括：加减乘除
+     */
     private class FuHaoLongClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View v) {
@@ -447,6 +520,10 @@ public class MainUI {
         }
     }
 
+    /**
+     * 控制按钮点击监听器
+     * 包括：删除、清除、转换
+     */
     private class CtrlClickListener implements View.OnClickListener{
         @Override
         public void onClick(View view) {
@@ -457,7 +534,7 @@ public class MainUI {
                     tvNum2.setText(null);
                 }
 
-                runZhenDong(ma.zhenDtongTime);
+                runZhenDong(ma.zhenDongTime);
                 runYuYin(view);
 
                 if (view.getId() == R.id.bGuiLing && tv.length() == 0 && tvNum.length() == 0) {
@@ -468,12 +545,12 @@ public class MainUI {
                     switch (view.getId()) {
                         case R.id.bGuiLing:
                             setTempHistory(true);
-                            tv.setText(FuHao.NULL);
-                            tvNum.setText(FuHao.NULL);
+                            tv.setText(null);
+                            tvNum.setText(null);
                             break;
                         case R.id.bShanChu:
                             setTempHistory(true);
-                            tvNum.setText(FuHao.NULL);
+                            tvNum.setText(null);
                             break;
                         case R.id.bZhuanHuan:
                             if (tvNum2.getVisibility() == View.GONE) {
@@ -488,38 +565,45 @@ public class MainUI {
                             } else {
                                 tvNum2.setVisibility(View.GONE);
                                 tvNum.setVisibility(View.VISIBLE);
-                                tvNum2.setText(FuHao.NULL);
+                                tvNum2.setText(null);
                             }
                             break;
                     }
                 } else {
                     if (tvNum.getText().toString().length() > 0) {
-                        run(view, tvNum);
+                        delete(view, tvNum);
+
                     } else {
-                        run(view, tv);
+                        delete(view, tv);
                     }
                 }
 
                 String tvText = tv.getText().toString();
 
+                // 数值回流
                 if (tvNum.getText().length() == 0) {
-                    int index = jjcckLastEndIndex(tvText);
+                    int index = numberLastIndex(tvText);
 
                     if (index >= 0) {
                         tvNum.setText(tvText.substring(index, tvText.length()));
                         tv.setText(tvText.substring(0, index));
                     } else {
                         tvNum.setText(tvText);
-                        tv.setText(FuHao.NULL);
+                        tv.setText(null);
                     }
                 }
             }
         }
 
-        private void run(View view, TextView t) {
+        /**
+         * 不定向删除或清除
+         * @param   view    按下的按钮
+         * @param   t       指定操作对象
+         */
+        private void delete(View view, TextView t) {
             switch (view.getId()) {
                 case R.id.bGuiLing:
-                    runZhenDong(ma.zhenDtongTimeLong);
+                    runZhenDong(ma.zhenDongTimeLong);
 
                     if(t.getId() == tv.getId()){
                         toTop(sv1);
@@ -528,7 +612,7 @@ public class MainUI {
                     }
 
                     toTop(sv2);
-                    t.setText(FuHao.NULL);
+                    t.setText(null);
                     break;
                 case R.id.bShanChu:
                     String tt = t.getText().toString();
@@ -542,7 +626,12 @@ public class MainUI {
             }
         }
 
-        private int jjcckLastEndIndex(String str) {
+        /**
+         * 最后一个数值的位置
+         * @param str   指定的字符串
+         * @return      返回字符串中最后一个数值的位置
+         */
+        private int numberLastIndex(String str) {
             int tempIndex;
             int maxIndex = -1;
             String fuHao = FuHao.NULL;
@@ -577,6 +666,10 @@ public class MainUI {
         }
     }
 
+    /**
+     * 文本框点击监听器
+     * 包括：数值区、算式区、附加算式区
+     */
     private class TextOnClickListener implements View.OnClickListener {
         private long lastTime = 0;
         private long nowTime = 0;
@@ -591,7 +684,7 @@ public class MainUI {
                 }
 
                 String ttN = tvNum.getText().toString();
-                runZhenDong(ma.zhenDtongTime);
+                runZhenDong(ma.zhenDongTime);
 
                 if (!jianCeDengHao()) {
                     runYuYin(view);
@@ -616,13 +709,17 @@ public class MainUI {
         }
     }
 
+    /**
+     * 文本框长按监听器
+     * 包括：数值区、附加数值区、算式区
+     */
     private class TextOnLongClickListener implements View.OnLongClickListener{
         @Override
         public boolean onLongClick(View view) {
             ClipboardManager myClipboard = (ClipboardManager)activity.getSystemService(CLIPBOARD_SERVICE);  //实例化剪切板服务
             ClipData myClip;
 
-            runZhenDong(ma.zhenDtongTime);
+            runZhenDong(ma.zhenDongTime);
 
             if(view.getId() == tv.getId()) {
                 String tvText = tv.getText().toString();
@@ -647,6 +744,9 @@ public class MainUI {
 
     }
 
+    /**
+     * 文本框变化监听器
+     */
     private class TextWatcherListener implements TextWatcher {
         private TextView view;
         private String oldString;
@@ -665,7 +765,7 @@ public class MainUI {
 
         @Override
         public void afterTextChanged(final Editable editable) {
-            xianShiChuLi(editable);
+            setButtonVisibility(editable);
             save(editable);
 
             //文本处理（换行、变色等）
@@ -725,6 +825,10 @@ public class MainUI {
             }
         }
 
+        /**
+         * 保存文本值
+         * @param cs    已变化的文本
+         */
         private void save(CharSequence cs) {
             final String string = cs.toString();
             final SharedPreferences.Editor editor = activity.getSharedPreferences("list", MODE_PRIVATE).edit();
@@ -738,12 +842,16 @@ public class MainUI {
             editor.apply();
         }
 
-        private void xianShiChuLi(CharSequence cs) {
-            String tvText = cs.toString();
+        /**
+         * 按钮动态显示处理
+         * @param cs    已变化的文本
+         */
+        private void setButtonVisibility(CharSequence cs) {
+            String str = cs.toString();
 
             if (view.getId() == tvNum.getId()) {      //处理：括号头 与 小数点
-                if (tvText.length() > 0) {
-                    if (tvText.contains(FuHao.dengYu)) {
+                if (str.length() > 0) {
+                    if (str.contains(FuHao.dengYu)) {
                         huanSuan.setVisibility(View.VISIBLE);
                         dian.setVisibility(View.GONE);
                         kuoHaoTou.setVisibility(View.GONE);
@@ -758,7 +866,7 @@ public class MainUI {
                     dian.setVisibility(View.GONE);
                 }
             } else if (view.getId() == tv.getId()) {  //处理：括号尾 与 等号
-                if (TextHandler.isParenthesesClosed(tvText, tvText.length())) {
+                if (TextHandler.isParenthesesClosed(str, str.length())) {
                     kuoHaoWei.setVisibility(View.GONE);
                     dengYu.setVisibility(View.VISIBLE);
                 } else {
@@ -769,6 +877,10 @@ public class MainUI {
         }
     }
 
+    /**
+     * 滚动视图到顶部
+     * @param sv    指定的滚动视图
+     */
     private void toTop(final ScrollView sv) {
         //在新的线程中更新UI
         new Handler().post(new Runnable() {
@@ -790,6 +902,10 @@ public class MainUI {
         });
     }
 
+    /**
+     * 滚动视图到底部
+     * @param sv    指定的滚动视图
+     */
     private void toBottom(final ScrollView sv){
         new Handler().post(new Runnable() {
             @Override
@@ -799,6 +915,11 @@ public class MainUI {
         });
     }
 
+    /**
+     * 保存算式和结果到数据库
+     * @param equation  算式字符串
+     * @param result    结果字符串
+     */
     private void saveToSql(String equation, String result) {
         HistoryListData.RowData rowDataTemp = HistoryListData.exportFromSQLite(activity.getApplicationContext(), HistoryListData.RowId.ROW_ID_NEWEST_TIME);
 
@@ -814,17 +935,25 @@ public class MainUI {
         }
     }
 
-    private void runZhenDong(final long[] zhenDtongTime) {
+    /**
+     * 震动反馈
+     * @param zhenDongTime  震动毫秒数
+     */
+    private void runZhenDong(final long[] zhenDongTime) {
         new Thread() {
             @Override
             public void run() {
                 if (ma.isOnZhenDong()) {
-                    ma.zhenDong(zhenDtongTime);
+                    ma.zhenDong(zhenDongTime);
                 }
             }
         }.start();
     }
 
+    /**
+     * 语音提示（触控反馈）
+     * @param view  需要提示的控件
+     */
     private void runYuYin(final View view) {
         if (ma.isOnYuYin()) {
             if (ma.isOnTTS()) {
@@ -835,6 +964,10 @@ public class MainUI {
         }
     }
 
+    /**
+     * 语音提示（文本转语音）
+     * @param numStr    需要播放的字符串
+     */
     private void runYuYin(final String numStr) {
         if (ma.isOnTTS()) {
             ma.tts.speak(FuHao.dengYu + numStr);
@@ -848,6 +981,9 @@ public class MainUI {
         }
     }
 
+    /**
+     * 加载字体配置
+     */
     public void loadFontSet() {
         SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
         int fontSizeForEquation = sp.getInt(
@@ -888,32 +1024,42 @@ public class MainUI {
         ((Button) activity.findViewById(R.id.b9)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
     }
 
-    private void continueByEquation(View view, String tt) {
+    /**
+     * 算式再计算
+     * @param view          触发的控件
+     * @param equation      算式
+     */
+    private void continueByEquation(View view, String equation) {
         if (view.getId() == jia.getId()
                 || view.getId() == jian.getId()
                 || view.getId() == cheng.getId()
                 || view.getId() == chu.getId()) {
-            tvNum.setText(FuHao.NULL);
-            tv.setText(tt + ((Button) view).getText());
+            tvNum.setText(null);
+            tv.setText(equation + ((Button) view).getText());
             toBottom(sv1);
             toTop(sv2);
         }
     }
 
-    private void continueByResult(View v, String ttN) {
+    /**
+     * 结果再计算
+     * @param v         触发的控件
+     * @param result    结果
+     */
+    private void continueByResult(View v, String result) {
         if (v.getId() == jia.getId()
                 || v.getId() == jian.getId()
                 || v.getId() == cheng.getId()
                 || v.getId() == chu.getId()
                 || v.getId() == dengYu.getId()) {
-            if (ttN.contains(FuHao.TEN_POWER)) {
+            if (result.contains(FuHao.TEN_POWER)) {
                 String tvStr = FuHao.kuoHaoTou + tv.getText().toString() + FuHao.kuoHaoWei;
                 tv.setText(tvStr);
-                tvNum.setText(FuHao.NULL);
-            } else if (Nums.isNum(ttN.substring(ttN.length() - 1, ttN.length()))) {
-                String tvnStr = ttN.substring(FuHao.dengYu.length());
+                tvNum.setText(null);
+            } else if (Nums.isNum(result.substring(result.length() - 1, result.length()))) {
+                String tvnStr = result.substring(FuHao.dengYu.length());
                 tvNum.setText(tvnStr);
-                tv.setText(FuHao.NULL);
+                tv.setText(null);
             }
 
             if (!(v.getId() == dengYu.getId())) {
@@ -925,8 +1071,12 @@ public class MainUI {
         }
     }
 
-    public void setTempHistory(boolean visibility) {
-        if (visibility) {
+    /**
+     * 设置临时历史记录
+     * @param isVisible     是否显示临时历史记录
+     */
+    public void setTempHistory(boolean isVisible) {
+        if (isVisible) {
             SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
 
             if (sp.getBoolean(
@@ -941,7 +1091,7 @@ public class MainUI {
                 }
             }
         } else {
-            tv2.setText(FuHao.NULL);
+            tv2.setText(null);
             tv2.setVisibility(View.GONE);
         }
     }
