@@ -39,9 +39,9 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     private long mPressedTime = 0;
     public Audio au = null;
     private Vibrator mVibrator = null;
-    public final long[] zhenDtongTime = {0, 35};
-    public final long[] zhenDtongTimeLong = {0, 60};
-    public final long[] zhenDtongTimeAdd = {0, 50, 120, 50};
+    public final long[] zhenDongTime = {0, 35};
+    public final long[] zhenDongTimeLong = {0, 60};
+    public final long[] zhenDongTimeAdd = {0, 50, 120, 50};
     private boolean onYuYin = false;
     private boolean onZhenDong = false;
     private boolean onTTS = false;
