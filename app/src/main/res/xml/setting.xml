@@ -14,16 +14,18 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/theme">
-        <SwitchPreference
-            android:key="translucentStatusBar"
-            style="@style/SwitchPreferenceStyle_Default"
-            android:defaultValue="@bool/default_translucentStatusBar"
-            android:title="@string/translucentStatusBar" />
-        <SwitchPreference
-            android:key="translucentNavigationBar"
-            android:title="@string/translucentNavigationBar"
-            style="@style/SwitchPreferenceStyle_Default"
-            android:defaultValue="@bool/default_translucentNavigationBar" />
+        <ListPreference
+            android:key="statusBar"
+            android:title="@string/statusBar"
+            android:entries="@array/statusBar_item"
+            android:entryValues="@array/statusBar_key"
+            android:defaultValue="@string/default_statusBar" />
+        <ListPreference
+            android:key="navigationBar"
+            android:title="@string/navigationBar"
+            android:entries="@array/navigationBar_item"
+            android:entryValues="@array/navigationBar_key"
+            android:defaultValue="@string/default_navigationBar" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/calculate">
