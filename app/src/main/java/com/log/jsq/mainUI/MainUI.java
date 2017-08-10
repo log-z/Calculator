@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.log.jsq.library.FuHao;
 import com.log.jsq.library.GuiZe;
+import com.log.jsq.library.Recorder;
 import com.log.jsq.tool.HistoryListData;
 import com.log.jsq.tool.JiSuan;
 import com.log.jsq.library.Nums;
@@ -81,12 +83,12 @@ public class MainUI {
     public void init(Activity activity) {
         this.activity = activity;
         ma = (MainActivity)activity;
-        this.tv = (TextView)this.activity.findViewById(R.id.textView);
-        this.tv2 = (TextView) this.activity.findViewById(R.id.textView2);
-        this.tvNum = (TextView)this.activity.findViewById(R.id.textViewNum);
-        this.tvNum2 = (TextView)this.activity.findViewById(R.id.textViewNum2);
-        this.sv1 = (ScrollView) this.activity.findViewById(R.id.sv1);
-        this.sv2 = (ScrollView) this.activity.findViewById(R.id.sv2);
+        this.tv = this.activity.findViewById(R.id.textView);
+        this.tv2 = this.activity.findViewById(R.id.textView2);
+        this.tvNum = this.activity.findViewById(R.id.textViewNum);
+        this.tvNum2 = this.activity.findViewById(R.id.textViewNum2);
+        this.sv1 = this.activity.findViewById(R.id.sv1);
+        this.sv2 = this.activity.findViewById(R.id.sv2);
 
         NumClickListener ncl = new NumClickListener();
         FuHaoClickListener fhcl = new FuHaoClickListener();
@@ -95,15 +97,15 @@ public class MainUI {
         TextOnClickListener tocl = new TextOnClickListener();
         TextOnLongClickListener tolcl = new TextOnLongClickListener();
 
-        jia = (Button)activity.findViewById(R.id.bJia);
-        jian = (Button)activity.findViewById(R.id.bJian);
-        cheng = (Button)activity.findViewById(R.id.bCheng);
-        chu = (Button)activity.findViewById(R.id.bChu);
-        dian = (Button)activity.findViewById(R.id.bDian);
-        dengYu = (Button)activity.findViewById(R.id.bDengyu);
-        kuoHaoTou = (Button)activity.findViewById(R.id.bKuoHaoTou);
-        kuoHaoWei = (Button)activity.findViewById(R.id.bKuoHaoWei);
-        huanSuan = (ImageButton) activity.findViewById(R.id.bZhuanHuan);
+        jia = activity.findViewById(R.id.bJia);
+        jian = activity.findViewById(R.id.bJian);
+        cheng = activity.findViewById(R.id.bCheng);
+        chu = activity.findViewById(R.id.bChu);
+        dian = activity.findViewById(R.id.bDian);
+        dengYu = activity.findViewById(R.id.bDengyu);
+        kuoHaoTou = activity.findViewById(R.id.bKuoHaoTou);
+        kuoHaoWei = activity.findViewById(R.id.bKuoHaoWei);
+        huanSuan = activity.findViewById(R.id.bZhuanHuan);
 
         tv.setOnLongClickListener(tolcl);
         tv.setOnClickListener(tocl);
@@ -239,6 +241,10 @@ public class MainUI {
                         toBottom(sv2);
                     }
                 }
+
+                // 更新记录者
+                Recorder.update(
+                        new Recorder.Record(tv.getText().toString(), tvNum.getText().toString()));
             }
         }
     }
@@ -272,9 +278,11 @@ public class MainUI {
                 }
 
                 if (jianCeDengHao() && view.getId() != dengYu.getId()) {
-                    // TODO: 连续运算与常规运算的切换
-                    SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
-                    String mode = sp.getString("resultsAgainCalculation", activity.getString(R.string.default_resultsAgainCalculation));
+                    // 连续运算与常规运算的切换
+                    SharedPreferences sp = activity
+                            .getSharedPreferences("setting", MODE_PRIVATE);
+                    String mode = sp.getString("resultsAgainCalculation",
+                            activity.getString(R.string.default_resultsAgainCalculation));
                     setTempHistory(true);
 
                     switch (mode) {
@@ -351,7 +359,8 @@ public class MainUI {
                             }
 
                             if (chiShu >= MAX_CHI_SHU) {
-                                Toast.makeText(activity, "_(:3」∠)_", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(activity, "_(:3」∠)_", Toast.LENGTH_SHORT)
+                                        .show();
                             }
 
                             runYuYin(view);
@@ -360,7 +369,8 @@ public class MainUI {
                             ttN = ignoreDian(ttN);
 
                             if (jjccEndNum != GuiZe.NO_FIND_FUHAO && ttN.length() == 0) {
-                                tt = tt.substring(0, tt.length() - FuHao.jjccd[jjccEndNum].length());
+                                tt = tt.substring(0,
+                                        tt.length() - FuHao.jjccd[jjccEndNum].length());
                             }
 
                             if (GuiZe.dengYu(tt, ttN)) {
@@ -379,11 +389,14 @@ public class MainUI {
                                 new Thread() {
                                     @Override
                                     public void run() {
-                                        final String errorText = activity.getString(R.string.errorText);
-                                        final String chuLingErrorText = activity.getString(R.string.chuLingErrorText);
+                                        final String errorText = activity
+                                                .getString(R.string.errorText);
+                                        final String chuLingErrorText = activity
+                                                .getString(R.string.chuLingErrorText);
 
                                         try {
-                                            String jieGuoStr = new JiSuan(NUM_MAX_LEN).dengYu(equation);
+                                            String jieGuoStr = new JiSuan(NUM_MAX_LEN)
+                                                    .dengYu(equation);
                                             jieGuoStr = Nums.Ling(jieGuoStr);
                                             final String finalJieGuoStr = jieGuoStr;
 
@@ -392,6 +405,12 @@ public class MainUI {
                                                 public void run() {
                                                     tvNum.setText(FuHao.dengYu + finalJieGuoStr);
                                                     clickSure = true;
+
+                                                    // 更新记录者
+                                                    Recorder.update(new Recorder.Record(
+                                                            tv.getText().toString(),
+                                                            tvNum.getText().toString()
+                                                    ));
                                                 }
                                             });
 
@@ -412,16 +431,28 @@ public class MainUI {
                                             activity.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    tvNum.setText("=" + chuLingErrorText);
+                                                    tvNum.setText(FuHao.dengYu + chuLingErrorText);
                                                     clickSure = true;
+
+                                                    // 更新记录者
+                                                    Recorder.update(new Recorder.Record(
+                                                            tv.getText().toString(),
+                                                            tvNum.getText().toString()
+                                                    ));
                                                 }
                                             });
                                         } catch (RuntimeException e) {
                                             activity.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    tvNum.setText("=" + errorText);
+                                                    tvNum.setText(FuHao.dengYu + errorText);
                                                     clickSure = true;
+
+                                                    // 更新记录者
+                                                    Recorder.update(new Recorder.Record(
+                                                            tv.getText().toString(),
+                                                            tvNum.getText().toString()
+                                                    ));
                                                 }
                                             });
                                             e.printStackTrace();
@@ -442,6 +473,13 @@ public class MainUI {
                             }
                         }
                     }
+                }
+
+                if (view.getId() != R.id.bDengyu) {
+                    // 更新记录者
+                    Recorder.update(new Recorder.Record(
+                            tv.getText().toString(), tvNum.getText().toString()
+                    ));
                 }
             }
         }
@@ -480,7 +518,7 @@ public class MainUI {
 
     /**
      * 运算符按钮长按监听器
-     * 包括：加减乘除
+     * 包括：加减乘除、等于
      */
     private class FuHaoLongClickListener implements View.OnLongClickListener {
         @Override
@@ -495,8 +533,10 @@ public class MainUI {
 
             if (jianCeDengHao()) {
                 // 连续运算与常规运算的切换
-                SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
-                String mode = sp.getString("resultsAgainCalculation", activity.getString(R.string.default_resultsAgainCalculation));
+                SharedPreferences sp = activity
+                        .getSharedPreferences("setting", MODE_PRIVATE);
+                String mode = sp.getString("resultsAgainCalculation",
+                        activity.getString(R.string.default_resultsAgainCalculation));
                 setTempHistory(true);
 
                 // 长按时操作相反
@@ -514,6 +554,9 @@ public class MainUI {
                 }
 
                 runYuYin(v);
+                // 更新记录者
+                Recorder.update(
+                        new Recorder.Record(tv.getText().toString(), tvNum.getText().toString()));
             }
 
             return true;
@@ -592,6 +635,10 @@ public class MainUI {
                         tv.setText(null);
                     }
                 }
+
+                // 更新记录者
+                Recorder.update(
+                        new Recorder.Record(tv.getText().toString(), tvNum.getText().toString()));
             }
         }
 
@@ -696,6 +743,10 @@ public class MainUI {
                         ttN = FuHao.jian + ttN;
                         tvNum.setText(ttN);
                     }
+
+                    // 更新记录者
+                    Recorder.update(
+                            new Recorder.Record(tv.getText().toString(), tvNum.getText().toString()));
                 }
             } else if (view.getId() == tv.getId() || view.getId() == tv2.getId()) {
                 nowTime = System.currentTimeMillis();
@@ -765,45 +816,62 @@ public class MainUI {
 
         @Override
         public void afterTextChanged(final Editable editable) {
-            setButtonVisibility(editable);
-            save(editable);
+            String text = editable.toString().replaceAll("\\s", FuHao.NULL);
+            setButtonVisibility(text);
+            save(text);
 
             //文本处理（换行、变色等）
             if (view.getId() == tv.getId() || view.getId() == tv2.getId() && view.length() > 0) {
-                if (oldString == null || !Objects.equals(editable.toString(), oldString) || again) {
+                if (oldString == null || !Objects.equals(text, oldString) || again) {
                     again = false;
-                    oldString = editable.toString();
+                    oldString = text;
 
-                    String addLineFeedStr;
-                    SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+                    // 自动换行
+                    SharedPreferences sp = activity
+                            .getSharedPreferences("setting", MODE_PRIVATE);
                     String autoLineFeed = sp.getString(
                             "autoLineFeed",
                             activity.getString(R.string.default_autoLineFeed)
                     );
                     switch (Integer.valueOf(autoLineFeed)) {
                         case 0:
-                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), false, false, false);
+                            text = TextHandler.addLineFeed(text,
+                                    false,
+                                    false,
+                                    false);
                             break;
                         case 1:
-                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, false, false);
+                            text = TextHandler.addLineFeed(text,
+                                    true,
+                                    false,
+                                    false);
                             break;
                         case 2:
-                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, false, true);
+                            text = TextHandler.addLineFeed(text,
+                                    true,
+                                    false,
+                                    true);
                             break;
                         case 3:
-                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, true, false);
+                            text = TextHandler.addLineFeed(text,
+                                    true,
+                                    true,
+                                    false);
                             break;
                         case 4:
-                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), true, true, true);
+                            text = TextHandler.addLineFeed(text,
+                                    true,
+                                    true,
+                                    true);
                             break;
-                        default:
-                            addLineFeedStr = TextHandler.addLineFeed(editable.toString(), false, false, false);
                     }
 
+                    // 变色
                     TypedValue value = new TypedValue();
-                    activity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-                    CharSequence cs = TextHandler.run(addLineFeedStr, value.data);
-                    editable.replace(0, editable.length(), cs);
+                    activity.getTheme()
+                            .resolveAttribute(R.attr.colorAccent, value, true);
+                    Spanned spanned = TextHandler.setStyle(text, value.data);
+                    editable.replace(0, editable.length(), spanned);
                 } else {
                     again = true;
                 }
