@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -16,16 +17,21 @@ import com.log.jsq.tool.HistoryListSqlite;
 import com.log.jsq.tool.Time;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 public class JsqApplication extends Application {
+
+    public static boolean newVersion = false;
+
     @Override
     public void onCreate() {
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(this);
 
         super.onCreate();
+        update();
         loadingString();
         deleteHistoryAuto();
     }
@@ -86,6 +92,9 @@ public class JsqApplication extends Application {
         }
     }
 
+    /**
+     * 自动删除历史记录
+     */
     private void deleteHistoryAuto() {
         new Thread() {
             @Override
@@ -129,8 +138,72 @@ public class JsqApplication extends Application {
         }.start();
     }
 
+    /**
+     * 初始化字符串
+     */
     private void loadingString() {
         FuHao.luRu(getApplicationContext());
         Nums.luRu(getApplicationContext());
+    }
+
+    /**
+     * 数据更新
+     */
+    private void update() {
+        SharedPreferences data = getSharedPreferences("data", MODE_PRIVATE);
+        int oldVersionCode = data.getInt("versionCode", 0);
+
+        // 更新操作
+        if (oldVersionCode <= 20) {
+            // 更新状态栏和导航栏相关配置
+            SharedPreferences sp = getSharedPreferences("setting", MODE_PRIVATE);
+            SharedPreferences.Editor spe = sp.edit();
+            String sb = "statusBar";
+            String nb = "navigationBar";
+            String tsb = "translucentStatusBar";
+            String tnb = "translucentNavigationBar";
+
+            if (sp.getBoolean(tsb, true)) {
+                spe.putString(sb, "translucent");
+            } else {
+                spe.putString(sb, "transparent");
+            }
+            if (sp.getBoolean(tnb, false)) {
+                spe.putString(nb, "translucent");
+            } else {
+                spe.putString(nb, "transparent");
+            }
+
+            spe.remove(tsb);
+            spe.remove(tnb);
+            spe.apply();
+
+            // 更新SharedPreferences文件
+            File file= new File(
+                    "/data/data/" + getPackageName() + "/shared_prefs",
+                    "date.xml");
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+
+        // 获取版本号
+        int versionCode;
+        try {
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // 存储当前版本号
+        SharedPreferences.Editor dataEditor = data.edit();
+        dataEditor.putInt("versionCode", versionCode);
+        dataEditor.apply();
+
+        // 标记是否第一次打开新版本
+        if (versionCode > oldVersionCode) {
+            newVersion = true;
+        }
     }
 }
