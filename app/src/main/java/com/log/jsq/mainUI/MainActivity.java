@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Vibrator;
 import android.support.v4.content.IntentCompat;
 import android.support.v7.app.ActionBar;
@@ -14,19 +12,19 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.log.jsq.JsqApplication;
 import com.log.jsq.aboutUI.AboutActivity;
+import com.log.jsq.library.Recorder;
+import com.log.jsq.library.Status;
 import com.log.jsq.settingUI.SettingActivity;
 import com.log.jsq.tool.Audio;
 import com.log.jsq.library.FuHao;
@@ -34,6 +32,7 @@ import com.log.jsq.R;
 import com.log.jsq.historyUI.HistoryListActivity;
 import com.log.jsq.tool.AudioOnTTS;
 import com.log.jsq.tool.Open;
+import com.log.jsq.tool.Theme;
 
 public class MainActivity extends AppCompatActivity implements AudioOnTTS.Exceptional {
     private long mPressedTime = 0;
@@ -48,7 +47,37 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     private Activity thisActivity = this;
     private MainUI mainUI;
     public AudioOnTTS tts;
+    private Status status;
     private static boolean isOnCreated = false;
+    private TextView mTitle;
+
+    private class StatusWatcher implements Status.Watcher {
+
+        @Override
+        public void beforeTypeChanged(int type, int nowType) {}
+
+        @Override
+        public void afterTypeChanged(int type, int oldType) {
+            switch (oldType) {
+                case Status.NORMAL:
+                    switch (type) {
+                        case Status.EDIT:
+                            invalidateOptionsMenu();
+                            mTitle.setText(R.string.edit);
+                            break;
+                    }
+                    break;
+                case Status.EDIT:
+                    switch (type) {
+                        case Status.NORMAL:
+                            invalidateOptionsMenu();
+                            mTitle.setText(R.string.app_name);
+                            break;
+                    }
+                    break;
+            }
+        }
+    }
 
     @Override
     protected void finalize() throws Throwable  {
@@ -60,11 +89,13 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(this);
+        Theme.setTheme(this);
         setContentView(R.layout.activity_main);
 
         mainUI = MainUI.getInstance();
         mainUI.init(this);
+        status = Status.getInstance();
+        status.setWatcher(new StatusWatcher());
 
         setActionBar();
         loadingSever();
@@ -115,78 +146,128 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.mian_menu, menu);
 
-        final SharedPreferences read = getSharedPreferences("item", MODE_PRIVATE);
-        menu.findItem(R.id.zhenDong).setChecked(read.getBoolean("zhenDong", false));
-        menu.findItem(R.id.yuYin).setChecked(read.getBoolean("yuYin", false));
+        switch (status.getType()) {
+            case Status.NORMAL:
+                inflater.inflate(R.menu.mian_normal_menu, menu);
+
+                final SharedPreferences read = getSharedPreferences("item", MODE_PRIVATE);
+                menu.findItem(R.id.zhenDong).setChecked(read.getBoolean("zhenDong", false));
+                menu.findItem(R.id.yuYin).setChecked(read.getBoolean("yuYin", false));
+                break;
+            case Status.EDIT:
+                inflater.inflate(R.menu.mian_edit_menu, menu);
+                break;
+        }
 
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        if( item.isCheckable() ){
-            final SharedPreferences.Editor editor = getSharedPreferences("item", MODE_PRIVATE).edit();    //存储数据
-            boolean temp = !item.isChecked();
-            boolean _onZhenDong = false;
-            boolean _onYuYin = false;
+        switch (status.getType()) {
+            case Status.NORMAL:
+                if( item.isCheckable() ){
+                    final SharedPreferences.Editor editor = getSharedPreferences("item", MODE_PRIVATE).edit();    //存储数据
+                    boolean temp = !item.isChecked();
+                    boolean _onZhenDong = false;
+                    boolean _onYuYin = false;
 
-            item.setChecked(temp);
+                    item.setChecked(temp);
 
-            switch (item.getItemId()) {
-                case R.id.zhenDong:
-                    _onZhenDong = temp;
-                    _onYuYin = this.onYuYin;
-                    editor.putBoolean("zhenDong", temp);
-                    break;
-                case R.id.yuYin:
-                    _onYuYin = temp;
-                    _onZhenDong = this.onZhenDong;
-                    editor.putBoolean("yuYin", temp);
-                    break;
-            }
-            editor.apply();
+                    switch (item.getItemId()) {
+                        case R.id.zhenDong:
+                            _onZhenDong = temp;
+                            _onYuYin = this.onYuYin;
+                            editor.putBoolean("zhenDong", temp);
+                            break;
+                        case R.id.yuYin:
+                            _onYuYin = temp;
+                            _onZhenDong = this.onZhenDong;
+                            editor.putBoolean("yuYin", temp);
+                            break;
+                    }
+                    editor.apply();
 
-            final boolean onZhenDongFinal = _onZhenDong;
-            final boolean onYuYinFinal = _onYuYin;
+                    final boolean onZhenDongFinal = _onZhenDong;
+                    final boolean onYuYinFinal = _onYuYin;
 
-            new Thread() {
-                @Override
-                public void run() {
-                    startSever(onZhenDongFinal, onYuYinFinal);
-                    releaseSever(onZhenDongFinal, onYuYinFinal);
-                    onZhenDong = onZhenDongFinal;
-                    onYuYin = onYuYinFinal;
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            startSever(onZhenDongFinal, onYuYinFinal);
+                            releaseSever(onZhenDongFinal, onYuYinFinal);
+                            onZhenDong = onZhenDongFinal;
+                            onYuYin = onYuYinFinal;
+                        }
+                    }.start();
+                } else {
+                    switch (item.getItemId()) {
+                        case R.id.edit:
+                            status.setType(Status.EDIT);
+                            break;
+                        case R.id.history:
+                            Intent historyIntent =
+                                    new Intent(getApplicationContext(), HistoryListActivity.class)
+                                    .putExtra("startFrom", getClass().toString())
+                                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(historyIntent, new Bundle());
+                            break;
+                        case R.id.theme:
+                            AlertDialog dialog = new AlertDialog.Builder(this)
+                                    .setTitle(getString(R.string.theme))
+                                    .setPositiveButton(getString(R.string.close),
+                                            new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    })
+                                    .create();
+                            dialog.setView(getColorPickerView(dialog));
+                            dialog.show();
+                            break;
+                        case R.id.setting:
+                            Intent settingIntent =
+                                    new Intent(getApplicationContext(), SettingActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(settingIntent, new Bundle());
+                            break;
+                    }
                 }
-            }.start();
-        } else {
-            switch (item.getItemId()) {
-                case R.id.history:
-                    Intent historyIntent = new Intent(getApplicationContext(), HistoryListActivity.class)
-                            .putExtra("startFrom", getClass().toString())
-                            .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(historyIntent, new Bundle());
-                    break;
-                case R.id.theme:
-                    AlertDialog dialog = new AlertDialog.Builder(this)
-                            .setTitle(getString(R.string.theme))
-                            .setPositiveButton(getString(R.string.close), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .create();
-                    dialog.setView(getColorPickerView(dialog));
-                    dialog.show();
-                    break;
-                case R.id.setting:
-                    Intent settingIntent = new Intent(getApplicationContext(), SettingActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(settingIntent, new Bundle());
-                    break;
-            }
+                break;
+            case Status.EDIT:
+                TextView t1 = findViewById(R.id.textView);
+                TextView t2 = findViewById(R.id.textViewNum);
+                Recorder.Record record;
+
+                switch (item.getItemId()) {
+                    case R.id.done:
+                        status.setType(Status.NORMAL);
+                        break;
+                    case R.id.undo:
+                        record = Recorder.undo();
+                        if (record != null) {
+                            t1.setText(record.equation);
+                            t2.setText(record.result);
+                        } else {
+                            Toast.makeText(this,
+                                    R.string.unableUndo,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    case R.id.redo:
+                        record = Recorder.redo();
+                        if (record != null) {
+                            t1.setText(record.equation);
+                            t2.setText(record.result);
+                        } else {
+                            Toast.makeText(this,
+                                    R.string.unableRedo,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                }
         }
 
         return super.onOptionsItemSelected(item);
@@ -202,26 +283,36 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     public void onBackPressed() {
         long mNowTime = System.currentTimeMillis();
 
-        if (!isMainMod()) {
-            findViewById(R.id.bGuiLing).setVisibility(View.VISIBLE);
-            findViewById(R.id.bShanChu).setVisibility(View.VISIBLE);
-            findViewById(R.id.numsAndFuhaoLayout).setVisibility(View.VISIBLE);
+        switch (status.getType()) {
+            case Status.NORMAL:
+                if (!isMainMod()) {
+                    findViewById(R.id.bGuiLing).setVisibility(View.VISIBLE);
+                    findViewById(R.id.bShanChu).setVisibility(View.VISIBLE);
+                    findViewById(R.id.numsAndFuhaoLayout).setVisibility(View.VISIBLE);
 
-            TextView textView = (TextView) findViewById(R.id.textView);
-            textView.setText(textView.getText().toString().replaceAll("\\s", FuHao.NULL));
-        } else if((mNowTime - mPressedTime) > 1000) {
-            Toast.makeText(this, "再按一次退出计算器", Toast.LENGTH_SHORT).show();
-            mPressedTime = mNowTime;
-        } else {
-            //退出程序
-            final SharedPreferences.Editor editor = getSharedPreferences("list", MODE_PRIVATE).edit();
-            editor.putBoolean("normal", true);
-            editor.putString("textView0", FuHao.NULL);
-            editor.putString("numTextView0", FuHao.NULL);
-            editor.apply();
+                    TextView textView = (TextView) findViewById(R.id.textView);
+                    textView.setText(textView.getText().toString()
+                            .replaceAll("\\s", FuHao.NULL));
+                } else if((mNowTime - mPressedTime) > 1000) {
+                    Toast.makeText(this, "再按一次退出计算器", Toast.LENGTH_SHORT)
+                            .show();
+                    mPressedTime = mNowTime;
+                } else {
+                    //退出程序
+                    final SharedPreferences.Editor editor =
+                            getSharedPreferences("list", MODE_PRIVATE).edit();
+                    editor.putBoolean("normal", true);
+                    editor.putString("textView0", FuHao.NULL);
+                    editor.putString("numTextView0", FuHao.NULL);
+                    editor.apply();
 
-            finish();
-            System.exit(0);
+                    finish();
+                    System.exit(0);
+                }
+                break;
+            case Status.EDIT:
+                status.setType(Status.NORMAL);
+                break;
         }
     }
 
@@ -237,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     //恢复意外退出之前的内容
     private void recover() {
         mainUI.loadFontSet();
-        setTheme(this);
+        Theme.setTheme(this);
 
         new Thread() {
             @Override
@@ -245,7 +336,8 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                 final SharedPreferences read = getSharedPreferences("list", MODE_PRIVATE);
 
                 if (read.getBoolean("normal", false)) {
-                    final SharedPreferences.Editor editor = getSharedPreferences("list", MODE_PRIVATE).edit();
+                    final SharedPreferences.Editor editor =
+                            getSharedPreferences("list", MODE_PRIVATE).edit();
                     editor.putBoolean("normal", false);
                     editor.apply();
                 } else {
@@ -259,17 +351,24 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                        @Override
                         public void run() {
                             textView.setText(textViewStr);
-                            textView2.setText(textView2.getText().toString().replaceAll("\\s", FuHao.NULL));
+                            textView2.setText(textView2.getText().toString()
+                                    .replaceAll("\\s", FuHao.NULL));
                             numTextView.setText(numTextViewStr);
 
-                           SharedPreferences sp = getSharedPreferences("setting", MODE_PRIVATE);
+                           SharedPreferences sp =
+                                   getSharedPreferences("setting", MODE_PRIVATE);
                            if (!sp.getBoolean(
                                    "mainActivityHistoryVisibility",
-                                   getResources().getBoolean(R.bool.default_mainActivityVisibilityHistory))) {
+                                   getResources().getBoolean(
+                                           R.bool.default_mainActivityVisibilityHistory
+                                   ))) {
                                mainUI.setTempHistory(false);
                            }
                        }
                     });
+
+                    // 更新记录者
+                    Recorder.update(new Recorder.Record(textViewStr, numTextViewStr));
                 }
 
                 startTTS();
@@ -345,73 +444,6 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
         finish();
     }
 
-    public static void setTheme(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences("item", MODE_PRIVATE);
-        int themeId = preferences.getInt("theme", 0);
-
-        switch (themeId) {
-            case R.style.AppTheme_Purple:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Green:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_DeepOrange:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Pink:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Grey:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_DeepPurple:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Blue:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Teal:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Amber:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Red:
-                context.setTheme(themeId);
-                break;
-            case R.style.AppTheme_Brown:
-                context.setTheme(themeId);
-                break;
-            default:
-                context.setTheme(R.style.AppTheme_Indigo);
-        }
-
-        SharedPreferences sp = context.getSharedPreferences("setting", MODE_PRIVATE);
-        Window window = ((Activity) context).getWindow();
-        TypedValue typedValue = new TypedValue();
-
-        if (sp.getBoolean(
-                "translucentStatusBar",
-                context.getResources().getBoolean(R.bool.default_translucentStatusBar)
-        )) {
-            context.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-        } else {
-            context.getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        }
-        window.setStatusBarColor(typedValue.data);
-
-        if (sp.getBoolean(
-                "translucentNavigationBar",
-                context.getResources().getBoolean(R.bool.default_translucentNavigationBar)
-        )) {
-            context.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-        } else {
-            context.getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        }
-        window.setNavigationBarColor(typedValue.data);
-    }
-
     private View getColorPickerView(final AlertDialog dialog) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootView = inflater.inflate(R.layout.color_picker, null);
@@ -465,18 +497,18 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
             }
         };
 
-        TextView itemPurple = (TextView) rootView.findViewById(R.id.itemPurple);
-        TextView itemIndigo = (TextView) rootView.findViewById(R.id.itemIndigo);
-        TextView itemGreen = (TextView) rootView.findViewById(R.id.itemGreen);
-        TextView itemDeepOrange = (TextView) rootView.findViewById(R.id.itemDeepOrange);
-        TextView itemPink = (TextView) rootView.findViewById(R.id.itemPink);
-        TextView itemGrey = (TextView) rootView.findViewById(R.id.itemGrey);
-        TextView itemDeepPurple = (TextView) rootView.findViewById(R.id.itemDeepPurple);
-        TextView itemBlue = (TextView) rootView.findViewById(R.id.itemBlue);
-        TextView itemTeal = (TextView) rootView.findViewById(R.id.itemTeal);
-        TextView itemAmber = (TextView) rootView.findViewById(R.id.itemOrange);
-        TextView itemRed = (TextView) rootView.findViewById(R.id.itemRed);
-        TextView itemBrown = (TextView) rootView.findViewById(R.id.itemBrown);
+        TextView itemPurple = rootView.findViewById(R.id.itemPurple);
+        TextView itemIndigo = rootView.findViewById(R.id.itemIndigo);
+        TextView itemGreen = rootView.findViewById(R.id.itemGreen);
+        TextView itemDeepOrange = rootView.findViewById(R.id.itemDeepOrange);
+        TextView itemPink = rootView.findViewById(R.id.itemPink);
+        TextView itemGrey = rootView.findViewById(R.id.itemGrey);
+        TextView itemDeepPurple = rootView.findViewById(R.id.itemDeepPurple);
+        TextView itemBlue = rootView.findViewById(R.id.itemBlue);
+        TextView itemTeal = rootView.findViewById(R.id.itemTeal);
+        TextView itemAmber = rootView.findViewById(R.id.itemOrange);
+        TextView itemRed = rootView.findViewById(R.id.itemRed);
+        TextView itemBrown = rootView.findViewById(R.id.itemBrown);
 
         itemPurple.setOnClickListener(clickListener);
         itemIndigo.setOnClickListener(clickListener);
@@ -534,54 +566,28 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     }
 
     private void versionDetection() {
-        new Thread() {
-            @Override
-            public void run() {
-                int versionCode;
-                SharedPreferences sp = getSharedPreferences("date", MODE_PRIVATE);
+        if (JsqApplication.newVersion) {
+            final String updateLog = Open.openTxt(getApplicationContext(), R.raw.update_log);
 
-                try {
-                    PackageManager manager = getPackageManager();
-                    PackageInfo info = manager.getPackageInfo(thisActivity.getPackageName(), 0);
-                    versionCode = info.versionCode;
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                    versionCode = Integer.MAX_VALUE;
-                }
-
-                if (versionCode > sp.getInt("versionCode", 0)) {
-                    final String updateLog = Open.openTxt(getApplicationContext(), R.raw.update_log);
-
-                    runOnUiThread(new Runnable() {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.updateLog))
+                    .setMessage(updateLog)
+                    .setPositiveButton(getString(R.string.exit), new DialogInterface.OnClickListener() {
                         @Override
-                        public void run() {
-                            new AlertDialog.Builder(thisActivity)
-                                    .setTitle(getString(R.string.updateLog))
-                                    .setMessage(updateLog)
-                                    .setPositiveButton(getString(R.string.exit), new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                        }
-                                    })
-                                    .setNegativeButton(getString(R.string.helpWord), new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                            AboutActivity.openHelp(thisActivity);
-                                        }
-                                    })
-                                    .create()
-                                    .show();
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
                         }
-                    });
-                }
-
-                SharedPreferences.Editor spe = getSharedPreferences("date", MODE_PRIVATE).edit();
-                spe.putInt("versionCode", versionCode);
-                spe.apply();
-            }
-        }.start();
+                    })
+                    .setNegativeButton(getString(R.string.helpWord), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            AboutActivity.openHelp(thisActivity);
+                        }
+                    })
+                    .create()
+                    .show();
+        }
     }
 
     private void setActionBar() {
@@ -590,10 +596,10 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
             actionBar.setDisplayShowHomeEnabled(false);
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setTitle(null);
-            View view = LayoutInflater.from(this).inflate(R.layout.main_activity_actionbar, new LinearLayout(this), false);
-            actionBar.setCustomView(view);
+            actionBar.setCustomView(R.layout.main_activity_actionbar);
 
-            view.findViewById(R.id.mainActivityTitle).setOnClickListener(new View.OnClickListener() {
+            mTitle = actionBar.getCustomView().findViewById(R.id.mainActivityTitle);
+            mTitle.setOnClickListener(new View.OnClickListener() {
                 private long lastTime = 0;
                 private final long timeDifference = 500;
 
@@ -619,7 +625,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                             linearLayout.setVisibility(View.VISIBLE);
                         }
 
-                        TextView textView = (TextView) findViewById(R.id.textView);
+                        TextView textView = findViewById(R.id.textView);
                         textView.setText(textView.getText().toString().replaceAll("\\s", FuHao.NULL));
                     }
                 }
