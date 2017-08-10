@@ -59,7 +59,10 @@
         <LinearLayout
             style="@style/MainLinearLayout"
             android:layout_weight="1"
-            android:background="?android:colorPrimary">
+            android:background="?android:colorPrimary"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp">
 
             <ImageButton
                 android:id="@+id/bGuiLing"
@@ -125,7 +128,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="?android:colorPrimary"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
 
         <LinearLayout
             android:id="@+id/linearLayout0"

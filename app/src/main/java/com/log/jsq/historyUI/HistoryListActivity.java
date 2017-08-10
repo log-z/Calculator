@@ -34,6 +34,7 @@ import com.log.jsq.tool.HistoryListData;
 import com.log.jsq.R;
 import com.log.jsq.tool.HistoryListSqlite;
 import com.log.jsq.tool.TextHandler;
+import com.log.jsq.tool.Theme;
 import com.log.jsq.tool.Time;
 
 import java.util.ArrayList;
@@ -70,12 +71,12 @@ public class HistoryListActivity
         }
 
         super.onCreate(savedInstanceState);
-        MainActivity.setTheme(this);
+        Theme.setTheme(this);
         setContentView(R.layout.activity_history_list);
 
         setTitle();
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -170,7 +171,7 @@ public class HistoryListActivity
 
         TypedValue value = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-        final CharSequence equationHtml = TextHandler.run(equation, value.data);
+        final CharSequence equationHtml = TextHandler.setStyle(equation, value.data);
 
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View particularView = inflater.inflate(R.layout.history_particular, null);

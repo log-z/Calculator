@@ -105,7 +105,7 @@ public class HistoryListAdapter extends Adapter<HistoryListAdapter.ViewHolder> {
                 final String itemBodyStr = rowData.getEquation();
                 TypedValue value = new TypedValue();
                 activity.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-                final Spanned itemBodySpa = TextHandler.run(itemBodyStr, value.data);
+                final Spanned itemBodySpa = TextHandler.setStyle(itemBodyStr, value.data);
 
                 importance.setOnClickListener(new View.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.M)

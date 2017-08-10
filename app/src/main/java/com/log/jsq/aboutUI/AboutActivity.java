@@ -12,8 +12,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.log.jsq.R;
-import com.log.jsq.mainUI.MainActivity;
 import com.log.jsq.tool.Open;
+import com.log.jsq.tool.Theme;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -60,7 +60,7 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivity.setTheme(this);
+        Theme.setTheme(this);
         setContentView(R.layout.activity_about);
         setActionBar();
 

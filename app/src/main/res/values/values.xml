@@ -3,8 +3,8 @@
     <integer name="default_fontSizeForEquation">36</integer>
     <integer name="default_fontSizeForNums">30</integer>
     <integer name="default_fontSizeForButton">30</integer>
-    <bool name="default_translucentStatusBar">true</bool>
-    <bool name="default_translucentNavigationBar">false</bool>
+    <string name="default_statusBar">translucent</string>
+    <string name="default_navigationBar">transparent</string>
     <bool name="default_onTTS">false</bool>
     <string name="default_setTTS_program">@string/wu</string>
     <string name="default_resultsAgainCalculation">resultsAgainCalculation_formulaPreferred</string>

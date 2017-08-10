@@ -23,6 +23,10 @@
     <string name="errorText">算式错误!</string>
     <string name="chuLingErrorText">除数为零!</string>
 
+    <string name="edit">编辑</string>
+    <string name="undo">撤消</string>
+    <string name="redo">重做</string>
+    <string name="done">完成</string>
     <string name="zhenDong">震动反馈</string>
     <string name="yuYin">语音提示</string>
     <string name="theme">主题</string>
@@ -30,11 +34,14 @@
     <string name="history">历史记录</string>
     <string name="setting">设置</string>
 
+    <string name="unableUndo">已不可撤消</string>
+    <string name="unableRedo">已不可重做</string>
+
     <string name="updateLog">本次更新</string>
     <string name="updateHistory">历史更新日志</string>
     <string name="helpWord">帮助文档</string>
 
-    <string name="aboutVersion">计算器 v4.2(20)</string>
+    <string name="aboutVersion">计算器 v4.3(21)</string>
     <string name="aboutWords">简单，但却不一般</string>
     <string name="aboutDeveloper">作者：酷安@log_Z</string>
     <string name="aboutXBB_Title">
@@ -57,9 +64,8 @@
     </string>
     <string name="openSourceLink">https://github.com/log-Z/Calculator</string>
     <string name="alipayUrl">https://qr.alipay.com/FKX01909KFYASDIWFWA073</string>
-    <string name="donateToast">十分的感谢！\n捐赠链接已复制，如果不能正常跳转，请复制到其它浏览器打开...</string>
+    <string name="donateToast">十分的感谢！\n捐赠链接已复制，如果不能正常跳转，请复制到其它浏览器打开</string>
 
-    <string name="recycler">撤销</string>
     <string name="comeBreak">返回计算器</string>
     <string name="deleteHistory">批量删除</string>
     <string name="deleteHistoryOf_aYearAgo">一年之前</string>
@@ -69,9 +75,9 @@
     <string name="deleteHistoryOf_aWeekAgo">一个星期之前</string>
     <string name="deleteHistoryOf_all">所有</string>
     <string name="deleteImportance">同时删除“重要”记录</string>
-    <string name="deleting">正在清空历史记录...</string>
+    <string name="deleting">正在清空历史记录</string>
     <string name="deleteSure">批量删除成功</string>
-    <string name="deleteError">批量删除失败，稍后请重试...</string>
+    <string name="deleteError">批量删除失败，稍后请重试</string>
 
     <string name="_default">默认</string>
     <string name="more">更多</string>
@@ -112,8 +118,33 @@
     <string name="fontSizeForEquation">算式区</string>
     <string name="fontSizeForNums">数值区</string>
     <string name="fontSizeForButton">按键面板</string>
-    <string name="translucentStatusBar">半透明状态栏</string>
-    <string name="translucentNavigationBar">半透明导航栏</string>
+    <string name="statusBar">状态栏</string>
+    <!-- 请勿修改键值 Start -->
+    <string-array name="statusBar_key">
+        <item>transparent</item>
+        <item>translucent</item>
+        <item>black</item>
+    </string-array>
+    <!-- 请勿修改键值 End -->
+    <string-array name="statusBar_item">
+        <item>透明</item>
+        <item>半透明</item>
+        <item>省电黑</item>
+    </string-array>
+    <string name="navigationBar">导航栏</string>
+    <!-- 请勿修改键值 Start -->
+    <string-array name="navigationBar_key">
+        <item>transparent</item>
+        <item>translucent</item>
+        <item>black</item>
+    </string-array>
+    <!-- 请勿修改键值 End -->
+    <string-array name="navigationBar_item">
+        <item>透明</item>
+        <item>半透明</item>
+        <item>省电黑</item>
+    </string-array>
+
     <string name="onTTS">使用TTS引擎代替自带语音</string>
     <string name="setTTS_program">选择TTS引擎</string>
     <string name="other">其它</string>

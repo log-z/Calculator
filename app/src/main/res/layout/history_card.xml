@@ -25,7 +25,7 @@
             android:id="@+id/rl2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:clickable="false" >
 
             <RelativeLayout
@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/itemTitleText"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_alignTop="@+id/itemTitleText"
                 android:gravity="center">
 
@@ -50,13 +50,13 @@
                 android:id="@+id/itemTitleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_marginRight="4dp"
-                android:layout_toLeftOf="@id/rl3"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="4dp"
+                android:layout_toStartOf="@id/rl3"
                 android:clickable="false"
                 android:fontFamily="sans-serif"
                 android:singleLine="true"
-                android:text="=1234567890135851531351"
+                android:text="123456789013585153135115341865"
                 android:textColor="?attr/actionMenuTextColor"
                 android:textSize="18sp" />
 
