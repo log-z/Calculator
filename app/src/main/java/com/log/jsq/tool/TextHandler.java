@@ -1,8 +1,9 @@
 package com.log.jsq.tool;
 
 import android.support.annotation.NonNull;
-import android.text.Html;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 
 import com.log.jsq.library.FuHao;
 
@@ -10,22 +11,18 @@ public class TextHandler {
 
     private static final String lineFeed = "\n";
 
-    //文本变色（主）
-    public static Spanned run(String text, int color) {
-        /**
-         * 【colorArray的存储方式】
-         * r0:符号是否变色的标记（如果有则为开始位置）
-         * r1:变色符号在strs的位置（获得变色符号长度）
-         */
-        int COLOR_ARRAY_TEXT_START_HANG = 0; //文本变色开始的位置的行数（适用于colorArray）
-        int COLOR_ARRAY_STRS_INDEX_HANG = 1; //变色符号对应的位置的行数（适用于colorArray）
-        int NOT_CHANGE_COLOR = -1;           //不变色的标记（适用于colorArray）
-        StringBuffer textBuf = new StringBuffer(text);  //需要变色的算式
-        final int colorArrayLie = text.length();        //colorArray的列数
-        int[][] colorArray = new int[2][colorArrayLie]; //控制变色的数组
+    /**
+     * 对文本添加样式（如变色等）
+     * @param text      文本
+     * @param color     变色颜色
+     * @return          带样式的文本
+     */
+    public static Spanned setStyle(@NonNull String text, int color) {
+        SpannableString ss = new SpannableString(text);
+        if (text.length() == 0) {
+            return ss;
+        }
 
-        String htmlStart = "<font color=\"#" + Integer.toString(color, 16) + "\">";    //HTML标签头（指定文本颜色）
-        String htmlEnd = "</font>";    //HTML标签尾
         //需要变色的符号（字符串数组）
         String strs[] = new String[] {
                 FuHao.jia,
@@ -37,67 +34,50 @@ public class TextHandler {
                 FuHao.dengYu
         };
 
-        //初始化colorArray，标记所有元素为“不变色”
-        for (int i=0;i<colorArray.length;i++) {
-            for (int j=0;j<colorArrayLie;j++) {
-                colorArray[i][j] = NOT_CHANGE_COLOR;
-            }
-        }
+        // 外循环 - 对符号
+        for (String cs : strs) {
+            // 内循环 - 对文本
+            for (int ti = 0; true; ) {
+                // 找到可变色符号的位置
+                ti = text.indexOf(cs, ti);
 
-        //标记colorArray，标记所有要变色的元素为它的位置
-        //外循环 - 对符号
-        for (int strsIndex = 0;strsIndex < strs.length;strsIndex++) {
-            //内循环 - 对文本
-            for (int textIndex = 0;true;) {
-                textIndex = textBuf.indexOf(strs[strsIndex], textIndex);    //找到可变色符号的位置
-
-                if (textIndex < 0) {
-                    break;  //找不到则跳出循环，开始从下一个符号找
+                if (ti < 0) {
+                    // 找不到则跳出循环，开始从下一个符号找
+                    break;
                 } else {
-                    //检测负号
-                    if (strs[strsIndex].equals(FuHao.jian) && jianCeFu(textBuf,textIndex)) {
-                        textIndex += FuHao.jian.length();
+                    // 检测负号
+                    if (cs.equals(FuHao.jian) && jianCeFu(text, ti)) {
+                        ti += FuHao.jian.length();
                         continue;
                     }
-                    if (strs[strsIndex].equals(FuHao.jia) && jianCeZheng(textBuf, textIndex)) {
-                        textIndex += FuHao.jia.length();
+                    if (cs.equals(FuHao.jia) && jianCeZheng(text, ti)) {
+                        ti += FuHao.jia.length();
                         continue;
                     }
 
-                    colorArray[COLOR_ARRAY_TEXT_START_HANG][textIndex] = textIndex; //标记当前变色符号在 textBuf 中的开始位置
-                    colorArray[COLOR_ARRAY_STRS_INDEX_HANG][textIndex] = strsIndex; //标记当前变色符号在 strs 中的位置（获得变色符号长度）
-                    textIndex += strs[strsIndex].length();
+                    // 设置颜色
+                    ss.setSpan(new ForegroundColorSpan(color),
+                            ti,
+                            ti + cs.length(),
+                            Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                    ti += cs.length();
                 }
             }
         }
 
-        //文本变色处理（参照colorArray）
-        for (int index=0;index<colorArrayLie;index++) {
-            final int textStartIndex = colorArray[COLOR_ARRAY_TEXT_START_HANG][index];  //变色符号 textBuf 中的开始位置
-            final int strsIndex = colorArray[COLOR_ARRAY_STRS_INDEX_HANG][index];       //变色符号在 strs 中的位置
-
-            if (textStartIndex == NOT_CHANGE_COLOR || strsIndex == NOT_CHANGE_COLOR) {
-                continue;   //跳过不变色的元素
-            }
-
-            textBuf.insert(textStartIndex, htmlStart);                                                  //添加HTML标签头
-            textBuf.insert(textStartIndex + htmlStart.length() + strs[strsIndex].length(), htmlEnd);    //添加HTML标签尾
-
-            //更新当前符号以后的所有符号的在 textBuf 中的位置
-            for (int afterIndex=index+1;afterIndex<colorArrayLie;afterIndex++) {
-                if (colorArray[COLOR_ARRAY_TEXT_START_HANG][afterIndex] != NOT_CHANGE_COLOR
-                        && colorArray[COLOR_ARRAY_STRS_INDEX_HANG][afterIndex] != NOT_CHANGE_COLOR) {
-                    colorArray[COLOR_ARRAY_TEXT_START_HANG][afterIndex] += htmlStart.length() + htmlEnd.length();
-                }
-            }
-        }
-
-        //返回HTML的表示
-        return Html.fromHtml(textBuf.toString().replaceAll("(\r\n|\r|\n|\n\r)", "<br/>"));
+        return ss;
     }
 
+    /**
+     * 自动换行
+     * @param str                   需要换行的字符串
+     * @param addOn_jiaJian         是否在加减前换行
+     * @param addOn_chengChu        是否在乘除前换行
+     * @param addOn_kuoHaoNei       允许在括号内换行
+     * @return                      添加换行后的字符串
+     */
     public static String addLineFeed(String str, boolean addOn_jiaJian, boolean addOn_chengChu, boolean addOn_kuoHaoNei) {
-        StringBuffer strBuf = new StringBuffer(str.replaceAll("\\s", FuHao.NULL));
+        StringBuffer strBuf = new StringBuffer(str);
 
         if (addOn_jiaJian) {
             addLineFeedRun(strBuf, FuHao.jia, addOn_kuoHaoNei);
@@ -117,26 +97,67 @@ public class TextHandler {
         return strBuf.toString();
     }
 
-    //检测减号是否为正号
+    /**
+     * 检测加号是否为正号
+     * @param text      文本
+     * @param index     出现的位置
+     * @return          结果
+     */
+    private static boolean jianCeZheng(String text, int index) {
+        final int indexUp = index - FuHao.TEN_POWER.length();                       //假设正号存在时，用“正号”的位置推出“十次方+正号”的位置。
+
+        return (text.indexOf(FuHao.TEN_POWER + FuHao.jia, indexUp) == indexUp);    //判断“十次方+正号”的位置是否匹配
+    }
+
+    /**
+     * 检测加号是否为正号（重载）
+     * @param text      文本
+     * @param index     出现的位置
+     * @return          结果
+     */
     private static boolean jianCeZheng(StringBuffer text, int index) {
         final int indexUp = index - FuHao.TEN_POWER.length();                       //假设正号存在时，用“正号”的位置推出“十次方+正号”的位置。
 
         return (text.indexOf(FuHao.TEN_POWER + FuHao.jia, indexUp) == indexUp);    //判断“十次方+正号”的位置是否匹配
     }
 
-    //检测减号是否为负号
+    /**
+     * 检测减号是否为负号
+     * @param text      文本
+     * @param index     出现的位置
+     * @return          结果
+     */
+    private static boolean jianCeFu(String text, int index) {
+        final int indexUp1 = index - FuHao.kuoHaoTou.length();                       //假设负号存在时，用“负号”的位置推出“括号头+负号”的位置。
+        final int indexUp2 = index - FuHao.dengYu.length();                       //假设负号存在时，用“负号”的位置推出“等于+负号”的位置。
+
+        return text.indexOf(FuHao.kuoHaoTou + FuHao.jian, indexUp1) == indexUp1    //判断“括号头+负号”的位置是否匹配
+                || text.indexOf(FuHao.dengYu  +  FuHao.jian, indexUp2) == indexUp2    //判断“等于+负号”的位置是否匹配
+                || text.indexOf(FuHao.dengYu + " " + FuHao.jian, indexUp2 - 1) == indexUp2 - 1
+                || index == 0;
+    }
+
+    /**
+     * 检测减号是否为负号（重载）
+     * @param text      文本
+     * @param index     出现的位置
+     * @return          结果
+     */
     private static boolean jianCeFu(StringBuffer text, int index) {
         final int indexUp1 = index - FuHao.kuoHaoTou.length();                       //假设负号存在时，用“负号”的位置推出“括号头+负号”的位置。
         final int indexUp2 = index - FuHao.dengYu.length();                       //假设负号存在时，用“负号”的位置推出“等于+负号”的位置。
 
-        return (text.indexOf(FuHao.kuoHaoTou + FuHao.jian, indexUp1) == indexUp1    //判断“括号头+负号”的位置是否匹配
+        return text.indexOf(FuHao.kuoHaoTou + FuHao.jian, indexUp1) == indexUp1    //判断“括号头+负号”的位置是否匹配
                 || text.indexOf(FuHao.dengYu + FuHao.jian, indexUp2) == indexUp2    //判断“等于+负号”的位置是否匹配
-                || index == 0
-        );
+                || text.indexOf(FuHao.dengYu + " " + FuHao.jian, indexUp2 - 1) == indexUp2 - 1
+                || index == 0;
     }
 
-    /*
+    /**
      * 判断算式指定位置的括号级别是否为0
+     * @param strBuf    字符串
+     * @param endIndex  指定位置
+     * @return          判断算式指定位置的括号级别是否为0
      */
     public static boolean isParenthesesClosed(StringBuffer strBuf, int endIndex) {
         if (endIndex > strBuf.length()) {
@@ -170,14 +191,22 @@ public class TextHandler {
         return touLen == weiLen;
     }
 
-    /*
-     * 判断算式指定位置的括号级别是否为0
-     * 参数为String类型的重载方法
+    /**
+     * 判断算式指定位置的括号级别是否为0（重载）
+     * @param str       字符串
+     * @param endIndex  指定位置
+     * @return          判断算式指定位置的括号级别是否为0
      */
     public static boolean isParenthesesClosed(String str, int endIndex) {
         return isParenthesesClosed(new StringBuffer(str), endIndex);
     }
 
+    /**
+     * 添加换行
+     * @param strBuf            需要添加换行符的文本
+     * @param targetStr         在此字符串前添加换行
+     * @param addOn_kuoHaoNei   是否允许在括号内换行
+     */
     private static void addLineFeedRun(@NonNull StringBuffer strBuf, @NonNull String targetStr, boolean addOn_kuoHaoNei) {
         for (int i = strBuf.lastIndexOf(targetStr);
              i >= 0 && i < strBuf.length();
