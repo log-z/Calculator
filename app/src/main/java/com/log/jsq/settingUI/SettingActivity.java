@@ -22,8 +22,8 @@ import android.widget.TextView;
 
 import com.log.jsq.R;
 import com.log.jsq.aboutUI.AboutActivity;
-import com.log.jsq.mainUI.MainActivity;
 import com.log.jsq.tool.AudioOnTTS;
+import com.log.jsq.tool.Theme;
 
 import java.util.Objects;
 
@@ -34,20 +34,27 @@ public class SettingActivity extends AppCompatActivity {
             extends PreferenceFragment
             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+        SharedPreferences sharedPreferences = thisContext
+                .getSharedPreferences("setting", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            // 指定SharedPreferences
             getPreferenceManager().setSharedPreferencesName("setting");
+            // 指定xml资源
             addPreferencesFromResource(R.xml.setting);
-            SharedPreferences sp = thisContext.getSharedPreferences("setting", MODE_PRIVATE);
-            sp.registerOnSharedPreferenceChangeListener(this);
-            onSharedPreferenceChanged(sp, null);
+            // 注册SharedPreferences监听器
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+            // 初始化summary
+            onSharedPreferenceChanged(sharedPreferences, null);
 
+            // 初始化“选择TTS引擎”选项
             ListPreference listPreference = (ListPreference) findPreference("setTTSProgram");
             String[][] info = AudioOnTTS.getEngines(thisContext.getApplicationContext());
             String[] label = info[0];
             String[] name = info[1];
-
             if (label.length > 0 && name.length > 0) {
                 listPreference.setEntries(label);
                 listPreference.setEntryValues(name);
@@ -59,53 +66,49 @@ public class SettingActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-            if (Objects.equals(preference.getKey(), "about")) {
-                Intent aboutIntent = new Intent(thisContext.getApplicationContext(), AboutActivity.class)
+        public boolean onPreferenceTreeClick(PreferenceScreen ps, Preference p) {
+            if (Objects.equals(p.getKey(), "about")) {
+                /// 关于
+                Intent aboutIntent =
+                        new Intent(thisContext.getApplicationContext(), AboutActivity.class)
                         .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(aboutIntent, new Bundle());
-            } else if (Objects.equals(preference.getKey(), "fontSizeForEquation")) {
-                int value = thisContext.getSharedPreferences(
-                        "setting", MODE_PRIVATE).getInt(preference.getKey(),
-                        getResources().getInteger(R.integer.default_fontSizeForEquation)
-                );
-                seekBar(preference.getKey(),
-                        preference.getTitle().toString() + getString(R.string.fontSize),
+            } else if (Objects.equals(p.getKey(), "fontSizeForEquation")) {
+                /// 算式区字体大小
+                int value = sharedPreferences.getInt(p.getKey(),
+                        getResources().getInteger(R.integer.default_fontSizeForEquation));
+                seekBar(p.getKey(),
+                        p.getTitle().toString() + getString(R.string.fontSize),
                         value,
                         100,
                         getResources().getInteger(R.integer.default_fontSizeForEquation));
-            } else if (Objects.equals(preference.getKey(), "fontSizeForNums")) {
-                int value = thisContext.getSharedPreferences(
-                        "setting", MODE_PRIVATE).getInt(preference.getKey(),
-                        getResources().getInteger(R.integer.default_fontSizeForNums)
-                );
-                seekBar(preference.getKey(),
-                        preference.getTitle().toString() + getString(R.string.fontSize),
+            } else if (Objects.equals(p.getKey(), "fontSizeForNums")) {
+                /// 数值区字体大小
+                int value = sharedPreferences.getInt(p.getKey(),
+                        getResources().getInteger(R.integer.default_fontSizeForNums));
+                seekBar(p.getKey(),
+                        p.getTitle().toString() + getString(R.string.fontSize),
                         value,
                         100,
                         getResources().getInteger(R.integer.default_fontSizeForNums));
-            } else if (Objects.equals(preference.getKey(), "fontSizeForButton")) {
-                int value = thisContext.getSharedPreferences(
-                        "setting", MODE_PRIVATE).getInt(preference.getKey(),
-                        getResources().getInteger(R.integer.default_fontSizeForButton)
-                );
-                seekBar(preference.getKey(),
-                        preference.getTitle().toString() + getString(R.string.fontSize),
+            } else if (Objects.equals(p.getKey(), "fontSizeForButton")) {
+                /// 按钮字体大小
+                int value = sharedPreferences.getInt(p.getKey(),
+                        getResources().getInteger(R.integer.default_fontSizeForButton));
+                seekBar(p.getKey(),
+                        p.getTitle().toString() + getString(R.string.fontSize),
                         value,
                         100,
                         getResources().getInteger(R.integer.default_fontSizeForButton));
-            } else if (Objects.equals(preference.getKey(), "translucentStatusBar")
-                    || Objects.equals(preference.getKey(), "translucentNavigationBar")) {
-                MainActivity.setTheme(thisContext);
-            } else if (Objects.equals(preference.getKey(), "restoreSettings")) {
+            } else if (Objects.equals(p.getKey(), "restoreSettings")) {
+                /// 重置设置
                 new AlertDialog.Builder(getActivity())
                         .setTitle("确认重置设置？")
                         .setPositiveButton(getString(R.string.sure), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                SharedPreferences.Editor spe = thisContext.getSharedPreferences("setting", MODE_PRIVATE).edit();
-                                spe.clear();
-                                spe.apply();
+                                editor.clear();
+                                editor.apply();
                                 ((Activity) thisContext).finishAfterTransition();
                             }
                         })
@@ -119,24 +122,41 @@ public class SettingActivity extends AppCompatActivity {
                         .show();
             }
 
-            return super.onPreferenceTreeClick(preferenceScreen, preference);
+            return super.onPreferenceTreeClick(ps, p);
         }
 
-        private void seekBar(final String key, String title, int value, int maxValue, final int defaultValue) {
+        /**
+         * 拖动条弹窗
+         * @param key               对应的SharedPreferences key
+         * @param title             弹窗标题
+         * @param value             当前值
+         * @param maxValue          最大值
+         * @param defaultValue      默认值
+         */
+        private void seekBar(final String key,
+                             String title,
+                             int value,
+                             int maxValue,
+                             final int defaultValue) {
 
             LayoutInflater inflater = ((Activity) thisContext).getLayoutInflater();
             View view = inflater.inflate(R.layout.seek_bar, null);
-            final SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekBar);
-            final TextView valueText = (TextView) view.findViewById(R.id.value);
-            ImageView upButton = (ImageView) view.findViewById(R.id.up);
-            ImageView downButton = (ImageView) view.findViewById(R.id.down);
+            final SeekBar seekBar = view.findViewById(R.id.seekBar);
+            final TextView valueText = view.findViewById(R.id.value);
+            ImageView upButton = view.findViewById(R.id.up);
+            ImageView downButton = view.findViewById(R.id.down);
 
+            // 初始化值
             seekBar.setProgress(value);
+            // 设置最大值
             seekBar.setMax(maxValue);
+            // 显示当前值
             valueText.setText(String.valueOf(value));
+            // 注册拖动条监听
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    // 同步显示当前值
                     valueText.setText(String.valueOf(progress));
                 }
 
@@ -151,6 +171,7 @@ public class SettingActivity extends AppCompatActivity {
 
                 }
             });
+            // 注册按钮监听
             upButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -176,13 +197,13 @@ public class SettingActivity extends AppCompatActivity {
                 }
             });
 
+            // 构造并显示弹窗
             new AlertDialog.Builder(thisContext)
                     .setTitle(title)
                     .setView(view)
                     .setNeutralButton(R.string._default, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            SharedPreferences.Editor editor = thisContext.getSharedPreferences("setting", MODE_PRIVATE).edit();
                             editor.putInt(key, defaultValue);
                             editor.apply();
                             dialog.cancel();
@@ -196,7 +217,6 @@ public class SettingActivity extends AppCompatActivity {
                                 size = 1;
                             }
 
-                            SharedPreferences.Editor editor = thisContext.getSharedPreferences("setting", MODE_PRIVATE).edit();
                             editor.putInt(key, size);
                             editor.apply();
                             dialog.cancel();
@@ -218,33 +238,75 @@ public class SettingActivity extends AppCompatActivity {
             String fontSizeForEquationKey = "fontSizeForEquation";
             String fontSizeForNumsKey = "fontSizeForNums";
             String fontSizeForButtonKey = "fontSizeForButton";
+            String statusBarKey = "statusBar";
+            String navigationBarKey = "navigationBar";
             String onTTSKey = "onTTS";
             String setTTSProgramKey = "setTTSProgram";
             String resultsAgainCalculationKey = "resultsAgainCalculation";
             String autoLineFeedKey = "autoLineFeed";
             String historyDeleteAutoKey = "historyDeleteAuto";
 
+            // 算式区字体大小
             if (key == null || Objects.equals(key, fontSizeForEquationKey)) {
                 int fontSizeForEquationValue = sp.getInt(fontSizeForEquationKey, getResources().getInteger(R.integer.default_fontSizeForEquation));
                 findPreference(fontSizeForEquationKey).setSummary(fontSizeForEquationValue + unit);
             }
+            // 数值区字体大小
             if (key == null || Objects.equals(key, fontSizeForNumsKey)) {
                 int fontSizeForNumsValue = sp.getInt(fontSizeForNumsKey, getResources()
                         .getInteger(R.integer.default_fontSizeForNums));
                 findPreference(fontSizeForNumsKey).setSummary(fontSizeForNumsValue + unit);
             }
+            // 按钮字体大小
             if (key == null || Objects.equals(key, fontSizeForButtonKey)) {
                 int fontSizeForButtonValue = sp.getInt(fontSizeForButtonKey, getResources()
                         .getInteger(R.integer.default_fontSizeForButton));
                 findPreference(fontSizeForButtonKey).setSummary(fontSizeForButtonValue + unit);
             }
+            // 状态栏
+            if (key == null || Objects.equals(key, statusBarKey)) {
+                String keyKey = sp.getString(
+                        statusBarKey,
+                        getString(R.string.default_statusBar));
+                String[] keys = getResources().getStringArray(R.array.statusBar_key);
+                String[] item = getResources().getStringArray(R.array.statusBar_item);
+
+                for (int i = 0; i < keys.length; i++) {
+                    if (keys[i].equals(keyKey)) {
+                        findPreference(statusBarKey).setSummary(item[i]);
+                        break;
+                    }
+                }
+
+                Theme.setStatusBar((Activity) thisContext);
+            }
+            // 导航栏
+            if (key == null || Objects.equals(key, navigationBarKey)) {
+                String keyKey = sp.getString(
+                        navigationBarKey,
+                        getString(R.string.default_navigationBar));
+                String[] keys = getResources().getStringArray(R.array.navigationBar_key);
+                String[] item = getResources().getStringArray(R.array.navigationBar_item);
+
+                for (int i = 0; i < keys.length; i++) {
+                    if (keys[i].equals(keyKey)) {
+                        findPreference(navigationBarKey).setSummary(item[i]);
+                        break;
+                    }
+                }
+
+                Theme.setNavigationBar((Activity) thisContext);
+            }
+            // 使用TTS引擎代替自带语音
             if (key == null || Objects.equals(key, onTTSKey)) {
+                // 控制“setTTSProgram”是否可编辑
                 findPreference(setTTSProgramKey)
                         .setEnabled(sp.getBoolean(
                                 onTTSKey,
                                 getResources().getBoolean(R.bool.default_onTTS)
                         ));
             }
+            // 选择TTS引擎
             if (key == null || Objects.equals(key, setTTSProgramKey)) {
                 findPreference(setTTSProgramKey)
                         .setSummary(sp.getString(
@@ -252,13 +314,15 @@ public class SettingActivity extends AppCompatActivity {
                                 getString(R.string.default_setTTS_program)
                         ));
             }
+            // 对结果计算时
             if (key == null || Objects.equals(key, resultsAgainCalculationKey)) {
                 String keyKey = sp.getString(
                         resultsAgainCalculationKey,
-                        getString(R.string.default_resultsAgainCalculation)
-                );
-                String[] keys = getResources().getStringArray(R.array.resultsAgainCalculationKey);
-                String[] item = getResources().getStringArray(R.array.resultsAgainCalculationItem);
+                        getString(R.string.default_resultsAgainCalculation));
+                String[] keys = getResources()
+                        .getStringArray(R.array.resultsAgainCalculationKey);
+                String[] item = getResources()
+                        .getStringArray(R.array.resultsAgainCalculationItem);
 
                 for (int i = 0; i < keys.length; i++) {
                     if (keys[i].equals(keyKey)) {
@@ -267,11 +331,11 @@ public class SettingActivity extends AppCompatActivity {
                     }
                 }
             }
+            // 自动换行
             if (key == null || Objects.equals(key, autoLineFeedKey)) {
                 String keyKey = sp.getString(
                         autoLineFeedKey,
-                        getString(R.string.default_autoLineFeed)
-                );
+                        getString(R.string.default_autoLineFeed));
                 String[] keys = getResources().getStringArray(R.array.autoLineFeed_key);
                 String[] item = getResources().getStringArray(R.array.autoLineFeed_item);
 
@@ -282,11 +346,11 @@ public class SettingActivity extends AppCompatActivity {
                     }
                 }
             }
+            // 自动删除历史记录
             if (key == null || Objects.equals(key, historyDeleteAutoKey)) {
                 String keyKey = sp.getString(
                         historyDeleteAutoKey,
-                        getString(R.string.default_historyDeleteAuto)
-                );
+                        getString(R.string.default_historyDeleteAuto));
                 String[] keys = getResources().getStringArray(R.array.historyDeleteAuto_key);
                 String[] item = getResources().getStringArray(R.array.historyDeleteAuto_item);
 
@@ -301,7 +365,8 @@ public class SettingActivity extends AppCompatActivity {
 
         @Override
         public void onDestroy() {
-            thisContext.getSharedPreferences("setting", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
+            // 解除SharedPreferences监听器
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
             super.onDestroy();
         }
     }
@@ -310,9 +375,10 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         thisContext = this;
-        MainActivity.setTheme(this);
+        Theme.setTheme(this);
         setActionBar();
 
+        // 配置Fragment
         SettingFragment settingFragment = new SettingFragment();
         getFragmentManager()
                 .beginTransaction()
@@ -330,10 +396,14 @@ public class SettingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * 配置ActionBar
+     */
     private void setActionBar() {
         setTitle(getResources().getString(R.string.setting));
 
         try {
+            // 显示返回按钮
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } catch (NullPointerException e) {
             e.printStackTrace();
