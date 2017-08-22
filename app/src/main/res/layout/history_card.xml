@@ -1,79 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/historyItem"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true">
+    android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/historyItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="false"
+        android:background="@drawable/ripple_dark"
         android:gravity="center"
-        android:background="@drawable/list_ripple_orange">
+        android:baselineAligned="false"
+        tools:ignore="UselessParent">
 
-        <CheckBox
-            android:id="@+id/importance"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:adjustViewBounds="false"
-            android:button="@drawable/importance_checkbox_selector"
-            android:clickable="true" />
+            android:gravity="center"
+            android:padding="10dp">
 
-        <RelativeLayout
-            android:id="@+id/rl2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:clickable="false" >
-
-            <RelativeLayout
-                android:id="@+id/rl3"
+            <CheckBox
+                android:id="@+id/importance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/itemTitleText"
-                android:layout_alignParentEnd="true"
-                android:layout_alignTop="@+id/itemTitleText"
-                android:gravity="center">
+                android:adjustViewBounds="false"
+                android:button="@drawable/importance_checkbox_selector"
+                android:foreground="@drawable/ripple_borderless_light" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="16dp"
+            tools:ignore="RtlSymmetry">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:clickable="false">
 
                 <TextView
-                    android:id="@+id/itemTimeText"
+                    android:id="@+id/itemTitleText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="false"
+                    android:singleLine="true"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textSize="18sp" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:text="12月29日"
-                    android:textSize="12sp" />
-            </RelativeLayout>
+                    android:layout_marginStart="4dp"
+                    android:gravity="center"
+                    android:clickable="false">
 
-            <TextView
-                android:id="@+id/itemTitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginEnd="4dp"
-                android:layout_toStartOf="@id/rl3"
-                android:clickable="false"
-                android:fontFamily="sans-serif"
-                android:singleLine="true"
-                android:text="123456789013585153135115341865"
-                android:textColor="?attr/actionMenuTextColor"
-                android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/itemTagText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:singleLine="true"
+                        android:textColor="@android:color/tertiary_text_light"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/itemDot"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="4dp"
+                        android:visibility="gone"
+                        android:src="@drawable/ic_dot_black_3dp"
+                        android:clickable="false" />
+                    <TextView
+                        android:id="@+id/itemTimeText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:singleLine="true"
+                        android:textColor="@android:color/tertiary_text_light"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/itemBodyText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/itemTitleText"
                 android:clickable="false"
                 android:ellipsize="end"
-                android:maxLines="1"
-                android:text="13898464767/9796767+6167451+4861874/454+46464-486444.63484841+16645641545.138413841"
-                android:textSize="14sp" />
+                android:singleLine="true"
+                android:textColor="@android:color/tertiary_text_light"
+                android:textSize="16sp" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>

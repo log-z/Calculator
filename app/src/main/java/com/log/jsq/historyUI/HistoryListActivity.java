@@ -1,22 +1,21 @@
 package com.log.jsq.historyUI;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,398 +28,572 @@ import android.widget.Toast;
 
 import com.log.jsq.library.FuHao;
 import com.log.jsq.mainUI.MainActivity;
-import com.log.jsq.tool.HistoryListData;
-
 import com.log.jsq.R;
-import com.log.jsq.tool.HistoryListSqlite;
-import com.log.jsq.tool.TextHandler;
+import com.log.jsq.tool.HistoryListData;
 import com.log.jsq.tool.Theme;
 import com.log.jsq.tool.Time;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class HistoryListActivity
-        extends AppCompatActivity
-        implements HistoryListAdapter.MyItemClickListener,
-        HistoryCallback.ItemTouchHelperAdapter,
-        HistoryListAdapter.MyCheckBoxClickListener {
-    private Menu menu;
-    private ArrayList<HistoryListData.RowData> arrayList;
-    private ArrayList<HistoryListData.RowData> arrayRecycler;
-    private ArrayList<HistoryListData.RowData> arrayUpdate;
-    private HistoryListAdapter adapter;
-    private HistoryCallback callback;
-    private Activity thisActivity = this;
-    private int recycler = 0;
-    private boolean startFromMainActivity = true;
+public class HistoryListActivity extends AppCompatActivity
+        implements HistoryListAdapter.OnItemClickListener,
+            HistoryListAdapter.OnItemLongClickListener,
+            HistoryListAdapter.OnCheckBoxClickListener,
+            HistoryCallback.ItemTouchHelperAdapter,
+            HistoryDialog.Callback {
 
-    @Override
-    protected void finalize() throws Throwable {
-        Log.d("MainActivity", "////////////////////// " + this + "已可以回收 ////////////////////////");
-        Log.d("MainActivity", "////////////////////// " + this + "已可以回收 ////////////////////////");
-        super.finalize();
-    }
+    /** 当前选项菜单 */
+    private Menu mMenu;
+    /** 历史记录详情弹窗 */
+    private HistoryDialog mDialog;
+    /** 历史记录数据集 */
+    private ArrayList<HistoryListData.RowData> mDataset = new ArrayList<>();
+    /** 将要被移除的数据集（规定为栈结构，index=0为栈顶） */
+    private ArrayList<HistoryListData.RowData> mDeleted = new ArrayList<>();
+    /** 已更新数据集 */
+    private ArrayList<HistoryListData.RowData> mUpdated = new ArrayList<>();
+    /** RecyclerView构造器 */
+    private HistoryListAdapter mAdapter;
+    /** 条目操作回调 */
+    private HistoryCallback mCallback;
+    /** 是否是从主页打开此Activity */
+    private boolean mStartFromMain = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        String startFrom = getIntent().getStringExtra("startFrom");
-        if (startFrom == null || !startFrom.equals(MainActivity.class.toString())) {
-            Log.w(getClass().toString(), "不是通过主页面启动!");
-            startFromMainActivity = false;
-        }
-
         super.onCreate(savedInstanceState);
         Theme.setTheme(this);
         setContentView(R.layout.activity_history_list);
-
         setTitle();
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        new Thread() {
+            @Override
+            public void run() {
+                // 当前Activity的引用
+                final HistoryListActivity hla = HistoryListActivity.this;
 
-        arrayList = HistoryListData.exportAllFromSQLite(getApplicationContext());
-        Collections.sort(arrayList);
-        adapter = new HistoryListAdapter(arrayList, this);
-        adapter.setOnItemClickListener(this);
-        adapter.setOnCheckBoxClickListener(this);
+                // 判断是否从主页启动
+                String startFrom = getIntent().getStringExtra("startFrom");
+                if (startFrom == null || !startFrom.equals(MainActivity.class.toString())) {
+                    Log.w(getClass().toString(), "不是通过主页面启动!");
+                    mStartFromMain = false;
+                }
 
-        recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+                final RecyclerView recyclerView = findViewById(R.id.recycler_view);
+                // 设置固定条目大小
+                recyclerView.setHasFixedSize(true);
+                // 设置布局管理器
+                recyclerView.setLayoutManager(new LinearLayoutManager(hla));
+                // 设置条目动画（增加、移除）
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                // 添加条目分割线
+                recyclerView.addItemDecoration(new HistoryDecoration());
 
-        callback = new HistoryCallback(this);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+                // 从数据库取出数据集
+                mDataset = HistoryListData.exportAllFromSQLite(getApplicationContext());
+                // 排序数据集
+                Collections.sort(mDataset);
+                // 建立构造器
+                mAdapter = new HistoryListAdapter(hla.mDataset, hla);
+                // 绑定条目点击监听
+                mAdapter.setOnItemClickListener(hla);
+                // 绑定条目长按监听
+                mAdapter.setOnItemLongClickListener(hla);
+                // 绑定重要复选框监听
+                mAdapter.setOnCheckBoxClickListener(hla);
+                // 绑定构造器
+                recyclerView.setAdapter(mAdapter);
+
+                // 建立条目操作回调
+                mCallback = new HistoryCallback(hla);
+                // 绑定条目操作回调
+                final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mCallback);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        itemTouchHelper.attachToRecyclerView(recyclerView);
+                    }
+                });
+
+                // 初始化历史记录详情弹窗
+                mDialog = HistoryDialog.getInstance();
+                mDialog.setCallback(hla);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDialog.init(hla);
+                    }
+                });
+
+                // 显示列表
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.progressBar).setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }.start();
     }
 
+    /**
+     * 设置标题栏
+     */
     private void setTitle() {
         setTitle(getResources().getString(R.string.history));
 
-        try {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+        // 显示返回按钮
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
+    /**
+     * 当构建选项菜单时
+     * @param menu  选项菜单
+     * @return      是否显示选项菜单
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.history_menu, menu);
-        this.menu = menu;
-
-        return super.onCreateOptionsMenu(menu);
+        return super.onCreateOptionsMenu(this.mMenu = menu);
     }
 
+    /**
+     * 当选项菜单被选择时
+     * @param item  被选择的菜单项
+     * @return      是否消耗掉选择
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                // 返回
                 finishAfterTransition();
                 return true;
-            case R.id.recycler:
-                dataRecycler();
+            case R.id.undo:
+                // 撤消
+                undo();
                 return true;
             case R.id.comeBreak:
-                breakToActivity(MainActivity.class);
+                // 返回到计算器
+                breakToMainActivity();
                 return true;
             case R.id.deleteHistoryOf_all:
-                batchDeletion(Time.time.ALL, item.getTitle());
+                // 删除所有历史记录
+                batchDeletion(Time.Span.ALL, item.getTitle());
                 return true;
             case R.id.deleteHistoryOf_aWeekAgo:
-                batchDeletion(Time.time.A_WEEK, item.getTitle());
+                // 删除一周前的历史记录
+                batchDeletion(Time.Span.A_WEEK, item.getTitle());
                 return true;
             case R.id.deleteHistoryOf_halfAMonthAgo:
-                batchDeletion(Time.time.HALF_A_MONTH, item.getTitle());
+                // 删除半个月前的历史记录
+                batchDeletion(Time.Span.HALF_A_MONTH, item.getTitle());
                 return true;
             case R.id.deleteHistoryOf_aMonthAgo:
-                batchDeletion(Time.time.A_MONTH, item.getTitle());
+                // 删除一个月前的历史记录
+                batchDeletion(Time.Span.A_MONTH, item.getTitle());
                 return true;
             case R.id.deleteHistoryOf_halfAYearAgo:
-                batchDeletion(Time.time.HALF_A_YEAR, item.getTitle());
+                // 删除半年前的历史记录
+                batchDeletion(Time.Span.HALF_A_YEAR, item.getTitle());
                 return true;
             case R.id.deleteHistoryOf_aYearAgo:
-                batchDeletion(Time.time.A_YEAR, item.getTitle());
+                // 删除一年前的历史记录
+                batchDeletion(Time.Span.A_YEAR, item.getTitle());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    /**
+     * 当按下返回键时
+     */
     @Override
     public void onBackPressed() {
         finishAfterTransition();
     }
 
+    /**
+     * 当按键弹起时
+     * @param keyCode   按键值
+     * @param event     按键动作
+     * @return          是否消耗掉按压操作
+     */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_MENU) {  //MENU键
-            return true;       //监控/拦截菜单键
-        } else {
-            return super.onKeyUp(keyCode, event);
-        }
+        // 拦截MENU键
+        return keyCode == KeyEvent.KEYCODE_MENU || super.onKeyUp(keyCode, event);
     }
 
+    /**
+     * 当条目被点击时
+     * @param view      条目视图
+     * @param position  条目位置
+     */
     @Override
-    public void onItemClick(View view, int position) {
-        final HistoryListData.RowData rowData = arrayList.get(position);
-        final String result = rowData.getResult();
-        final String equation = rowData.getEquation();
-
-        TypedValue value = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-        final CharSequence equationHtml = TextHandler.setStyle(equation, value.data);
-
-        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View particularView = inflater.inflate(R.layout.history_particular, null);
-        ((TextView) particularView.findViewById(R.id.history_particular_title)).setText(result);
-        ((TextView) particularView.findViewById(R.id.history_particular_body)).setText(equationHtml);
-
-        new AlertDialog.Builder(this)
-                .setView(particularView)
-                .setPositiveButton("载入到计算器", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        SharedPreferences.Editor spe = getSharedPreferences("list", MODE_PRIVATE).edit();
-                        spe.putString("textView0", equation);
-                        spe.putString("numTextView0", FuHao.dengYu + result);
-                        spe.putBoolean("normal", false);
-                        spe.apply();
-
-                        breakToActivity(MainActivity.class);
-                    }
-                })
-                .setNegativeButton(getString(R.string.close), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .create()
-                .show();
+    public void onItemClick(final View view, int position) {
+        mDialog.show(this, mDataset.get(position));
     }
 
+    /**
+     * 当条目被长按时
+     * @param view      条目视图
+     * @param position  条目位置
+     * @return          是否消耗掉按压操作
+     */
     @Override
     public boolean onItemLongClick(View view, int position) {
-        HistoryListData.RowData rowData = arrayList.get(position);
+        // 提取此条目的数据
+        HistoryListData.RowData rowData = mDataset.get(position);
         String clipStr = rowData.getEquation() + FuHao.dengYu + rowData.getResult();
-        ClipboardManager myClipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);  //实例化剪切板服务
-        ClipData myClip = ClipData.newPlainText("复制的算式", clipStr);
-        myClipboard.setPrimaryClip(myClip);
-
-        Toast.makeText(this, "算式及结果已复制", Toast.LENGTH_SHORT).show();
+        // 实例化剪切板服务
+        ClipboardManager myClipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+        ClipData myClip = ClipData.newPlainText("算式和结果", clipStr);
+        // 添加算式和结果到剪切板
+        if (myClipboard != null) {
+            myClipboard.setPrimaryClip(myClip);
+            Toast.makeText(this, R.string.copyAll, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.copyError, Toast.LENGTH_SHORT).show();
+        }
 
         return true;
     }
 
+    /**
+     * 当条目被划掉后
+     * @param position  条目位置
+     */
     @Override
     public void onItemDismiss(final int position) {
-        if (arrayRecycler == null) {
-            arrayRecycler = new ArrayList<>();
-        }
-
-        arrayRecycler.add(arrayList.get(position).setPosition(position));
-        arrayList.remove(position);
-        adapter.deleteItem(position);
-        recycler++;
-        menu.findItem(R.id.recycler).setVisible(recycler > 0);
-        menu.findItem(R.id.comeBreak).setVisible(recycler == 0);
+        // 把条目数据移至mDeleted
+        mDeleted.add(0, mDataset.remove(position));
+        // 在构造器中移除该条目
+        mAdapter.deleteItem(position);
+        // 刷新菜单显示
+        setMenuItemVisible();
     }
 
+    /**
+     * 当重要复选框被点击时
+     * @param checkBox  条目视图
+     * @param position  条目位置
+     */
     @Override
-    public void onCheckBoxClick(View view, int position) {
-        CheckBox checkBox = (CheckBox) view;
-        HistoryListData.RowData rowData = arrayList.get(position);
+    public void onCheckBoxClick(CheckBox checkBox, int position) {
+        HistoryListData.RowData data = mDataset.get(position);
+        // 更新数据
+        data.setImportance(checkBox.isChecked());
+        //对数据集重新排序
+        Collections.sort(mDataset);
 
-        if (arrayUpdate == null) {
-            arrayUpdate = new ArrayList<HistoryListData.RowData>();
+        // 添加数据到mUpdated
+        addToUpdated(data);
+
+        // 更新构造器中条目的位置
+        int newPosition = mDataset.indexOf(data);
+        if (newPosition != position) {
+            mAdapter.moveItem(newPosition, position);
         }
-
-        rowData.setImportance(checkBox.isChecked());
-        //对arrayList重新排序
-        Collections.sort(arrayList);
-
-        arrayUpdate.remove(rowData);
-        arrayUpdate.add(rowData);
-        adapter.updateItem(arrayList.indexOf(rowData), position);
     }
 
-    private void dataRecycler() {
-        HistoryListData.RowData rowData = arrayRecycler.get(arrayRecycler.size() - 1);
-        arrayList.add(rowData.getPosition(), rowData);
-        arrayRecycler.remove(arrayRecycler.size() - 1);
-        recycler--;
-        adapter.recoverItem(rowData.getPosition());
-        menu.findItem(R.id.recycler).setVisible(recycler > 0);
-        menu.findItem(R.id.comeBreak).setVisible(recycler == 0);
+    /**
+     * 执行撤消操作
+     */
+    private void undo() {
+        // 取出mDeleted栈顶
+        HistoryListData.RowData data = mDeleted.remove(0);
+        // 把数据放回数据集
+        mDataset.add(data);
+        // 重新排序数据集
+        Collections.sort(mDataset);
+        // 在构造器中刷新显示
+        mAdapter.addItem(mDataset.indexOf(data));
+        // 刷新菜单显示
+        setMenuItemVisible();
     }
 
+    /**
+     * 当Activity被销毁时
+     */
     @Override
-    public void finish() {
-        Thread thread = new Thread() {
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // 数据库同步线程
+        final Thread dbThread = new Thread() {
             @Override
             public void run() {
-                updateRowFromSql();
+                // 更新数据
+                updateDB();
+                mUpdated = null;
 
-                if (arrayRecycler != null) {
-                    int len = arrayRecycler.size();
-                    long[] times = new long[len];
-
-                    for (int i = 0; i < len; i++) {
-                        times[i] = arrayRecycler.get(i).getTime();
-                    }
-
-                    HistoryListData.deleteRow(HistoryListSqlite.TABLE_NAME, times, getApplicationContext());
-                    arrayRecycler.clear();
-                    arrayRecycler = null;
+                // 删除数据
+                int len = mDeleted.size();
+                long[] times = new long[len];
+                for (int i = 0; i < len; i++) {
+                    times[i] = mDeleted.get(i).getTime();
                 }
+                HistoryListData.deleteRow(times, getApplicationContext());
+                mDeleted.clear();
+                mDeleted = null;
             }
         };
-        thread.start();
+        dbThread.start();
 
-        if (adapter != null) {
-            adapter.release();
-            adapter = null;
+        // 释放构造器
+        if (mAdapter != null) {
+            mAdapter.release();
+            mAdapter = null;
         }
 
-        if (callback != null) {
-            callback.release();
-            callback = null;
+        // 释放操作回调
+        if (mCallback != null) {
+            mCallback.release();
+            mCallback = null;
         }
 
-        if (arrayList != null) {
-            arrayList.clear();
-            arrayList = null;
-        }
+        // 释放数据集和菜单属性
+        mDataset.clear();
+        mDataset = null;
+        mMenu = null;
 
-        menu = null;
-        thisActivity = null;
-
-        super.finish();
-
-        if (!startFromMainActivity) {
-            if (MainActivity.isOnCreated()) {
-                breakToActivity(MainActivity.class);
+        // 如果不是从主页打开历史记录，则考虑是否直接关闭程序
+        if (!mStartFromMain) {
+            // 如果后台主页未被关闭，则回到主页
+            if (MainActivity.isCreated()) {
+                breakToMainActivity();
                 return;
             }
 
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            System.exit(0);
+            // 直接关闭程序
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        // 等待数据库同步结束
+                        dbThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.exit(0);
+                }
+            }.start();
         }
     }
 
-    private void breakToActivity(Class mClass) {
-        if (!startFromMainActivity) {
-            Intent intent = new Intent(getApplicationContext(), mClass);
+    /**
+     * 返回主页
+     */
+    private void breakToMainActivity() {
+        if (mStartFromMain) {
+            finish();
+        } else {
+            // 重新打开主页
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent, new Bundle());
         }
-
-        finish();
     }
 
-    private void updateRowFromSql() {
-        if (arrayUpdate != null) {
-            int len = arrayUpdate.size();
-
-            if (len > 0) {
-                HistoryListData.RowData[] rowDates = new HistoryListData.RowData[len];
-
-                for (int i = 0; i < len; i++) {
-                    rowDates[i] = arrayUpdate.get(i);
-                }
-
-                HistoryListData.updateFromSQLite(HistoryListSqlite.TABLE_NAME, rowDates, getApplicationContext());
-                arrayUpdate.clear();
-                arrayUpdate = null;
-            }
-        }
+    /**
+     * 更新数据库
+     */
+    private void updateDB() {
+        HistoryListData.updateFromSQLite(mUpdated, getApplicationContext());
+        mUpdated.clear();
     }
 
-    private void batchDeletion(final Time.time time, CharSequence title) {
+    /**
+     * 批量删除操作
+     * @param timeSpan      时间跨度
+     * @param itemStr       弹窗标题
+     */
+    private void batchDeletion(final Time.Span timeSpan, CharSequence itemStr) {
+        // 是否删除重要数据
+        // final数组内部仍可更改
         final boolean[] deleteImportance = {false};
-
+        // 确认删除弹窗
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.sure) + getString(R.string.delete) + title + "的记录?")
+                .setTitle(getString(R.string.sure)
+                        + getString(R.string.delete) + itemStr + "的记录?")
+                // 同时删除重要记录复选框
                 .setMultiChoiceItems(
                         new String[]{getString(R.string.deleteImportance)},
-                        new boolean[]{false},
+                        deleteImportance,
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                     deleteImportance[0] = isChecked;
                             }
                         })
+                // 取消
                 .setNegativeButton(getString((R.string.close)), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
                 })
+                // 确定
                 .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @SuppressLint("InflateParams")
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        View view = inflater.inflate(R.layout.waiting_view, null);
-                        TextView waitingText = (TextView) view.findViewById(R.id.waitingTitle);
-                        waitingText.setText(thisActivity.getString(R.string.deleting));
+                        LayoutInflater inflater =
+                                (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View view;
+                        if (inflater != null) {
+                            view = inflater.inflate(R.layout.waiting_view, null);
+                        } else {
+                            new NullPointerException("inflater is null pointer")
+                                    .printStackTrace();
+                            return;
+                        }
 
-                        AlertDialog waitingDialog = new AlertDialog.Builder(thisActivity)
+                        TextView waitingText = view.findViewById(R.id.waitingTitle);
+                        waitingText.setText(R.string.deleting);
+
+                        // 等待弹窗
+                        final AlertDialog waitingDialog = new AlertDialog
+                                .Builder(HistoryListActivity.this)
                                 .setView(view)
+                                // 不可取消弹窗
                                 .setCancelable(false)
                                 .create();
                         waitingDialog.show();
 
-                        Thread thread = new Thread(){
+                        // 数据删除线程
+                        final Thread thread = new Thread(){
                             @Override
                             public void run() {
-                                long minTimeMillis = Time.getMinTime(time);
-                                updateRowFromSql();
-                                HistoryListData.deleteRow(HistoryListSqlite.TABLE_NAME, minTimeMillis, deleteImportance[0], getApplicationContext());
+                                // 先更新数据库
+                                updateDB();
 
-                                arrayList.clear();
-                                if (arrayRecycler != null) {
-                                    arrayRecycler.clear();
-                                }
-                                if (arrayUpdate != null) {
-                                    arrayUpdate.clear();
-                                }
+                                // 删除数据
+                                long minTimeMillis = Time.getMinTime(timeSpan);
+                                HistoryListData.deleteRow(minTimeMillis, deleteImportance[0],
+                                        getApplicationContext());
 
-                                arrayList = HistoryListData.exportAllFromSQLite(getApplicationContext());
-                                Collections.sort(arrayList);
-                                adapter.setmDataset(arrayList);
+                                // 清理所有数据存储
+                                mDataset.clear();
+                                mDeleted.clear();
+                                mUpdated.clear();
 
+                                // 重新获取数据
+                                mDataset = HistoryListData
+                                        .exportAllFromSQLite(getApplicationContext());
+                                Collections.sort(mDataset);
+                                mAdapter.setDataset(mDataset);
+
+                                // 刷新菜单显示
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        menu.findItem(R.id.recycler).setVisible(false);
-                                        menu.findItem(R.id.comeBreak).setVisible(true);
+                                        setMenuItemVisible();
                                     }
                                 });
                             }
                         };
                         thread.start();
 
-                        try {
-                            thread.join();
-                            Toast.makeText(thisActivity, getString(R.string.deleteSure), Toast.LENGTH_SHORT).show();
-                        } catch (InterruptedException e) {
-                            Toast.makeText(thisActivity, getString(R.string.deleteError), Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
-                        } finally {
-                            waitingDialog.cancel();
-                            adapter.notifyDataSetChanged();
-                        }
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    thread.join();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // 删除完成
+                                            Toast.makeText(HistoryListActivity.this,
+                                                    getString(R.string.deleteSure),
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
+                                    });
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // 删除失败
+                                            Toast.makeText(HistoryListActivity.this,
+                                                    getString(R.string.deleteError),
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
+                                    });
+                                } finally {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // 取消弹窗
+                                            waitingDialog.cancel();
+                                            // 通知构造器数据集已更新
+                                            mAdapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            }
+                        }.start();
                     }
                 })
                 .create()
                 .show();
     }
+
+    /**
+     * 当要载入到计算器时
+     * @param result    要载入的结果
+     * @param equation  要载入的算式
+     */
+    @Override
+    public void onLoadToCalculator(String result, String equation) {
+        SharedPreferences.Editor spe = getSharedPreferences("list", MODE_PRIVATE).edit();
+        spe.putString("textView0", equation);
+        spe.putString("numTextView0", FuHao.dengYu + result);
+        spe.putBoolean("normal", false);
+        spe.apply();
+        breakToMainActivity();
+    }
+
+    /**
+     * 当标签被修改时
+     * @param data 被修改的数据组
+     */
+    @Override
+    public void onTagChange(HistoryListData.RowData data) {
+        // 刷新条目内容
+        int position = mDataset.indexOf(data);
+        mAdapter.notifyItemChanged(position);
+        // 加入已更新数据集
+        addToUpdated(data);
+    }
+
+    /**
+     * 设置菜单选项显示状态
+     */
+    private void setMenuItemVisible() {
+        int deletedSize = mDeleted.size();
+        mMenu.findItem(R.id.undo).setVisible(deletedSize > 0);
+        mMenu.findItem(R.id.comeBreak).setVisible(deletedSize == 0);
+    }
+
+    /**
+     * 添加到已更新数据集
+     * @param data  数据
+     */
+    private void addToUpdated(HistoryListData.RowData data) {
+        if (!mUpdated.contains(data)) {
+            mUpdated.add(data);
+        }
+    }
+
 }
