@@ -1,17 +1,15 @@
 package com.log.jsq.mainUI;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Vibrator;
-import android.support.v4.content.IntentCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,12 +42,12 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     private boolean onYuYin = false;
     private boolean onZhenDong = false;
     private boolean onTTS = false;
-    private Activity thisActivity = this;
     private MainUI mainUI;
     public AudioOnTTS tts;
     private Status status;
-    private static boolean isOnCreated = false;
+    private static boolean isCreated = false;
     private TextView mTitle;
+    private boolean isExit = false;
 
     private class StatusWatcher implements Status.Watcher {
 
@@ -80,13 +78,6 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     }
 
     @Override
-    protected void finalize() throws Throwable  {
-        Log.d("MainActivity", "////////////////////// " + this + "已可以回收 ////////////////////////");
-        Log.d("MainActivity", "////////////////////// " + this + "已可以回收 ////////////////////////");
-        super.finalize();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Theme.setTheme(this);
@@ -105,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     @Override
     protected void onResume() {
         super.onResume();
-        isOnCreated = true;
+        isCreated = true;
         recover();
     }
 
@@ -125,22 +116,19 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     }
 
     @Override
-    public void finish() {
+    protected void onDestroy() {
+        super.onDestroy();
         releaseSever(false, false);
 
-        if (mainUI != null) {
-            mainUI.release();
-            mainUI = null;
-        }
-
+        mainUI = null;
         if (tts != null) {
             tts.shutdown();
             tts = null;
         }
 
-        thisActivity = null;
-
-        super.finish();
+        if (isExit) {
+            System.exit(0);
+        }
     }
 
     @Override
@@ -290,11 +278,11 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                     findViewById(R.id.bShanChu).setVisibility(View.VISIBLE);
                     findViewById(R.id.numsAndFuhaoLayout).setVisibility(View.VISIBLE);
 
-                    TextView textView = (TextView) findViewById(R.id.textView);
+                    TextView textView = findViewById(R.id.textView);
                     textView.setText(textView.getText().toString()
                             .replaceAll("\\s", FuHao.NULL));
                 } else if((mNowTime - mPressedTime) > 1000) {
-                    Toast.makeText(this, "再按一次退出计算器", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, R.string.sureExit, Toast.LENGTH_SHORT)
                             .show();
                     mPressedTime = mNowTime;
                 } else {
@@ -306,8 +294,8 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                     editor.putString("numTextView0", FuHao.NULL);
                     editor.apply();
 
+                    isExit = true;
                     finish();
-                    System.exit(0);
                 }
                 break;
             case Status.EDIT:
@@ -318,11 +306,8 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_MENU) {  //MENU键
-            return true;       //监控/拦截菜单键
-        } else {
-            return super.onKeyUp(keyCode, event);
-        }
+        // 拦截MENU键
+        return keyCode == KeyEvent.KEYCODE_MENU || super.onKeyUp(keyCode, event);
     }
 
     //恢复意外退出之前的内容
@@ -341,9 +326,9 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                     editor.putBoolean("normal", false);
                     editor.apply();
                 } else {
-                    final TextView textView = (TextView) findViewById(R.id.textView);
-                    final TextView textView2 = (TextView) findViewById(R.id.textView2);
-                    final TextView numTextView = (TextView) findViewById(R.id.textViewNum);
+                    final TextView textView = findViewById(R.id.textView);
+                    final TextView textView2 = findViewById(R.id.textView2);
+                    final TextView numTextView = findViewById(R.id.textViewNum);
                     final String textViewStr = read.getString("textView0", FuHao.NULL);
                     final String numTextViewStr = read.getString("numTextView0", FuHao.NULL);
 
@@ -398,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
 
         if (yuYin) {
             if (au == null) {
-                au = new Audio(thisActivity);
+                au = new Audio(this);
             }
 
             au.loading();
@@ -439,20 +424,27 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
 
     private void restart() {
         Intent intent = getIntent();
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish();
     }
 
+    @SuppressLint("InflateParams")
     private View getColorPickerView(final AlertDialog dialog) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rootView = inflater.inflate(R.layout.color_picker, null);
+        final SharedPreferences preferences = getSharedPreferences("item", MODE_PRIVATE);
+        LayoutInflater inflater =
+                (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View rootView;
+        if (inflater != null) {
+            rootView = inflater.inflate(R.layout.color_picker, null);
+        } else {
+            new NullPointerException("inflater is null pointer").printStackTrace();
+            return null;
+        }
 
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences.Editor spe = getSharedPreferences("item", MODE_PRIVATE).edit();
-
+                SharedPreferences.Editor spe = preferences.edit();
                 switch (v.getId()) {
                     case R.id.itemPurple:
                         spe.putInt("theme", R.style.AppTheme_Purple);
@@ -472,8 +464,8 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                     case R.id.itemDeepPurple:
                         spe.putInt("theme", R.style.AppTheme_DeepPurple);
                         break;
-                    case R.id.itemBlue:
-                        spe.putInt("theme", R.style.AppTheme_Blue);
+                    case R.id.itemIndigo:
+                        spe.putInt("theme", R.style.AppTheme_Indigo);
                         break;
                     case R.id.itemTeal:
                         spe.putInt("theme", R.style.AppTheme_Teal);
@@ -488,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                         spe.putInt("theme", R.style.AppTheme_Brown);
                         break;
                     default:
-                        spe.putInt("theme", R.style.AppTheme_Indigo);
+                        spe.putInt("theme", R.style.AppTheme_Blue);
                 }
 
                 spe.apply();
@@ -498,13 +490,13 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
         };
 
         TextView itemPurple = rootView.findViewById(R.id.itemPurple);
-        TextView itemIndigo = rootView.findViewById(R.id.itemIndigo);
+        TextView itemBlue = rootView.findViewById(R.id.itemBlue);
         TextView itemGreen = rootView.findViewById(R.id.itemGreen);
         TextView itemDeepOrange = rootView.findViewById(R.id.itemDeepOrange);
         TextView itemPink = rootView.findViewById(R.id.itemPink);
         TextView itemGrey = rootView.findViewById(R.id.itemGrey);
         TextView itemDeepPurple = rootView.findViewById(R.id.itemDeepPurple);
-        TextView itemBlue = rootView.findViewById(R.id.itemBlue);
+        TextView itemIndigo = rootView.findViewById(R.id.itemIndigo);
         TextView itemTeal = rootView.findViewById(R.id.itemTeal);
         TextView itemAmber = rootView.findViewById(R.id.itemOrange);
         TextView itemRed = rootView.findViewById(R.id.itemRed);
@@ -523,7 +515,6 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
         itemRed.setOnClickListener(clickListener);
         itemBrown.setOnClickListener(clickListener);
 
-        SharedPreferences preferences = getSharedPreferences("item", MODE_PRIVATE);
         switch (preferences.getInt("theme", 0)) {
             case R.style.AppTheme_Purple:
                 itemPurple.setBackground(getDrawable(R.drawable.yuan_double));
@@ -543,8 +534,8 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
             case R.style.AppTheme_DeepPurple:
                 itemDeepPurple.setBackground(getDrawable(R.drawable.yuan_double));
                 break;
-            case R.style.AppTheme_Blue:
-                itemBlue.setBackground(getDrawable(R.drawable.yuan_double));
+            case R.style.AppTheme_Indigo:
+                itemIndigo.setBackground(getDrawable(R.drawable.yuan_double));
                 break;
             case R.style.AppTheme_Teal:
                 itemTeal.setBackground(getDrawable(R.drawable.yuan_double));
@@ -559,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                 itemBrown.setBackground(getDrawable(R.drawable.yuan_double));
                 break;
             default:
-                itemIndigo.setBackground(getDrawable(R.drawable.yuan_double));
+                itemBlue.setBackground(getDrawable(R.drawable.yuan_double));
         }
 
         return rootView;
@@ -567,6 +558,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
 
     private void versionDetection() {
         if (JsqApplication.newVersion) {
+            JsqApplication.newVersion = false;
             final String updateLog = Open.openTxt(getApplicationContext(), R.raw.update_log);
 
             new AlertDialog.Builder(this)
@@ -582,7 +574,7 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
-                            AboutActivity.openHelp(thisActivity);
+                            AboutActivity.openHelp(MainActivity.this);
                         }
                     })
                     .create()
@@ -662,7 +654,10 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "请到设置选择可用的TTS程序", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),
+                                R.string.selectTTS,
+                                Toast.LENGTH_LONG
+                        ).show();
                     }
                 });
                 onTTS = false;
@@ -672,9 +667,9 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
         }
     }
 
-    public static boolean isOnCreated() {
-        boolean temp = isOnCreated;
-        isOnCreated = false;
+    public static boolean isCreated() {
+        boolean temp = isCreated;
+        isCreated = false;
         return temp;
     }
 }

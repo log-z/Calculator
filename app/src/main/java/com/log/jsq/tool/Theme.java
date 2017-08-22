@@ -44,7 +44,7 @@ public class Theme {
             case R.style.AppTheme_DeepPurple:
                 activity.setTheme(themeId);
                 break;
-            case R.style.AppTheme_Blue:
+            case R.style.AppTheme_Indigo:
                 activity.setTheme(themeId);
                 break;
             case R.style.AppTheme_Teal:

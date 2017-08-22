@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.log.jsq.library.FuHao;
 import com.log.jsq.library.Nums;
 import com.log.jsq.tool.HistoryListData;
-import com.log.jsq.tool.HistoryListSqlite;
 import com.log.jsq.tool.Time;
 
 import java.io.ByteArrayOutputStream;
@@ -24,6 +23,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 public class JsqApplication extends Application {
 
     public static boolean newVersion = false;
+    private static String errorStr;
 
     @Override
     public void onCreate() {
@@ -66,7 +66,8 @@ public class JsqApplication extends Application {
 
                     Log.e("error", errorLog);
 
-                    ClipboardManager myClipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);  //实例化剪切板服务
+                    ClipboardManager myClipboard =
+                            (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
                     ClipData myClip = ClipData.newPlainText("errorLog", errorLog);
                     myClipboard.setPrimaryClip(myClip);
 
@@ -74,7 +75,8 @@ public class JsqApplication extends Application {
                         @Override
                         public void run() {
                             Looper.prepare();
-                            Toast.makeText(context, "< 发现未知错误 >\n崩溃日志已复制，请尽快反馈给作者，多谢！\n\n" + errorLog, Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, errorStr + errorLog, Toast.LENGTH_LONG)
+                                    .show();
                             Looper.loop();
                         }
                     }.start();
@@ -107,33 +109,28 @@ public class JsqApplication extends Application {
                         minTime = 0;
                         break;
                     case "deleteHistoryAutoOf_aYearAgo":
-                        minTime = Time.getMinTime(Time.time.A_YEAR);
+                        minTime = Time.getMinTime(Time.Span.A_YEAR);
                         break;
                     case "deleteHistoryAutoOf_halfAYearAgo":
-                        minTime = Time.getMinTime(Time.time.HALF_A_YEAR);
+                        minTime = Time.getMinTime(Time.Span.HALF_A_YEAR);
                         break;
                     case "deleteHistoryAutoOf_aMonthAgo":
-                        minTime = Time.getMinTime(Time.time.A_MONTH);
+                        minTime = Time.getMinTime(Time.Span.A_MONTH);
                         break;
                     case "deleteHistoryAutoOf_halfAMonthAgo":
-                        minTime = Time.getMinTime(Time.time.HALF_A_MONTH);
+                        minTime = Time.getMinTime(Time.Span.HALF_A_MONTH);
                         break;
                     case "deleteHistoryAutoOf_aWeekAgo":
-                        minTime = Time.getMinTime(Time.time.A_WEEK);
+                        minTime = Time.getMinTime(Time.Span.A_WEEK);
                         break;
                     case "deleteHistoryAutoOf_all":
-                        minTime = Time.getMinTime(Time.time.ALL);
+                        minTime = Time.getMinTime(Time.Span.ALL);
                         break;
                     default:
                         minTime = 0;
                 }
 
-                HistoryListData.deleteRow(
-                        HistoryListSqlite.TABLE_NAME,
-                        minTime,
-                        false,
-                        getApplicationContext()
-                );
+                HistoryListData.deleteRow(minTime, false, getApplicationContext());
             }
         }.start();
     }
@@ -144,6 +141,7 @@ public class JsqApplication extends Application {
     private void loadingString() {
         FuHao.luRu(getApplicationContext());
         Nums.luRu(getApplicationContext());
+        errorStr = getString(R.string.errorStr);
     }
 
     /**
@@ -206,4 +204,5 @@ public class JsqApplication extends Application {
             newVersion = true;
         }
     }
+
 }

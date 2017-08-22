@@ -34,7 +34,6 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class MainUI {
     private static MainUI INSTANCE = new MainUI();
-    private Activity activity = null;
     private TextView tv = null;
     private TextView tv2 = null;
     private TextView tvNum = null;
@@ -56,16 +55,6 @@ public class MainUI {
     private String lastFormula;
     private String lastResult;
 
-    /**
-     * 检测垃圾回收
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        Log.d("MainActivity", "////////////////////// " + this + "已可以回收 ////////////////////////");
-        Log.d("MainActivity", "////////////////////// " + this + "已可以回收 ////////////////////////");
-        super.finalize();
-    }
-
     private MainUI(){}
 
     /**
@@ -81,14 +70,13 @@ public class MainUI {
      * @param  activity     控件所在的activity
      */
     public void init(Activity activity) {
-        this.activity = activity;
         ma = (MainActivity)activity;
-        this.tv = this.activity.findViewById(R.id.textView);
-        this.tv2 = this.activity.findViewById(R.id.textView2);
-        this.tvNum = this.activity.findViewById(R.id.textViewNum);
-        this.tvNum2 = this.activity.findViewById(R.id.textViewNum2);
-        this.sv1 = this.activity.findViewById(R.id.sv1);
-        this.sv2 = this.activity.findViewById(R.id.sv2);
+        this.tv = ma.findViewById(R.id.textView);
+        this.tv2 = ma.findViewById(R.id.textView2);
+        this.tvNum = ma.findViewById(R.id.textViewNum);
+        this.tvNum2 = ma.findViewById(R.id.textViewNum2);
+        this.sv1 = ma.findViewById(R.id.sv1);
+        this.sv2 = ma.findViewById(R.id.sv2);
 
         NumClickListener ncl = new NumClickListener();
         FuHaoClickListener fhcl = new FuHaoClickListener();
@@ -147,14 +135,6 @@ public class MainUI {
 
         activity.findViewById(R.id.bKuoHaoTou) .setOnClickListener(fhcl);
         activity.findViewById(R.id.bKuoHaoWei) .setOnClickListener(fhcl);
-    }
-
-    /**
-     * 解绑Activity资源
-     */
-    public void release() {
-        activity = null;
-        ma = null;
     }
 
     /**
@@ -279,10 +259,10 @@ public class MainUI {
 
                 if (jianCeDengHao() && view.getId() != dengYu.getId()) {
                     // 连续运算与常规运算的切换
-                    SharedPreferences sp = activity
-                            .getSharedPreferences("setting", MODE_PRIVATE);
+                    SharedPreferences sp =
+                            ma.getSharedPreferences("setting", MODE_PRIVATE);
                     String mode = sp.getString("resultsAgainCalculation",
-                            activity.getString(R.string.default_resultsAgainCalculation));
+                            ma.getString(R.string.default_resultsAgainCalculation));
                     setTempHistory(true);
 
                     switch (mode) {
@@ -299,10 +279,14 @@ public class MainUI {
                         || view.getId() == cheng.getId()
                         || view.getId() == chu.getId()) {  //判断 加减乘除
                         final int jjccEndNum = GuiZe.jjccEnd(tt);
+                        String fuHaoStr = ((Button) view).getText().toString();
+                        // 忽略小数点
+                        ttN = ignoreDian(ttN);
+                        tvNum.setText(ttN);
 
                         if (jjccEndNum != GuiZe.NO_FIND_FUHAO && ttN.length() == 0) {
                             tt = tt.substring(0, tt.length() - FuHao.jjccd[jjccEndNum].length())
-                                + ((Button) view).getText();
+                                + fuHaoStr;
                             tv.setText(tt);
                             toBottom(sv1);
                             toTop(sv2);
@@ -359,7 +343,7 @@ public class MainUI {
                             }
 
                             if (chiShu >= MAX_CHI_SHU) {
-                                Toast.makeText(activity, "_(:3」∠)_", Toast.LENGTH_SHORT)
+                                Toast.makeText(ma, "_(:3」∠)_", Toast.LENGTH_SHORT)
                                         .show();
                             }
 
@@ -389,10 +373,9 @@ public class MainUI {
                                 new Thread() {
                                     @Override
                                     public void run() {
-                                        final String errorText = activity
-                                                .getString(R.string.errorText);
-                                        final String chuLingErrorText = activity
-                                                .getString(R.string.chuLingErrorText);
+                                        final String errorText = ma.getString(R.string.errorText);
+                                        final String chuLingErrorText =
+                                                ma.getString(R.string.chuLingErrorText);
 
                                         try {
                                             String jieGuoStr = new JiSuan(NUM_MAX_LEN)
@@ -400,7 +383,7 @@ public class MainUI {
                                             jieGuoStr = Nums.Ling(jieGuoStr);
                                             final String finalJieGuoStr = jieGuoStr;
 
-                                            activity.runOnUiThread(new Runnable() {
+                                            ma.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
                                                     tvNum.setText(FuHao.dengYu + finalJieGuoStr);
@@ -428,7 +411,7 @@ public class MainUI {
                                             lastFormula = equation;
                                             lastResult = jieGuoStr;
                                         } catch (ArithmeticException ae) {
-                                            activity.runOnUiThread(new Runnable() {
+                                            ma.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
                                                     tvNum.setText(FuHao.dengYu + chuLingErrorText);
@@ -442,7 +425,7 @@ public class MainUI {
                                                 }
                                             });
                                         } catch (RuntimeException e) {
-                                            activity.runOnUiThread(new Runnable() {
+                                            ma.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
                                                     tvNum.setText(FuHao.dengYu + errorText);
@@ -458,7 +441,7 @@ public class MainUI {
                                             e.printStackTrace();
                                         } finally {
                                             //计算结束后，因文本变化要重新调整显示
-                                            activity.runOnUiThread(new Runnable() {
+                                            ma.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
                                                     toBottom(sv1);
@@ -533,10 +516,9 @@ public class MainUI {
 
             if (jianCeDengHao()) {
                 // 连续运算与常规运算的切换
-                SharedPreferences sp = activity
-                        .getSharedPreferences("setting", MODE_PRIVATE);
+                SharedPreferences sp = ma.getSharedPreferences("setting", MODE_PRIVATE);
                 String mode = sp.getString("resultsAgainCalculation",
-                        activity.getString(R.string.default_resultsAgainCalculation));
+                        ma.getString(R.string.default_resultsAgainCalculation));
                 setTempHistory(true);
 
                 // 长按时操作相反
@@ -598,7 +580,7 @@ public class MainUI {
                         case R.id.bZhuanHuan:
                             if (tvNum2.getVisibility() == View.GONE) {
                                 String numStr = tvNum.getText().toString().substring(FuHao.dengYu.length());
-                                String capsStr = Nums.CapsZH.toCapsZH(numStr, activity);
+                                String capsStr = Nums.CapsZH.toCapsZH(numStr, ma);
 
                                 if (capsStr != null && capsStr.length() > 0) {
                                     tvNum2.setText(FuHao.dengYu + capsStr);
@@ -767,7 +749,7 @@ public class MainUI {
     private class TextOnLongClickListener implements View.OnLongClickListener{
         @Override
         public boolean onLongClick(View view) {
-            ClipboardManager myClipboard = (ClipboardManager)activity.getSystemService(CLIPBOARD_SERVICE);  //实例化剪切板服务
+            ClipboardManager myClipboard = (ClipboardManager)ma.getSystemService(CLIPBOARD_SERVICE);  //实例化剪切板服务
             ClipData myClip;
 
             runZhenDong(ma.zhenDongTime);
@@ -778,7 +760,7 @@ public class MainUI {
                 if(tvText.trim().length() > 0) {
                     myClip = ClipData.newPlainText("复制的算式", tvText);
                     myClipboard.setPrimaryClip(myClip);
-                    Toast.makeText(activity, "算式已复制", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ma, "算式已复制", Toast.LENGTH_SHORT).show();
                 }
             } else if (view.getId() == tvNum.getId() || view.getId() == tvNum2.getId()) {
 
@@ -786,7 +768,7 @@ public class MainUI {
                     String tvNumText = ((TextView) view).getText().toString();
                     myClip = ClipData.newPlainText("复制的结果", tvNumText.substring(FuHao.dengYu.length()));
                     myClipboard.setPrimaryClip(myClip);
-                    Toast.makeText(activity, "结果已复制", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ma, "结果已复制", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -827,11 +809,10 @@ public class MainUI {
                     oldString = text;
 
                     // 自动换行
-                    SharedPreferences sp = activity
-                            .getSharedPreferences("setting", MODE_PRIVATE);
+                    SharedPreferences sp =
+                            ma.getSharedPreferences("setting", MODE_PRIVATE);
                     String autoLineFeed = sp.getString(
-                            "autoLineFeed",
-                            activity.getString(R.string.default_autoLineFeed)
+                            "autoLineFeed", ma.getString(R.string.default_autoLineFeed)
                     );
                     switch (Integer.valueOf(autoLineFeed)) {
                         case 0:
@@ -868,7 +849,7 @@ public class MainUI {
 
                     // 变色
                     TypedValue value = new TypedValue();
-                    activity.getTheme()
+                    ma.getTheme()
                             .resolveAttribute(R.attr.colorAccent, value, true);
                     Spanned spanned = TextHandler.setStyle(text, value.data);
                     editable.replace(0, editable.length(), spanned);
@@ -899,7 +880,7 @@ public class MainUI {
          */
         private void save(CharSequence cs) {
             final String string = cs.toString();
-            final SharedPreferences.Editor editor = activity.getSharedPreferences("list", MODE_PRIVATE).edit();
+            final SharedPreferences.Editor editor = ma.getSharedPreferences("list", MODE_PRIVATE).edit();
 
             if (view.getId() == tv.getId()) {
                 editor.putString("textView0", string.replaceAll("\\s", FuHao.NULL));
@@ -989,17 +970,20 @@ public class MainUI {
      * @param result    结果字符串
      */
     private void saveToSql(String equation, String result) {
-        HistoryListData.RowData rowDataTemp = HistoryListData.exportFromSQLite(activity.getApplicationContext(), HistoryListData.RowId.ROW_ID_NEWEST_TIME);
+        // 取出数据库中最新的数据
+        HistoryListData.RowData rowDataTemp = HistoryListData.exportFirstLineFromSQLite(
+                ma.getApplicationContext(), HistoryListData.OrderBy.TIME_DESC);
 
-        if (rowDataTemp == null || !rowDataTemp.getEquation().equals(equation) || !rowDataTemp.getResult().equals(result)) {
+        if (rowDataTemp == null
+                || !rowDataTemp.getEquation().equals(equation)
+                || !rowDataTemp.getResult().equals(result)) {
             HistoryListData.RowData rowData = new HistoryListData.RowData(
                     equation.replaceAll("\\s", FuHao.NULL),
                     result.replaceAll("\\s", FuHao.NULL),
-                    System.currentTimeMillis(),
-                    false
+                    System.currentTimeMillis()
             );
 
-            HistoryListData.insertToSQLite(rowData, activity.getApplicationContext());
+            HistoryListData.insertToSQLite(rowData, ma.getApplicationContext());
         }
     }
 
@@ -1053,18 +1037,18 @@ public class MainUI {
      * 加载字体配置
      */
     public void loadFontSet() {
-        SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+        SharedPreferences sp = ma.getSharedPreferences("setting", MODE_PRIVATE);
         int fontSizeForEquation = sp.getInt(
                 "fontSizeForEquation",
-                activity.getResources().getInteger(R.integer.default_fontSizeForEquation)
+                ma.getResources().getInteger(R.integer.default_fontSizeForEquation)
         );
         int fontSizeForNums = sp.getInt(
                 "fontSizeForNums",
-                activity.getResources().getInteger(R.integer.default_fontSizeForNums)
+                ma.getResources().getInteger(R.integer.default_fontSizeForNums)
         );
         int fontSizeForButton = sp.getInt(
                 "fontSizeForButton",
-                activity.getResources().getInteger(R.integer.default_fontSizeForButton)
+                ma.getResources().getInteger(R.integer.default_fontSizeForButton)
         );
 
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForEquation);
@@ -1080,16 +1064,16 @@ public class MainUI {
         kuoHaoTou.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
         kuoHaoWei.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
         jia.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b0)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b1)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b2)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b3)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b4)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b5)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b6)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b7)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b8)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
-        ((Button) activity.findViewById(R.id.b9)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b0)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b1)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b2)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b3)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b4)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b5)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b6)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b7)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b8)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
+        ((Button) ma.findViewById(R.id.b9)).setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeForButton);
     }
 
     /**
@@ -1145,11 +1129,11 @@ public class MainUI {
      */
     public void setTempHistory(boolean isVisible) {
         if (isVisible) {
-            SharedPreferences sp = activity.getSharedPreferences("setting", MODE_PRIVATE);
+            SharedPreferences sp = ma.getSharedPreferences("setting", MODE_PRIVATE);
 
             if (sp.getBoolean(
                     "mainActivityHistoryVisibility",
-                    activity.getResources().getBoolean(R.bool.default_mainActivityVisibilityHistory))) {
+                    ma.getResources().getBoolean(R.bool.default_mainActivityVisibilityHistory))) {
                 if (lastFormula != null && lastResult != null) {
                     tv2.setText(lastFormula  + FuHao.dengYu + lastResult);
                     tv2.setVisibility(View.VISIBLE);
