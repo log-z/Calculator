@@ -36,12 +36,14 @@
 
     <string name="unableUndo">已不可撤消</string>
     <string name="unableRedo">已不可重做</string>
+    <string name="sureExit">再按一次退出计算器</string>
+    <string name="selectTTS">请到设置选择可用的TTS程序</string>
 
     <string name="updateLog">本次更新</string>
     <string name="updateHistory">历史更新日志</string>
     <string name="helpWord">帮助文档</string>
 
-    <string name="aboutVersion">计算器 v4.3(21)</string>
+    <string name="aboutVersion">计算器 v4.4(22)</string>
     <string name="aboutWords">简单，但却不一般</string>
     <string name="aboutDeveloper">作者：酷安@log_Z</string>
     <string name="aboutXBB_Title">
@@ -64,7 +66,9 @@
     </string>
     <string name="openSourceLink">https://github.com/log-Z/Calculator</string>
     <string name="alipayUrl">https://qr.alipay.com/FKX01909KFYASDIWFWA073</string>
-    <string name="donateToast">十分的感谢！\n捐赠链接已复制，如果不能正常跳转，请复制到其它浏览器打开</string>
+    <string name="donateToast"
+        >十分的感谢！\n捐赠链接已复制，如果不能正常跳转，请复制到其它浏览器打开
+    </string>
 
     <string name="comeBreak">返回计算器</string>
     <string name="deleteHistory">批量删除</string>
@@ -74,10 +78,15 @@
     <string name="deleteHistoryOf_halfAMonthAgo">半个月之前</string>
     <string name="deleteHistoryOf_aWeekAgo">一个星期之前</string>
     <string name="deleteHistoryOf_all">所有</string>
-    <string name="deleteImportance">同时删除“重要”记录</string>
+    <string name="deleteImportance">同时删除重要记录</string>
     <string name="deleting">正在清空历史记录</string>
     <string name="deleteSure">批量删除成功</string>
     <string name="deleteError">批量删除失败，稍后请重试</string>
+    <string name="copyError">复制失败，请重试</string>
+    <string name="copyAll">算式和结果已复制</string>
+    <string name="loadToCalculator">载入到计算器</string>
+    <string name="editTag">编辑标签</string>
+    <string name="editTagHint">建议标签不超过6个字</string>
 
     <string name="_default">默认</string>
     <string name="more">更多</string>
@@ -145,11 +154,13 @@
         <item>省电黑</item>
     </string-array>
 
-    <string name="onTTS">使用TTS引擎代替自带语音</string>
+    <string name="onTTS">使用TTS语音</string>
+    <string name="onTTSSummary">使用TTS（文字转语音）引擎代替自带语音</string>
     <string name="setTTS_program">选择TTS引擎</string>
     <string name="other">其它</string>
 
     <string name="mainActivityHistoryVisibility">主页显示</string>
+    <string name="mainActivityHistoryVisibilitySummary">在主页显示最近一次的历史记录</string>
 
     <string name="calculate">计算</string>
     <string name="autoLineFeed">自动换行</string>
@@ -208,5 +219,9 @@
 
     <string name="restoreSettings">重置设置</string>
     <string name="restoreSettingsSummary">将设置重置为默认设置</string>
+
+    <string name="errorStr">
+        &lt; 发现未知错误 &gt;\n崩溃日志已复制，请尽快反馈给作者，多谢！\n\n
+    </string>
 
 </resources>

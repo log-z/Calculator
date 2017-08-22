@@ -6,8 +6,8 @@
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingTop="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="32dp">
+    android:paddingStart="16dp"
+    android:paddingEnd="32dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -38,12 +38,11 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="4dp"
+                android:layout_marginEnd="4dp"
                 android:gravity="right"
                 android:maxLines="1"
                 android:minWidth="30dp"
-                android:text="100"
-                android:textColor="@color/black"
+                android:textColor="@android:color/black"
                 android:textSize="18sp" />
 
             <ImageView
@@ -52,8 +51,7 @@
                 android:layout_height="16dp"
                 android:layout_alignTop="@id/value"
                 android:layout_toEndOf="@+id/value"
-                android:background="@drawable/text_view_ripple_orange"
-                android:clickable="true"
+                android:background="@drawable/ripple_borderless_dark"
                 app:srcCompat="@drawable/ic_up" />
 
             <ImageView
@@ -62,8 +60,7 @@
                 android:layout_height="16dp"
                 android:layout_alignEnd="@+id/up"
                 android:layout_below="@+id/up"
-                android:background="@drawable/text_view_ripple_orange"
-                android:clickable="true"
+                android:background="@drawable/ripple_borderless_dark"
                 app:srcCompat="@drawable/ic_down" />
         </RelativeLayout>
     </RelativeLayout>

@@ -31,7 +31,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
                     android:background="@color/whiteLow"
-                    android:foreground="@drawable/text_view_ripple_orange"
+                    android:foreground="@drawable/ripple_borderless_dark"
                     android:fontFamily="sans-serif"
                     android:gravity="bottom|right"
                     android:minLines="1"
@@ -45,7 +45,7 @@
                     android:id="@+id/textView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/text_view_ripple_orange"
+                    android:background="@drawable/ripple_borderless_dark"
                     android:fontFamily="sans-serif"
                     android:gravity="bottom|right"
                     android:minLines="1"
@@ -66,7 +66,7 @@
 
             <ImageButton
                 android:id="@+id/bGuiLing"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:src="@drawable/yuan" />
 
             <ScrollView
@@ -87,27 +87,27 @@
                         android:id="@+id/textViewNum"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:background="@drawable/ripple_borderless_light"
                         android:fontFamily="sans-serif"
                         android:gravity="center|right"
                         android:minLines="1"
                         android:padding="10dp"
                         android:scrollbars="vertical"
-                        android:textColor="@color/white"
+                        android:textColor="@android:color/white"
                         android:textSize="30sp" />
 
                     <TextView
                         android:id="@+id/textViewNum2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:background="@drawable/ripple_borderless_light"
                         android:fontFamily="sans-serif"
                         android:gravity="center|right"
                         android:minLines="1"
                         android:padding="10dp"
                         android:scrollbars="vertical"
                         android:singleLine="false"
-                        android:textColor="@color/white"
+                        android:textColor="@android:color/white"
                         android:textSize="30sp"
                         android:visibility="gone" />
 
@@ -117,7 +117,7 @@
 
             <ImageButton
                 android:id="@+id/bShanChu"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:src="@drawable/sjx" />
         </LinearLayout>
     </LinearLayout>
@@ -139,22 +139,22 @@
 
             <Button
                 android:id="@+id/b7"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_7" />
 
             <Button
                 android:id="@+id/b8"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_8" />
 
             <Button
                 android:id="@+id/b9"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_9" />
 
             <Button
                 android:id="@+id/bChu"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/chu" />
         </LinearLayout>
 
@@ -164,22 +164,22 @@
 
             <Button
                 android:id="@+id/b4"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_4" />
 
             <Button
                 android:id="@+id/b5"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_5" />
 
             <Button
                 android:id="@+id/b6"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_6" />
 
             <Button
                 android:id="@+id/bCheng"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/cheng" />
         </LinearLayout>
 
@@ -189,22 +189,22 @@
 
             <Button
                 android:id="@+id/b1"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_1" />
 
             <Button
                 android:id="@+id/b2"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_2" />
 
             <Button
                 android:id="@+id/b3"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_3" />
 
             <Button
                 android:id="@+id/bJian"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/jian" />
         </LinearLayout>
 
@@ -214,40 +214,40 @@
 
             <Button
                 android:id="@+id/b0"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/_0" />
 
             <Button
                 android:id="@+id/bKuoHaoTou"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/kuoHaoTou" />
 
             <ImageButton
                 android:id="@+id/bZhuanHuan"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:src="@drawable/ic_swap_horiz"
                 android:visibility="gone" />
 
             <Button
                 android:id="@+id/bDian"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/dian"
                 android:visibility="gone" />
 
             <Button
                 android:id="@+id/bKuoHaoWei"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/kuoHaoWei"
                 android:visibility="gone" />
 
             <Button
                 android:id="@+id/bDengyu"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/dengYu" />
 
             <Button
                 android:id="@+id/bJia"
-                style="@style/MainButtonTheme"
+                style="@style/MainButton"
                 android:text="@string/jia" />
         </LinearLayout>
     </LinearLayout>

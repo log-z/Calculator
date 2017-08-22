@@ -4,5 +4,4 @@
         android:drawable="@drawable/ic_deng_hao_importance" /><!--选中时效果-->
     <item android:state_checked="false"
         android:drawable="@drawable/ic_deng_hao" /><!--未选中时效果-->
-    <!-- 修改成你自己的图片就可以了 -->
 </selector>

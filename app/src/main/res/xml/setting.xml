@@ -47,7 +47,7 @@
         <SwitchPreference
             android:key="onTTS"
             android:title="@string/onTTS"
-            style="@style/SwitchPreferenceStyle_Default"
+            android:summary="@string/onTTSSummary"
             android:defaultValue="@bool/default_onTTS" />
         <ListPreference
             android:key="setTTSProgram"
@@ -57,9 +57,9 @@
     <PreferenceCategory
         android:title="@string/history">
         <SwitchPreference
-            style="@style/SwitchPreferenceStyle_Default"
             android:key="mainActivityHistoryVisibility"
             android:title="@string/mainActivityHistoryVisibility"
+            android:summary="@string/mainActivityHistoryVisibilitySummary"
             android:defaultValue="@bool/default_mainActivityVisibilityHistory"/>
         <ListPreference
             android:key="historyDeleteAuto"

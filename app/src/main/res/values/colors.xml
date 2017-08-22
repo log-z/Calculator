@@ -37,8 +37,7 @@
     <color name="colorAccent_Pink">#FF4081</color>
     <color name="colorAccent_Red">#FF5252</color>
 
-    <color name="black">#000000</color>
-    <color name="white">#ffffff</color>
     <color name="whiteLow">#f0f0f0</color>
     <color name="highlightWhite">#55FFFFFF</color>
+    <color name="highlightBlack">#1e000000</color>
 </resources>
