@@ -14,7 +14,7 @@ public class Time {
     private final static String THE_YEAR = "M月d日";
     private final static String OTHER = "yyyy年M月d日";
 
-    public enum time {
+    public enum Span {
         ALL,
         A_WEEK,
         HALF_A_MONTH,
@@ -88,7 +88,7 @@ public class Time {
         return timeStr;
     }
 
-    public static long getMinTime(time time) {
+    public static long getMinTime(Span time) {
         long nowTime = System.currentTimeMillis();
 
         switch (time) {

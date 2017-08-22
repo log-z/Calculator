@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme_Default" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/white</item>
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:colorBackground">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme_Purple" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Purple</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Purple</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+    </style>
+
+    <style name="AppTheme_DeepPurple" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_DeepPurple</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_DeepPurple</item>
+        <item name="colorAccent">@color/colorAccent_Pink</item>
+    </style>
+
+    <style name="AppTheme_Indigo" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Indigo</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Indigo</item>
+        <item name="colorAccent">@color/colorAccent_Pink</item>
+    </style>
+
+    <style name="AppTheme_Blue" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Blue</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Blue</item>
+        <item name="colorAccent">@color/colorAccent_Amber</item>
+    </style>
+
+    <style name="AppTheme_Teal" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Teal</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Teal</item>
+        <item name="colorAccent">@color/colorAccent_Red</item>
+    </style>
+
+    <style name="AppTheme_Green" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Green</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Green</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+    </style>
+
+    <style name="AppTheme_Amber" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Amber</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Amber</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+    </style>
+
+    <style name="AppTheme_DeepOrange" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_DeepOrange</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_DeepOrange</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+    </style>
+
+    <style name="AppTheme_Pink" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Pink</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Pink</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+    </style>
+
+    <style name="AppTheme_Red" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Red</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Red</item>
+        <item name="colorAccent">@color/colorAccent_Green</item>
+    </style>
+
+    <style name="AppTheme_Grey" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_BlueGrey</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_BlueGrey</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+    </style>
+
+    <style name="AppTheme_Brown" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_Brown</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_Brown</item>
+        <item name="colorAccent">@color/colorAccent_DeepOrange</item>
+    </style>
+    
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- 导航栏颜色 -->
+        <item name="android:navigationBarColor">?android:colorPrimary</item>
+    </style>
+
+</resources>
