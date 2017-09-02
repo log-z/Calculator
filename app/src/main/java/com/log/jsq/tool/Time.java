@@ -3,16 +3,17 @@ package com.log.jsq.tool;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class Time {
-    private final static long hour = 1000 * 60 * 60;
-    private final static long day = hour * 24;
-    private final static long year = day * 365;
-    private final static String TODAY = "HH:mm";
+    public final static long hour = 1000 * 60 * 60;
+    public final static long day = hour * 24;
+    public final static long year = day * 365;
+    public final static String TODAY = "HH:mm";
     private final static String YESTERDAY = "昨天";
     private final static String THE_DAY_BEFORE_YESTERDAY = "前天";
-    private final static String THE_YEAR = "M月d日";
-    private final static String OTHER = "yyyy年M月d日";
+    public final static String THE_YEAR = "M月d日";
+    public final static String OTHER = "yyyy年M月d日";
 
     public enum Span {
         ALL,
@@ -23,44 +24,54 @@ public class Time {
         A_YEAR
     }
 
+    /**
+     * 获取指定时间戳的字符串表示
+     * @param time      时间戳的毫秒表示
+     * @return          返回指定时间戳的字符串表示
+     */
     public static String toString(final long time) {
+        // 当前时间（毫秒）
         final long nowTime = System.currentTimeMillis();
-        final int timeZone = Calendar
-                .getInstance()
-                .getTimeZone()
-                .getRawOffset();
+        // 当前时区偏移量（毫秒）
+        final int timeZone = Calendar.getInstance().getTimeZone().getRawOffset();
+        // 时区纠偏
         final long timePlusGMT = time + timeZone;
         final long nowTimePlusGMT = nowTime + timeZone;
+        // 日期格式
+        SimpleDateFormat formatter;
+        // 对应的时间字符串
         String timeStr;
 
         if (nowTimePlusGMT - timePlusGMT < 0) {
-            //未来（时间错乱）
-            SimpleDateFormat formatter = new SimpleDateFormat (OTHER);
+            /// 未来（时间错乱）
+            formatter = new SimpleDateFormat (OTHER, Locale.getDefault());
             timeStr = formatter.format(new Date(time));
         } else if (nowTimePlusGMT - timePlusGMT < day) {
+            formatter = new SimpleDateFormat(TODAY, Locale.getDefault());
             if (timePlusGMT % day < nowTimePlusGMT % day) {
-                //今天
-                SimpleDateFormat formatter = new SimpleDateFormat(TODAY);
+                /// 今天
                 timeStr = formatter.format(new Date(time));
             } else {
-                //昨天
-                timeStr = YESTERDAY;
+                /// 昨天
+                timeStr = YESTERDAY + formatter.format(new Date(time));
             }
         } else if (nowTimePlusGMT - timePlusGMT < day * 2) {
+            formatter = new SimpleDateFormat(TODAY, Locale.getDefault());
             if (timePlusGMT % day < nowTimePlusGMT % day) {
-                //昨天
-                timeStr = YESTERDAY;
+                /// 昨天
+                timeStr = YESTERDAY + formatter.format(new Date(time));
             } else {
-                //前天
-                timeStr = THE_DAY_BEFORE_YESTERDAY;
+                /// 前天
+                timeStr = THE_DAY_BEFORE_YESTERDAY + formatter.format(new Date(time));
             }
         } else if (nowTimePlusGMT - timePlusGMT < day * 3) {
             if (timePlusGMT % day < nowTimePlusGMT % day) {
-                //前天
-                timeStr = THE_DAY_BEFORE_YESTERDAY;
+                /// 前天
+                formatter = new SimpleDateFormat(TODAY, Locale.getDefault());
+                timeStr = THE_DAY_BEFORE_YESTERDAY + formatter.format(new Date(time));
             } else {
-                //前天之前、今年以内
-                SimpleDateFormat formatter = new SimpleDateFormat (OTHER);
+                /// 前天之前、今年以内
+                formatter = new SimpleDateFormat (OTHER, Locale.getDefault());
                 timeStr = formatter.format(new Date(time));
             }
         } else if (nowTimePlusGMT - timePlusGMT < year) {
@@ -71,17 +82,17 @@ public class Time {
             int nowYear = calendar.get(Calendar.YEAR);
 
             if (nowYear == year) {
-                //前天之前、今年以内
-                SimpleDateFormat formatter = new SimpleDateFormat(THE_YEAR);
+                /// 前天之前、今年以内
+                formatter = new SimpleDateFormat(THE_YEAR, Locale.getDefault());
                 timeStr = formatter.format(new Date(time));
             } else {
-                //今年以外
-                SimpleDateFormat formatter = new SimpleDateFormat (OTHER);
+                /// 今年以外
+                formatter = new SimpleDateFormat (OTHER, Locale.getDefault());
                 timeStr = formatter.format(new Date(time));
             }
         } else {
-            //今年以外
-            SimpleDateFormat formatter = new SimpleDateFormat (OTHER);
+            /// 今年以外
+            formatter = new SimpleDateFormat (OTHER, Locale.getDefault());
             timeStr = formatter.format(new Date(time));
         }
 

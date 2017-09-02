@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class HistoryListData {
 
@@ -22,7 +23,7 @@ public class HistoryListData {
     /**
      * 历史记录数据组
      */
-    public static class RowData implements Comparable {
+    public static class RowData {
         // 算式字符串
         private final String equation;
         // 结果字符串
@@ -48,24 +49,6 @@ public class HistoryListData {
 
         public RowData(String equation, String result, long time) {
             this(equation, result, time, false);
-        }
-
-        @Override
-        public int compareTo(@NonNull Object o) {
-            RowData data = (RowData) o;
-            if (this.importance) {
-                if (data.importance) {
-                    return (int) (data.time - this.time);
-                } else {
-                    return -1;
-                }
-            } else {
-                if (data.importance) {
-                    return 1;
-                } else {
-                    return (int) (data.time - this.time);
-                }
-            }
         }
 
         public String getEquation() {
@@ -96,6 +79,36 @@ public class HistoryListData {
         public RowData setTag(String tag) {
             this.tag = tag;
             return this;
+        }
+
+    }
+
+    /**
+     * 按时间降序排序历史记录数据组
+     */
+    public static class SortByTimeDesc implements Comparator<RowData> {
+
+        /**
+         * 比较历史记录数据组
+         * @param data  第一个数据组
+         * @param t1    第二个数据组
+         * @return      返回值大于0则t1优先，小于0则data优先
+         */
+        @Override
+        public int compare(RowData data, RowData t1) {
+            if (data.importance) {
+                if (t1.importance) {
+                    return Long.compare(t1.time, data.time);
+                } else {
+                    return -1;
+                }
+            } else {
+                if (t1.importance) {
+                    return 1;
+                } else {
+                    return Long.compare(t1.time, data.time);
+                }
+            }
         }
 
     }

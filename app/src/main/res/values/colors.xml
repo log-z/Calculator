@@ -40,4 +40,5 @@
     <color name="whiteLow">#f0f0f0</color>
     <color name="highlightWhite">#55FFFFFF</color>
     <color name="highlightBlack">#1e000000</color>
+    <color name="colorBackground">#fafafa</color>
 </resources>

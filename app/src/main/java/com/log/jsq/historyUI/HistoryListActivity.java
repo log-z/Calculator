@@ -38,10 +38,9 @@ import java.util.Collections;
 
 public class HistoryListActivity extends AppCompatActivity
         implements HistoryListAdapter.OnItemClickListener,
-            HistoryListAdapter.OnItemLongClickListener,
-            HistoryListAdapter.OnCheckBoxClickListener,
-            HistoryCallback.ItemTouchHelperAdapter,
-            HistoryDialog.Callback {
+        HistoryListAdapter.OnItemLongClickListener, HistoryListAdapter.OnCheckBoxClickListener,
+        HistoryCallback.ItemTouchHelperAdapter, HistoryDialog.Callback,
+        HistoryDecoration.DecorationCallback {
 
     /** 当前选项菜单 */
     private Menu mMenu;
@@ -59,6 +58,7 @@ public class HistoryListActivity extends AppCompatActivity
     private HistoryCallback mCallback;
     /** 是否是从主页打开此Activity */
     private boolean mStartFromMain = true;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,7 @@ public class HistoryListActivity extends AppCompatActivity
                     mStartFromMain = false;
                 }
 
-                final RecyclerView recyclerView = findViewById(R.id.recycler_view);
+                recyclerView = findViewById(R.id.recycler_view);
                 // 设置固定条目大小
                 recyclerView.setHasFixedSize(true);
                 // 设置布局管理器
@@ -88,12 +88,20 @@ public class HistoryListActivity extends AppCompatActivity
                 // 设置条目动画（增加、移除）
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 // 添加条目分割线
-                recyclerView.addItemDecoration(new HistoryDecoration());
+                recyclerView.addItemDecoration(new HistoryDecoration(
+                        HistoryListActivity.this,
+                        HistoryListActivity.this
+                ));
 
                 // 从数据库取出数据集
                 mDataset = HistoryListData.exportAllFromSQLite(getApplicationContext());
                 // 排序数据集
-                Collections.sort(mDataset);
+                Collections.sort(mDataset, new HistoryListData.SortByTimeDesc());
+
+                for (HistoryListData.RowData data : mDataset) {
+                    System.out.println("///////// " + data.getTime() + " /// " + data.getResult());
+                }
+
                 // 建立构造器
                 mAdapter = new HistoryListAdapter(hla.mDataset, hla);
                 // 绑定条目点击监听
@@ -103,7 +111,12 @@ public class HistoryListActivity extends AppCompatActivity
                 // 绑定重要复选框监听
                 mAdapter.setOnCheckBoxClickListener(hla);
                 // 绑定构造器
-                recyclerView.setAdapter(mAdapter);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.setAdapter(mAdapter);
+                    }
+                });
 
                 // 建立条目操作回调
                 mCallback = new HistoryCallback(hla);
@@ -292,16 +305,11 @@ public class HistoryListActivity extends AppCompatActivity
         // 更新数据
         data.setImportance(checkBox.isChecked());
         //对数据集重新排序
-        Collections.sort(mDataset);
-
+        Collections.sort(mDataset, new HistoryListData.SortByTimeDesc());
         // 添加数据到mUpdated
         addToUpdated(data);
-
         // 更新构造器中条目的位置
-        int newPosition = mDataset.indexOf(data);
-        if (newPosition != position) {
-            mAdapter.moveItem(newPosition, position);
-        }
+        mAdapter.moveItem(mDataset.indexOf(data), position);
     }
 
     /**
@@ -313,11 +321,24 @@ public class HistoryListActivity extends AppCompatActivity
         // 把数据放回数据集
         mDataset.add(data);
         // 重新排序数据集
-        Collections.sort(mDataset);
+        Collections.sort(mDataset, new HistoryListData.SortByTimeDesc());
         // 在构造器中刷新显示
         mAdapter.addItem(mDataset.indexOf(data));
         // 刷新菜单显示
         setMenuItemVisible();
+    }
+
+    /**
+     * 结束Activity
+     */
+    @Override
+    public void finish() {
+        // 如果不是从主页打开历史记录，而且主页已被构建，则回到主页
+        if (!mStartFromMain && MainActivity.isCreated()) {
+            breakToMainActivity();
+        }
+
+        super.finish();
     }
 
     /**
@@ -365,15 +386,11 @@ public class HistoryListActivity extends AppCompatActivity
         mDataset = null;
         mMenu = null;
 
-        // 如果不是从主页打开历史记录，则考虑是否直接关闭程序
-        if (!mStartFromMain) {
-            // 如果后台主页未被关闭，则回到主页
-            if (MainActivity.isCreated()) {
-                breakToMainActivity();
-                return;
-            }
+        // 清理时间段缓存
+        HistoryDecoration.TimeSpan.clear();
 
-            // 直接关闭程序
+        // 如果不是从主页打开历史记录，而且主页没有被构建，则直接关闭程序
+        if (!mStartFromMain && !MainActivity.isCreated()) {
             new Thread() {
                 @Override
                 public void run() {
@@ -489,7 +506,7 @@ public class HistoryListActivity extends AppCompatActivity
                                 // 重新获取数据
                                 mDataset = HistoryListData
                                         .exportAllFromSQLite(getApplicationContext());
-                                Collections.sort(mDataset);
+                                Collections.sort(mDataset, new HistoryListData.SortByTimeDesc());
                                 mAdapter.setDataset(mDataset);
 
                                 // 刷新菜单显示
@@ -596,4 +613,27 @@ public class HistoryListActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * 获取条目时间
+     * @param position  条目位置
+     * @return          返回条目时间
+     */
+    @Override
+    public long getItemTime(int position) {
+        if (position < 0) {
+            return -1;
+        } else {
+            return mDataset.get(position).getTime();
+        }
+    }
+
+    /**
+     * 确认是否为重要条目
+     * @param position  条目位置
+     * @return          返回指定条目是否为重要条目
+     */
+    @Override
+    public boolean isImportantItem(int position) {
+        return position >= 0 && mDataset.get(position).getImportance();
+    }
 }

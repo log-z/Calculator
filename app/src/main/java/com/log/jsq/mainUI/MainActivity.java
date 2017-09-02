@@ -668,8 +668,6 @@ public class MainActivity extends AppCompatActivity implements AudioOnTTS.Except
     }
 
     public static boolean isCreated() {
-        boolean temp = isCreated;
-        isCreated = false;
-        return temp;
+        return isCreated;
     }
 }

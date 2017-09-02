@@ -1,3 +1,11 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
+    <!-- 历史记录Section标题大小 -->
+    <dimen name="historySectionTitleSize">14sp</dimen>
+    <!-- 历史记录Section标题左边距 -->
+    <dimen name="historySectionTitleMarginLeft">16dp</dimen>
+    <!-- 历史记录Section标题下边距 -->
+    <dimen name="historySectionTitleMarginTop">8dp</dimen>
+    <!-- 历史记录Section标题下边距 -->
+    <dimen name="historySectionTitleMarginBottom">8dp</dimen>
 </resources>
